@@ -1,0 +1,29 @@
+const { merge } = require("webpack-merge");
+const path = require('path');
+const common = require("./webpack.common.js");
+
+module.exports = merge(common, {
+    mode: 'development',
+    output: {
+        filename: "[name].[contenthash].js",
+        path: path.resolve(__dirname, "dist"),
+        publicPath: "/",
+    },
+    devtool: "eval",
+    devServer: {
+      // static: {
+      //   directory: path.resolve(__dirname, 'staic'),
+      // },
+      historyApiFallback: true,
+      port: 3000,
+      hot: true,
+      open: true,
+      proxy: [
+        {
+          context: ["/api"],
+          target: process.env.REACT_APP_API_URL,
+          changeOrigin: true,
+        },
+      ],
+    }
+});
