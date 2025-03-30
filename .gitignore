@@ -175,3 +175,7 @@ cython_debug/
 
 node_modules
 desktop.ini
+*.env.*
+*.envrc
+
+*/Dockerfile.prod.*
