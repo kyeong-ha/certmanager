@@ -30,7 +30,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'config',
-    'apps',
+    'api.certificates',
     'corsheaders',
 ]
 
@@ -44,8 +44,6 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
 ]
-
-
 
 TEMPLATES = [
     {
@@ -62,8 +60,6 @@ TEMPLATES = [
         },
     },
 ]
-
-
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
@@ -104,4 +100,3 @@ TIME_ZONE = 'Asia/Seoul'
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
-
