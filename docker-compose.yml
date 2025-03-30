@@ -1,58 +1,57 @@
 services:
   backend:
-    build: ./backend
-    command: python manage.py runserver 0.0.0.0:8000
-    container_name: dev-backend
-    env_file:
-      - ./.env.dev
+    container_name: certmanager-backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - 8000:8000
     volumes:
-      - ./backend/:/web
-      - static:/web/static
+      - static_volume:/web/static
+    env_file:
+      - ./.env.prod
     depends_on:
       - db
-    ports:
-      - 8001:8000
+
 
   frontend:
-    build: ./frontend
-    container_name: dev-frontend
-    command: npm start
+    container_name: certmanager-frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
     ports:
-      - 3001:3000
+      - 3000:3000
+    volumes:
+      - static_volume:/web/static
     env_file:
-      - ./.env.dev
-    tty: true
+      - ./.env.prod
     environment:
       - CHOKIDAR_USEPOLLING=true
-    volumes:
-      - ./frontend/:/web
-      - node_modules:/web/node_modules
     depends_on:
-      - dev-backend
+      - backend
 
   db:
+    container_name: certmanager-db
     image: postgres:16.1-alpine
-    container_name: dev-db
     ports:
       - 5432:5432
-    env_file: ./.env.dev
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    env_file: ./.env.prod
 
   nginx:
     build: ./nginx
-    container_name: dev-nginx
+    container_name: certmanager-nginx
     ports:
       - 8080:80
-    restart: always
     volumes:
-      - static:/web/static
+      - static_volume:/web/static
+    restart: always
     depends_on:
-      - dev-backend
-      - dev-frontend
-      - dev-db
+      - backend
+      - frontend
+      - db
 
 volumes:
-  node_modules:
   postgres_data:
-  static:
+  static_volume:

@@ -1,32 +1,11 @@
-# pull official base image
-FROM python:3.11-slim-bullseye
+FROM node:lts-slim
 
-# set work directory
-WORKDIR /srv/app
+WORKDIR /web/
 
-# set environment variables
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+COPY package.json package-lock.json ./
+RUN npm install
 
-# install dependencies
-RUN pip install --upgrade pip
-COPY ./requirements.txt .
-
-RUN apt-get update && apt-get install -y \
-  gcc \
-  netcat \
-  libpq-dev \
-  postgresql-client \
-  && apt-get clean
-
-# install temp dependencies for build of pyscopg2 etc
-RUN pip install -r requirements.txt
-
-# copy entrypoint.sh
-COPY ./entrypoint.sh .
-
-# copy project
 COPY . .
 
-# run entrypoint.sh
-ENTRYPOINT ["/srv/app/entrypoint.sh"]
+EXPOSE 3000
+CMD ["npm", "start"]
