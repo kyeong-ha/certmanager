@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import search_certificates, update_certificate
+from .views.certificate_view import search_certificates, update_certificate
 
 urlpatterns = [
     path('search/', search_certificates),

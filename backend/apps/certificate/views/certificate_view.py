@@ -1,7 +1,7 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .models import Certificate
-from .serializers import CertificateSerializer
+from apps.certificate.models.certificate import Certificate
+from ..serializers.certificate_serializer import CertificateSerializer
 from django.core.exceptions import FieldError
 
 @api_view(['GET'])

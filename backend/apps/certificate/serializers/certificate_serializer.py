@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Certificate
+from apps.certificate.models.certificate import Certificate
 from datetime import datetime
 
 class CertificateSerializer(serializers.ModelSerializer):
