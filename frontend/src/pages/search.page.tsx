@@ -12,7 +12,7 @@ const SearchPage: React.FC = () => {
 
   const handleSearch = async () => {
     try {
-      const response = await axios.get<Certificate[]>(`/api/search/`, {
+      const response = await axios.get<Certificate[]>(`/certificate/search/`, {
         params: {
           filter_type: filterType,
           search_value: searchValue

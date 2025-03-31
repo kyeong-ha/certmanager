@@ -15,7 +15,7 @@ const MainPage: React.FC = () => {
 
   const handleSearch = async (filterType: string, searchValue: string) => {
     try {
-      const response = await axios.get<Certificate[]>(`/api/search/`, {
+      const response = await axios.get<Certificate[]>(`/certificate/search/`, {
         params: {
           filter_type: filterType,
           search_value: searchValue
@@ -30,7 +30,7 @@ const MainPage: React.FC = () => {
 
   const handleUpdate = async (filter: object, updateData: object) => {
     try {
-      const response = await axios.put(`/api/update/`, { filter, update_data: updateData });
+      const response = await axios.put(`/certificate/update/`, { filter, update_data: updateData });
       alert(response.data.message);
     } catch (error) {
       console.error("업데이트 오류:", error);

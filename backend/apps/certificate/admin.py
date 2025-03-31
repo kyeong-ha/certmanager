@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Certificate
+from apps.certificate.models.certificate import Certificate
 
 @admin.register(Certificate)
 class CertificateAdmin(admin.ModelAdmin):

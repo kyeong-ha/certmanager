@@ -20,7 +20,7 @@ module.exports = merge(common, {
       open: true,
       proxy: [
         {
-          context: ["/api"],
+          context: ["/certificate"],
           target: process.env.REACT_APP_API_URL,
           changeOrigin: true,
         },
