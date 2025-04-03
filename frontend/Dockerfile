@@ -1,10 +1,13 @@
 FROM node:22-slim
 
-WORKDIR /web/
+WORKDIR /web/frontend
 
 COPY package.json package-lock.json ./
 RUN npm install
 
 COPY . .
 
-CMD ["npm", "run", "start"]
+COPY ./entrypoint.sh .
+RUN chmod +x /web/frontend/entrypoint.sh
+
+ENTRYPOINT ["/web/frontend/entrypoint.sh"]
