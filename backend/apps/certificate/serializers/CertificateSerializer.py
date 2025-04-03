@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from apps.certificate.models.certificate import Certificate
+from apps.certificate.models.Certificate import Certificate
 from datetime import datetime
 
 class CertificateSerializer(serializers.ModelSerializer):
@@ -8,10 +8,10 @@ class CertificateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Certificate
         fields = [
-            'id', 'name', 'birth_date', 'birth_date_input', 'phone_number',
+            'id', 'user_name', 'birth_date', 'birth_date_input', 'phone_number',
             'course_name', 'session', 'issue_type', 'issue_number',
             'issue_date', 'education_center', 'postal_code',
-            'address', 'note', 'photo', 'created_at', 'updated_at'
+            'address', 'note', 'image_url', 'pdf_url', 'created_at', 'updated_at'
         ]
         read_only_fields = ['birth_date', 'created_at', 'updated_at']
 
@@ -36,7 +36,7 @@ class CertificateSerializer(serializers.ModelSerializer):
             data['birth_date'] = data.pop('birth_date_input')
         return data
 
-    def to_representation(self, instance):
-        rep = super().to_representation(instance)
-        rep['birth_date'] = instance.birth_date.strftime("%Y.%m.%d") if instance.birth_date else ""
-        return rep
+    # def to_representation(self, instance):
+    #     rep = super().to_representation(instance)
+    #     rep['birth_date'] = instance.birth_date.strftime("%Y.%m.%d") if instance.birth_date else ""
+    #     return rep

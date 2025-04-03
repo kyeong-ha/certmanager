@@ -1,11 +1,11 @@
 import pandas as pd
 from django.core.management.base import BaseCommand
-from apps.certificate.models.certificate import Certificate 
+from apps.certificate.models.Certificate import Certificate 
 
 class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         # Import certificates from Excel file
-        excel_path = '../../databases/certificates.xlsx'
+        excel_path = 'apps/certificate/management/data/certificates.xlsx'
         
         try:
             df = pd.read_excel(excel_path)
@@ -25,7 +25,7 @@ class Command(BaseCommand):
                     issue_type=row['issue_type'],
                     issue_number=row['issue_number'],
                     issue_date=issue_date_value,
-                    name=row['name'],
+                    user_name=row['user_name'],
                     birth_date=str(row['birth_date']),
                     course_name=row['course_name'],
                     phone_number=row['phone_number'],
