@@ -7,13 +7,10 @@ module.exports = merge(common, {
     output: {
         filename: "[name].[contenthash].js",
         path: path.resolve(__dirname, "dist"),
-        publicPath: "/",
+        publicPath: "/web/frontend/",
     },
     devtool: "eval",
     devServer: {
-      // static: {
-      //   directory: path.resolve(__dirname, 'staic'),
-      // },
       historyApiFallback: true,
       port: 3000,
       hot: true,
