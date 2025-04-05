@@ -7,7 +7,7 @@ module.exports = merge(common, {
     output: {
         filename: "[name].[contenthash].js",
         path: path.resolve(__dirname, "dist"),
-        publicPath: "/web/frontend/",
+        publicPath: "/",
     },
     devtool: "eval",
     devServer: {
@@ -18,7 +18,7 @@ module.exports = merge(common, {
       proxy: [
         {
           context: ["/certificate"],
-          target: process.env.REACT_APP_API_URL,
+          target: process.env.REACT_APP_API_URL+"/certificate",
           changeOrigin: true,
         },
       ],

@@ -2,9 +2,6 @@ FROM node:22-slim
 
 WORKDIR /web/frontend
 
-COPY package.json package-lock.json ./
-RUN npm install
-
 COPY . .
 
 COPY ./entrypoint.sh .
