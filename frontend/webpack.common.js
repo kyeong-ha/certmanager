@@ -7,12 +7,12 @@ module.exports = {
   entry: "./src/index.tsx",
   resolve: {
     alias: {
-      '@/components': path.resolve(__dirname, 'src/components'),
-      '@/assets': path.resolve(__dirname, 'src/assets'),
-      '@/styles': path.resolve(__dirname, 'src/styles'),
-      '@/pages': path.resolve(__dirname, 'src/pages'),
-      '@/hooks': path.resolve(__dirname, 'src/hooks'),
-      '@/types': path.resolve(__dirname, 'src/types')
+      '@/components': path.resolve(__dirname, './src/components'),
+      '@/assets': path.resolve(__dirname, './src/assets'),
+      '@/styles': path.resolve(__dirname, './src/styles'),
+      '@/pages': path.resolve(__dirname, './src/pages'),
+      '@/hooks': path.resolve(__dirname, './src/hooks'),
+      '@/types': path.resolve(__dirname, './src/types')
     },
     extensions: [".ts", ".tsx", ".js", ".jsx"],
   },
