@@ -1,8 +1,8 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import CertificateFormPage from './pages/CertificateForm.page';
-import MainPage from './pages/Main.page';
-import SearchPage from './pages/Search.page';
+import MainPage from './pages/main.page';
+import SearchPage from './pages/search.page';
 
 const App: React.FC = () => {
   return (
