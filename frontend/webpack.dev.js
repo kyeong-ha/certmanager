@@ -10,6 +10,14 @@ module.exports = merge(common, {
         publicPath: "/",
     },
     devtool: "eval",
+    module: {
+        rules: [
+          {
+            test: /\.css$/i, 
+            use: ['style-loader', 'css-loader', 'postcss-loader'],
+          },
+        ],
+      },
     devServer: {
       historyApiFallback: true,
       host: '0.0.0.0',
@@ -18,10 +26,15 @@ module.exports = merge(common, {
       open: true,
       proxy: [
         {
-          context: ["/certificate"],
-          target: process.env.REACT_APP_API_URL+"/certificate",
+          context: ["/api"],
+          target: process.env.REACT_APP_API_URL,
           changeOrigin: true,
+          withCredentials: true,
+          secure: false,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+          },
         },
       ],
-    }
+    },
 });

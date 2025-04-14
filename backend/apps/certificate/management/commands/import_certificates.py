@@ -1,7 +1,7 @@
 import pandas as pd
 from django.core.management.base import BaseCommand
 from apps.certificate.models.Certificate import Certificate 
-
+from apps.certificate.models import EducationCenter
 class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         # Import certificates from Excel file
@@ -20,7 +20,8 @@ class Command(BaseCommand):
                 issue_date_value = None
                 if pd.notna(row['issue_date']):
                     issue_date_value = pd.to_datetime(row['issue_date']).date()
-
+                    
+                    education_center_obj, _ = EducationCenter.objects.get_or_create(name=row['education_center'], session=row['session'])
                 certificates.append(Certificate(
                     issue_type=row['issue_type'],
                     issue_number=row['issue_number'],
@@ -29,8 +30,7 @@ class Command(BaseCommand):
                     birth_date=str(row['birth_date']),
                     course_name=row['course_name'],
                     phone_number=row['phone_number'],
-                    education_center=row['education_center'],
-                    session=row['session'],
+                    education_center=education_center_obj,
                     user_id=row['user_id'] if pd.notna(row['user_id']) else None,
                     postal_code=str(row['postal_code']),
                     address=row['address'] if pd.notna(row['address']) else None,

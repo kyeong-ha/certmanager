@@ -1,19 +1,16 @@
 from rest_framework import serializers
-from apps.certificate.models.Certificate import Certificate
+from ..models.Certificate import Certificate, EducationCenter
+from .EducationCenterSerializer import EducationCenterSerializer
 from datetime import datetime
 
 class CertificateSerializer(serializers.ModelSerializer):
     birth_date_input = serializers.CharField(write_only=True, required=False)
+    education_center = EducationCenterSerializer(read_only=True)
 
     class Meta:
         model = Certificate
-        fields = [
-            'id', 'user_name', 'birth_date', 'birth_date_input', 'phone_number',
-            'course_name', 'session', 'issue_type', 'issue_number',
-            'issue_date', 'education_center', 'postal_code',
-            'address', 'note', 'image_url', 'pdf_url', 'created_at', 'updated_at'
-        ]
-        read_only_fields = ['birth_date', 'created_at', 'updated_at']
+        fields = '__all__'
+        read_only_fields = ['created_at', 'updated_at']
 
     def validate_birth_date_input(self, value):
         if len(value) != 6 or not value.isdigit():
