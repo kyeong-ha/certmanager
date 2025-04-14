@@ -1,50 +1,68 @@
 services:
   backend:
     volumes:
-    - static_volume:/web/static
+      - static_volume:/web/static
     ports:
-    - 8000:8000
+      - 8000:8000
     env_file:
-    - ./.env.prod
+      - ./.env.prod
+    networks:
+      - cert-net
 
   frontend:
     volumes:
-    - static_volume:/web/static
+      - static_volume:/web/static
     ports:
-    - 3000:3000
+      - 3000:3000
     env_file:
-    - ./.env.prod
+      - ./.env.prod
     environment:
-    - CHOKIDAR_USEPOLLING=true
+      - CHOKIDAR_USEPOLLING=true
+    networks:
+      - cert-net
 
   db:
     volumes:
-    - postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
     ports:
-    - 5432:5432
+      - 5432:5432
     env_file: ./.env.prod
-
+    networks:
+      - cert-net
+ 
   nginx:
+    build: ./nginx
+    container_name: certmanager-nginx
     volumes:
-    - static_volume:/web/static
-    - ./certbot/conf:/etc/letsencrypt
-    - ./certbot/www:/var/www/certbot
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./certbot/www:/var/www/certbot
+      - ./certbot/conf:/etc/letsencrypt
+      - ./frontend/static_volume:/web/static
     ports:
-    - 80:80
-    - 443:443
+      - 80:80
+      - 443:443
     restart: always
+    depends_on:
+      - frontend
+      - backend
+      - db
+    networks:
+      - cert-net
 
   certbot:
     image: certbot/certbot
     container_name: certmanager-certbot
     entrypoint: sh -c "certbot certonly --webroot --webroot-path=/var/www/certbot
-      --email admin@www.certmanager.kro.kr --agree-tos --no-eff-email -d www.certmanager.kro.kr -d
-      www.certmanager.kro.kr"
+      --email admin@www.certmanager.mooo.com --agree-tos --no-eff-email -d www.certmanager.mooo.com -d
+      www.certmanager.mooo.com"
 
     volumes:
-    - ./certbot/conf:/etc/letsencrypt
-    - ./certbot/www:/var/www/certbot
-  
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+
 volumes:
   postgres_data:
   static_volume:
+
+networks:
+  cert-net:

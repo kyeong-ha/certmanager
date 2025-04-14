@@ -1,1 +1,1 @@
-nginx-is-working
+nginx-pass
