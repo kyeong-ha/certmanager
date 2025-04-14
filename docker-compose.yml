@@ -1,57 +1,29 @@
+version: '3.9'
 services:
   backend:
     container_name: certmanager-backend
     build:
       context: ./backend
       dockerfile: Dockerfile
-    ports:
-      - 8000:8000
-    volumes:
-      - static_volume:/web/static
-    env_file:
-      - ./.env.prod
     depends_on:
-      - db
-
+    - db
 
   frontend:
     container_name: certmanager-frontend
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    ports:
-      - 3000:3000
-    volumes:
-      - static_volume:/web/static
-    env_file:
-      - ./.env.prod
-    environment:
-      - CHOKIDAR_USEPOLLING=true
     depends_on:
-      - backend
+    - backend
 
   db:
     container_name: certmanager-db
     image: postgres:16.1-alpine
-    ports:
-      - 5432:5432
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    env_file: ./.env.prod
 
   nginx:
     build: ./nginx
     container_name: certmanager-nginx
-    ports:
-      - 8080:80
-    volumes:
-      - static_volume:/web/static
-    restart: always
     depends_on:
-      - backend
-      - frontend
-      - db
-
-volumes:
-  postgres_data:
-  static_volume:
+    - backend
+    - frontend
+    - db

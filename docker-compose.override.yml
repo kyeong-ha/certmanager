@@ -4,6 +4,8 @@ services:
       - ./backend:/web/backend
     env_file:
       - ./.env.dev
+    extra_hosts:
+      - "certmanager-frontend:host-gateway"
 
   frontend:
     volumes:
@@ -13,11 +15,11 @@ services:
     environment:
       - WATCHPACK_POLLING=true
 
-    
   db:
-    container_name: certmanager-db
     volumes:
-      - db:/web/db
+    - db:/web/db
+
+  nginx: {}
 
 volumes:
-  db:
+  db: {}

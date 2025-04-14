@@ -5,7 +5,7 @@ interface SearchBarProps {
 }
 
 const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
-  const [filterType, setFilterType] = useState('name');
+  const [filterType, setFilterType] = useState('user_name');
   const [searchValue, setSearchValue] = useState('');
 
   const handleSearch = () => {
@@ -16,7 +16,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
     <div className="search-bar">
       <label htmlFor="search-filter">검색필터:</label>
       <select id="search-filter" value={filterType} onChange={(e) => setFilterType(e.target.value)}>
-        <option value="name">이름</option>
+        <option value="user_name">이름</option>
         <option value="education_center">교육기관명</option>
         <option value="phone_number">핸드폰</option>
         <option value="issue_number">발급번호</option>
