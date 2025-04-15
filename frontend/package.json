@@ -4,7 +4,7 @@
   "description": "Frontend of a Certificates Management System (React + TypeScript)",
   "main": "index.tsx",
   "scripts": {
-    "start": "webpack serve --config webpack.dev.js --open --hot",
+    "start": "webpack-dev-server --config webpack.dev.js --open --hot",
     "build": "webpack --config webpack.prod.js"
   },
   "license": "MIT",
