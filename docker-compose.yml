@@ -19,11 +19,3 @@ services:
   db:
     container_name: certmanager-db
     image: postgres:16.1-alpine
-
-  nginx:
-    build: ./nginx
-    container_name: certmanager-nginx
-    depends_on:
-    - backend
-    - frontend
-    - db
