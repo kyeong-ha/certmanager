@@ -19,7 +19,5 @@ services:
     volumes:
     - db:/web/db
 
-  nginx: {}
-
 volumes:
   db: {}
