@@ -5,4 +5,4 @@ class EducationCenter(models.Model):
     session = models.CharField(max_length=100, blank=True, null=True)
 
     def __str__(self):
-        return f"{self.name} ({self.session})" if self.session else self.name
+        return f"{self.name}_{self.session}" if self.session else self.name
