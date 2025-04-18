@@ -1,5 +1,7 @@
 FullAccess
 FullAccess.*
+certbot
+
 package-lock.json
 # Byte-compiled / optimized / DLL files
 __pycache__/
