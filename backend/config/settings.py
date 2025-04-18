@@ -30,7 +30,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'config',
-    'apps.certificate',
+    'api.cert',
+    'api.edu',
+    'api.logs',
+    'api.user',
     'corsheaders',
 ]
 
