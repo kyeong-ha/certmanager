@@ -10,32 +10,19 @@ from api.edu.models.EducationCenter import EducationCenter
 from api.logs.models.ReissueLog import ReissueLog
 
 class CertificateViewSet(viewsets.ModelViewSet):
-    queryset = Certificate.objects.all().order_by('-issue_date')
+    queryset = Certificate.objects.select_related("user", "education_center").all().order_by('-issue_date')
     serializer_class = CertificateSerializer
 
-    def get_queryset(self):
-        filter_type = self.request.query_params.get('filter_type')
-        search_value = self.request.query_params.get('search_value')
-
-        if filter_type and search_value:
-            try:
-                filter_kwargs = {f"{filter_type}__icontains": search_value}
-                return Certificate.objects.filter(**filter_kwargs)
-            except FieldError:
-                return Certificate.objects.none()
-
-        return super().get_queryset()
-
-    @action(detail=False, methods=['post'], url_path='update')
-    def update_by_issue_number(self, request):
+    @action(detail=False, methods=['put'], url_path='update')
+    def update_by_uuid(self, request):
         filter_data = request.data.get('filter')
         update_data = request.data.get('update_data')
 
-        if not filter_data or 'issue_number' not in filter_data:
-            return Response({'error': 'issue_number가 필요합니다.'}, status=status.HTTP_400_BAD_REQUEST)
+        if not filter_data or 'uuid' not in filter_data:
+            return Response({'error': 'uuid가 필요합니다.'}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            certificate = Certificate.objects.get(issue_number=filter_data['issue_number'])
+            certificate = Certificate.objects.get(uuid=filter_data['uuid'])
 
             original_data = CertificateSerializer(certificate).data
             serializer = CertificateSerializer(instance=certificate, data=update_data)

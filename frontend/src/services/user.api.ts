@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { Certificate } from '../types/Certificate.type';
 
-export const getUserInfo = async (
+export const getUser = async (
   user_name: string,
   birth_date: string,
   phone_number: string

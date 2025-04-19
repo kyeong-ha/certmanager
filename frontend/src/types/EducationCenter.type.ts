@@ -1,5 +1,5 @@
 export interface EducationCenter {
-  id: number;
-  name: string;
-  session: string;
+  uuid: string;
+  edu_name: string;
+  session?: string;
 }

@@ -19,7 +19,7 @@ const EducationCenterModal: React.FC<EducationCenterModalProps> = ({ isOpen, onC
         </div>
 
         <div>
-          <p><strong>교육원명:</strong> {education_center?.name}</p>
+          <p><strong>교육원명:</strong> {education_center?.edu_name}</p>
           <p className="text-sm text-gray-500 mt-2">※ 해당 교육원에 대한 상세 정보는 추후 연동 예정입니다.</p>
         </div>
 

@@ -15,7 +15,7 @@ class CertificateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Certificate
         fields = '__all__'
-        read_only_fields = ['created_at', 'updated_at']
+        read_only_fields = ['created_at', 'updated_at', 'reissue_logs', 'uuid', 'issue_number']
     
     def create(self, validated_data):
         user_data = validated_data.pop('user')

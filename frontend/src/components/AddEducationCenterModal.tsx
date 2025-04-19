@@ -2,14 +2,14 @@ import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../components/ui/dialog';
 import { Input } from '../components/ui/input';
 import { Button } from '../components/ui/button';
-import { createEducationCenter } from '../services/educationCenter.api';
+import { createEducationCenter } from '../services/edu.api';
 import { EducationCenter } from '../types/EducationCenter.type';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 const schema = z.object({
-  name: z.string().min(1, '교육기관명을 입력하세요'),
+  edu_name: z.string().min(1, '교육기관명을 입력하세요'),
   session: z.string().min(1, '세션명을 입력하세요'),
 });
 
@@ -53,8 +53,8 @@ export default function AddEducationCenterModal({ open, onClose, onSubmit }: Pro
         </DialogHeader>
         <form onSubmit={handleSubmit(onValid)} className="space-y-3">
           <div>
-            <Input {...register('name')} placeholder="교육기관명" />
-            {errors.name && <p className="text-sm text-red-500 mt-1">{errors.name.message}</p>}
+            <Input {...register('edu_name')} placeholder="교육기관명" />
+            {errors.edu_name && <p className="text-sm text-red-500 mt-1">{errors.edu_name.message}</p>}
           </div>
           <div>
             <Input {...register('session')} placeholder="세션 (예: 2024년 1차)" />
