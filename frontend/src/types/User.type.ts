@@ -8,4 +8,7 @@ export interface User {
     address?: string;
     photo?: string;
     pdf_url?: string;
+
+    created_at: Date;
+    updated_at: Date;
 }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Certificate } from '@/types/Certificate.type';
+import { Certificate } from '@/types/certificate.type';
 
 interface UpdateFormProps {
   selectedRecord: Certificate | null;
@@ -11,7 +11,7 @@ const UpdateForm: React.FC<UpdateFormProps> = ({ selectedRecord, onUpdate }) => 
 
   useEffect(() => {
     if (selectedRecord) {
-      setPhoneNumber(selectedRecord.phone_number);
+      setPhoneNumber(selectedRecord.user.phone_number);
     }
   }, [selectedRecord]);
 
@@ -27,7 +27,7 @@ const UpdateForm: React.FC<UpdateFormProps> = ({ selectedRecord, onUpdate }) => 
     <div className="update-form">
       {selectedRecord ? (
         <>
-          <h3>{selectedRecord.user_name} 정보 수정</h3>
+          <h3>{selectedRecord.user.user_name} 정보 수정</h3>
           <label htmlFor="phone-number">전화번호: </label>
           <input id="phone-number"
             type="text"

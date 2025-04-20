@@ -1,5 +1,5 @@
 import React from 'react';
-import { Certificate } from '../types/Certificate.type';
+import { Certificate } from '../types/certificate.type';
 
 interface Props {
   isOpen: boolean;
@@ -38,7 +38,7 @@ const UserCertificatesModal: React.FC<Props> = ({ isOpen, onClose, user_name, bi
                 <td className="py-2 text-center border">{cert.course_name}</td>
                 <td className="py-2 text-center border">{cert.issue_number}</td>
                 <td className="py-2 text-center border">{cert.issue_date}</td>
-                <td className="py-2 text-center border">{cert.education_center?.name || null} {cert.education_center?.session || null}</td>
+                <td className="py-2 text-center border">{cert.education_center?.edu_name || null} {cert.education_center?.session || null}</td>
               </tr>
             ))}
           </tbody>

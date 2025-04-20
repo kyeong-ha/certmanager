@@ -23,6 +23,8 @@ export default function ReissueLogModal({ isOpen, onClose, logs, onChange }: Pro
       reissue_date: '',
       reissue_cost: 0,
       delivery_type: '선불',
+      created_at: new Date(),
+      updated_at: new Date(),
     }]);
   };
 
@@ -41,7 +43,7 @@ export default function ReissueLogModal({ isOpen, onClose, logs, onChange }: Pro
         {logs.map((log, index) => (
           <div key={log.uuid} className="space-y-1 border-b py-2">
             <Input type="date" value={log.reissue_date} onChange={e => handleChange(index, 'reissue_date', e.target.value)} />
-            <Input type="number" value={log.reissue_cost} onChange={e => handleChange(index, 'reissue_cost', Number(e.target.value))} />
+            <Input type="number" value={log.reissue_cost ?? 0}  onChange={e => handleChange(index, 'reissue_cost', Number(e.target.value))} />
             <select
               aria-label="Delivery Type"
               className="w-full border rounded p-1"
