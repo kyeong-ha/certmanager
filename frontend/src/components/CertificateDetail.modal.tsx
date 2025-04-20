@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Certificate } from '../types/Certificate.type';
+import { Certificate } from '../types/certificate.type';
 import { EducationCenter } from '@/types/EducationCenter.type';
 import { ReissueLog } from '@/types/ReissueLog.type';
 
@@ -43,12 +43,12 @@ const CertificateDetailModal: React.FC<Props> = ({ isOpen, onClose, certificate 
         {/* Tab Content */}
         {activeTab === 'info' ? (
           <div className="space-y-2">
-            <div>이름: {certificate.user_name}</div>
-            <div>생년월일: {certificate.birth_date}</div>
+            <div>이름: {certificate.user.user_name}</div>
+            <div>생년월일: {certificate.user.birth_date}</div>
             <div>자격과정: {certificate.course_name}</div>
             <div>발급일자: {certificate.issue_date}</div>
             <div>발급번호: {certificate.issue_number}</div>
-            <div>교육기관: {certificate.education_center?.name || null}_{certificate.education_center?.session || null}</div>
+            <div>교육기관: {certificate.education_center?.edu_name || null}_{certificate.education_center?.session || null}</div>
 
             {/* 재발급 이력 */}
             {Object.keys(certificate).includes('reissue_logs') && (

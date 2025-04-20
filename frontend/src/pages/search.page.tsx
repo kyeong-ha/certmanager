@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { fetchCertificates } from '../services/certificate.api';
+import { fetchCertificates } from '../services/cert.api';
 import { Certificate } from '../types/Certificate.type';
 import CertificateTable from '../components/Certificate.table';
 import { Input } from '../components/ui/input';

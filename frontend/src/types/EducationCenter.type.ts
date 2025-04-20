@@ -1,5 +1,8 @@
 export interface EducationCenter {
-  id: number;
-  name: string;
+  uuid: string;
+  edu_name: string;
   session: string;
+
+  created_at: Date;
+  updated_at: Date;
 }

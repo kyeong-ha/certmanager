@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../components/ui/dialog';
 import { Input } from '../components/ui/input';
 import { Button } from '../components/ui/button';
-import { createEducationCenter } from '../services/educationCenter.api';
+import { createEducationCenter } from '../services/edu.api';
 import { EducationCenter } from '../types/EducationCenter.type';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';

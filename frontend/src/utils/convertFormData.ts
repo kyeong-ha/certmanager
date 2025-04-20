@@ -1,22 +1,29 @@
-import { Certificate } from '@/types/Certificate.type';
-import { EducationCenter } from '@/types/EducationCenter.type';
+import { Certificate } from '@/types/certificate.type';
 
-export const convertCertificateToFormData = (data: Certificate): FormData => {
+export const convertCertificateToFormData = (certificate: Certificate, imageUrl?: File | null): FormData => {
   const formData = new FormData();
 
-  Object.entries(data).forEach(([key, value]) => {
-    if (key === 'education_center') {
-      if (value && (value as EducationCenter).id) {
-        formData.append('education_center_id', (value as EducationCenter).id.toString());
-      }
-    } else if (key === 'image_file') {
-      if (value instanceof File) {
-        formData.append('image_url', value);
-      }
-    } else if (value !== undefined && value !== null) {
-      formData.append(key, value as string);
-    }
-  });
+  formData.append('uuid', certificate.uuid);
+  formData.append('course_name', certificate.course_name);
+  formData.append('issue_number', certificate.issue_number);
+  formData.append('issue_date', certificate.issue_date);
+  formData.append('issue_type', certificate.issue_type || '');
+  formData.append('note', certificate.note || '');
 
+  formData.append('user[user_name]', certificate.user.user_name);
+  formData.append('user[birth_date]', certificate.user.birth_date);
+  formData.append('user[phone_number]', certificate.user.phone_number);
+  formData.append('user[user_id]', certificate.user.user_id ?? '');
+  formData.append('user[postal_code]', certificate.user.postal_code ?? '');
+  formData.append('user[address]', certificate.user.address ?? '');
+
+  if (certificate.education_center) {
+    formData.append('education_center', certificate.education_center.uuid);
+  }
+
+  if (imageUrl) {
+    formData.append('image_url', imageUrl);
+  }
+  // 재발급 로그는 생략 or 별도 처리 필요 (리스트 전송 방식 논의 필요)
   return formData;
 };
