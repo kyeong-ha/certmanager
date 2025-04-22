@@ -1,8 +1,13 @@
 import api from '@/lib/axios';
 
 export const createReissueLog = (data: {
-  issue_number: string;
+  certificate_uuid: string;
   reissue_date: string;
   delivery_type: string;
   reissue_cost?: number | null;
-}) => api.post('/reissue/', data);
+}) => api.post('/logs/', data);
+
+export const fetchReissueLogsByUuid = (certificate_uuid: string) => 
+  api.get('/logs/', {
+    params: { certificate_uuid : certificate_uuid},
+  }).then((res) => res.data)
