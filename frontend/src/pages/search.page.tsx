@@ -12,13 +12,10 @@ const SearchPage: React.FC = () => {
   const [searchValue, setSearchValue] = useState('');
   const [results, setResults] = useState<Certificate[]>([]);
   const navigate = useNavigate();
-
+  
   const handleSearch = async () => {
     try {
-      const response = await fetchCertificates({
-        filter_type: filterType,
-        search_value: searchValue,
-      });
+      const response = await fetchCertificates({ filter_type: filterType, search_value: searchValue });
       setResults(response);
     } catch (error) {
       console.error('검색 오류:', error);
@@ -26,9 +23,7 @@ const SearchPage: React.FC = () => {
     }
   };
 
-  const handleBack = () => {
-    navigate('/');
-  };
+
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
