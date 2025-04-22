@@ -1,14 +1,4 @@
-import axios from 'axios';
-import { Certificate } from '../types/Certificate.type';
+import api from '../lib/axios';
 
-export const getUser = async (
-  user_name: string,
-  birth_date: string,
-  phone_number: string
-): Promise<Certificate[]> => {
-  const response = await axios.get('/api/user/', {
-    params: { user_name, birth_date, phone_number },
-  });
-  
-  return response.data;
-};
+export const fetchUserByUuid = (uuid: string) =>
+  api.get(`/user/${uuid}/`).then(res => res.data);

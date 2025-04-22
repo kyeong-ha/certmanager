@@ -1,27 +1,24 @@
 import React from 'react';
-import { Certificate } from '../types/certificate.type';
+import { User } from '@/types/User.type';
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
-  user_name: string;
-  birth_date: string;
-  phone_number: string;
-  certificates: Certificate[];
+  user: User;
 }
 
-const UserCertificatesModal: React.FC<Props> = ({ isOpen, onClose, user_name, birth_date, phone_number, certificates }) => {
+const UserCertificatesModal: React.FC<Props> = ({ isOpen, onClose, user }) => {
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center">
       <div className="bg-white w-full max-w-2xl p-6 rounded-xl shadow-lg">
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-xl font-bold">회원정보 - {user_name}</h3>
+          <h3 className="text-xl font-bold">회원정보 - {user.user_name}</h3>
           <button onClick={onClose} className="text-gray-600 hover:text-red-500 text-xl">&times;</button>
         </div>
 
-        <p className="text-sm mb-4 text-gray-600">생년월일: {birth_date} / 연락처: {phone_number}</p>
+        <p className="text-sm mb-4 text-gray-600">생년월일: {user.birth_date} / 연락처: {user.phone_number}</p>
 
         <table className="w-full text-sm border">
           <thead className="bg-gray-100">
@@ -33,8 +30,8 @@ const UserCertificatesModal: React.FC<Props> = ({ isOpen, onClose, user_name, bi
             </tr>
           </thead>
           <tbody>
-            {certificates.map((cert) => (
-              <tr key={cert.issue_number}>
+          {user.certificates.map(cert => (
+              <tr key={cert.uuid}> 
                 <td className="py-2 text-center border">{cert.course_name}</td>
                 <td className="py-2 text-center border">{cert.issue_number}</td>
                 <td className="py-2 text-center border">{cert.issue_date}</td>

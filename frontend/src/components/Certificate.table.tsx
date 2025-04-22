@@ -1,91 +1,112 @@
-import React, { useState } from 'react';
-import { Certificate } from '../types/certificate.type';
-import { getUser } from '../services/user.api';
+import { useState, useEffect, MouseEvent } from 'react';
+import { Certificate } from '@/types/Certificate.type';
+import { User } from '@/types/User.type';
+import { fetchUserByUuid } from '@/services/user.api';
 import UserCertificatesModal from './UserCertificates.modal';
 import PrintPreviewModal from './PrintPreview.modal';
 import CertificateDetailModal from './CertificateDetail.modal';
 import EducationCenterModal from './EducationCenter.modal';
+import ReissueModal from './Reissue.modal';
 import ContextMenu from './ui/ContextMenu';
 
 interface Props {
   results: Certificate[];
 }
 
-const CertificateTable: React.FC<Props> = ({ results }) => {
-  const [targetCert, setTargetCert] = useState<Certificate>();
-  const [targetUser, setTargetUser] = useState<Certificate[]>([]);
-  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; columnKey: string; } | null>(null);
-  const [modals, setModals] = useState({ detailModal: false, printModal: false, userModal: false, centerModal: false, });
+type ModalKeys =
+  | 'detailModal'
+  | 'printModal'
+  | 'userModal'
+  | 'centerModal'
+  | 'reissueModal';
 
-  const handleCellClick = (e: React.MouseEvent, cert: Certificate, columnKey: string) => {
+const CertificateTable = ({ results }: Props) => {
+  /* ----- state --------------------------------------------------------- */
+  const [data, setData] = useState<Certificate[]>(results);
+  const [targetCert, setTargetCert] = useState<Certificate | null>(null);
+  const [targetUser, setTargetUser] = useState<User | null>(null);
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null);
+  const [modals, setModals] = useState<Record<ModalKeys, boolean>>({ detailModal: false, printModal: false, userModal: false, centerModal: false, reissueModal: false });
+
+  useEffect(() => setData(results), [results]);
+
+  /* ----- helpers ------------------------------------------------------- */
+  const handleCellClick = (e: MouseEvent, cert: Certificate) => {
     e.preventDefault();
     setTargetCert(cert);
-    setContextMenu({ x: e.clientX, y: e.clientY, columnKey });
+    setContextMenu({ x: e.clientX, y: e.clientY });
   };
 
-  const handleSetModals = (action: string) => {
-    if (!contextMenu) return;
+  const handleContextSelect = async (action: string) => {
+    if (!targetCert) return;
+
     switch (action) {
       case '상세보기':
-        setModals((prev) => ({ ...prev, detailModal: true }));
+        openModal('detailModal');
         break;
       case '출력하기':
-        setModals((prev) => ({ ...prev, printModal: true }));
+        openModal('printModal');
         break;
       case '회원정보':
-        setModals((prev) => ({ ...prev, userModal: true }));
-        handleViewUser(targetCert!);
+        openModal('userModal');
+        try {
+          const result = await fetchUserByUuid(targetCert.user.uuid);
+          setTargetUser(result);
+          console.log(result);
+        } catch {
+          alert('회원 정보를 불러오지 못했습니다.');
+        }
         break;
       case '교육원정보':
-        setModals((prev) => ({ ...prev, centerModal: true }));
+        openModal('centerModal');
+        break;
+      case '재발급':
+        openModal('reissueModal');
         break;
     }
     setContextMenu(null);
   };
 
-  const handleViewUser = async (certificate: Certificate) => {
-    try {
-      const results = await getUser(
-        certificate.user.user_name,
-        certificate.user.birth_date,
-        certificate.user.phone_number
-      );
-      setTargetUser(results);
-    } catch (e) {
-      alert('회원 자격증 목록을 불러오지 못했습니다.');
-    }
+  const openModal = (key: ModalKeys) =>
+    setModals(prev => ({ ...prev, [key]: true }));
+
+  const closeModal = (key: ModalKeys) =>
+    setModals(prev => ({ ...prev, [key]: false }));
+
+  const handleUpdate = (updated: Certificate) => {
+    setData(prev => prev.map(c => (c.uuid === updated.uuid ? updated : c)));
+    closeModal('detailModal');
   };
 
+  /* ----- render -------------------------------------------------------- */
   return (
     <div className="overflow-x-auto">
       <table className="min-w-full text-sm border border-gray-200">
         <thead className="bg-gray-100">
           <tr>
-            <th className="px-2 py-2 border">No.</th>
-            <th className="px-2 py-2 border">발급일자</th>
-            <th className="px-2 py-2 border">발급번호</th>
-            <th className="px-2 py-2 border">성명</th>
-            <th className="px-2 py-2 border">생년월일</th>
-            <th className="px-2 py-2 border">핸드폰</th>
-            <th className="px-2 py-2 border">자격과정</th>
-            <th className="px-2 py-2 border">교육원명</th>
+            {[
+              'No.', '발급일자', '발급번호', '성명', '생년월일', '핸드폰', '자격과정', '교육원명' ].map(h => (
+              <th key={h} className="px-2 py-2 border">
+                {h}
+              </th>
+            ))}
           </tr>
         </thead>
         <tbody>
-          {results.map((row, index) => (
+          {data.map((row, idx) => (
             <tr
               key={row.uuid}
-              onClick={(e) => handleCellClick(e, row, 'issue_number')}
               className="cursor-pointer hover:bg-gray-100"
+              onClick={e => handleCellClick(e, row)}
             >
-              <td className="px-2 py-1 border text-center">{index + 1}</td>
+              <td className="px-2 py-1 border text-center">{idx + 1}</td>
               <td className="px-2 py-1 border">{row.issue_date}</td>
               <td className="px-2 py-1 border">{row.issue_number}</td>
-              <td className="px-2 py-1 border">{row.user.user_name || '이름 없음'}</td>
-              <td className="px-2 py-1 border">{row.user.birth_date || '생년월일 없음'}</td>
-              <td className="px-2 py-1 border">{row.user.phone_number || '번호 없음'}</td>
+              <td className="px-2 py-1 border">{row.user.user_name || '이름없음'}</td>
+              <td className="px-2 py-1 border">{row.user.birth_date || '생년월일없음'}</td>
+              <td className="px-2 py-1 border">{row.user.phone_number || '번호없음'}</td>
               <td className="px-2 py-1 border">{row.course_name}</td>
-              <td className="px-2 py-1 border" onClick={(e) => handleCellClick(e, row, 'education_center')}>
+              <td className="px-2 py-1 border">
                 {row.education_center?.edu_name}_{row.education_center?.session}
               </td>
             </tr>
@@ -94,42 +115,52 @@ const CertificateTable: React.FC<Props> = ({ results }) => {
       </table>
 
       {contextMenu && (
-        <ContextMenu 
+        <ContextMenu
           x={contextMenu.x}
           y={contextMenu.y}
-          onSelect={handleSetModals}
+          options={['회원정보', '교육원정보', '상세보기', '출력하기', '재발급']}
+          onSelect={handleContextSelect}
           onClose={() => setContextMenu(null)}
-          options={['회원정보', '교육원정보', '상세보기', '출력하기']}
         />
       )}
 
-      <CertificateDetailModal
-        isOpen={modals.detailModal}
-        onClose={() => setModals((prev) => ({ ...prev, detailModal: false }))}
-        certificate={targetCert!}
-      />
+      {targetCert && (
+        <>
+          <CertificateDetailModal
+            isOpen={modals.detailModal}
+            onClose={() => closeModal('detailModal')}
+            onUpdate={handleUpdate}
+            certificate={targetCert}
+          />
 
-      <PrintPreviewModal
-        isOpen={modals.printModal}
-        onClose={() => setModals((prev) => ({ ...prev, printModal: false }))}
-        certificate={targetCert!}
-      />
+          <PrintPreviewModal
+            isOpen={modals.printModal}
+            onClose={() => closeModal('printModal')}
+            certificate={targetCert}
+          />
+          
+          {targetUser && (                                
+            <UserCertificatesModal
+              isOpen={modals.userModal}
+              onClose={() => closeModal('userModal')}
+              user={targetUser}
+            />
+          )}
 
-      <UserCertificatesModal
-        isOpen={modals.userModal}
-        onClose={() => setModals((prev) => ({ ...prev, userModal: false }))}
-        user_name={targetCert?.user?.user_name || ''}
-        birth_date={targetCert?.user?.birth_date || ''}
-        phone_number={targetCert?.user?.phone_number || ''}
-        certificates={targetUser}
-      />
+          {targetCert.education_center && (
+            <EducationCenterModal
+              isOpen={modals.centerModal}
+              onClose={() => closeModal('centerModal')}
+              education_center={targetCert.education_center}
+            />
+          )}
 
-      {targetCert?.education_center && (
-        <EducationCenterModal
-          isOpen={modals.centerModal}
-          onClose={() => setModals((prev) => ({ ...prev, centerModal: false }))}
-          education_center={targetCert.education_center!}
-        />
+          <ReissueModal
+            isOpen={modals.reissueModal}
+            onClose={() => closeModal('reissueModal')}
+            certificate={targetCert}
+          />
+        </>
       )}
     </div>
   );

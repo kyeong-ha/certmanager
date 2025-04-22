@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import Select from 'react-select';
-import { Certificate } from '@/types/certificate.type';
+import { Certificate } from '@/types/Certificate.type';
 import { EducationCenter } from '@/types/EducationCenter.type';
-import { fetchCertificateById, createCertificate, updateCertificate } from '../services/cert.api';
+import { fetchCertificateByUuid, createCertificate, updateCertificate } from '../services/cert.api';
 import { fetchEducationCenters } from '../services/edu.api';
 import { convertCertificateToFormData } from '../utils/convertFormData';
 import AddEducationCenterModal from './AddEducationCenterModal';
 import UserFormModal from './UserForm.model';
-import ReissueLogModal from './ReissueLog.modal';
+import ReissueLogModal from './Reissue.modal';
 import { createDefaultCertificate } from '@/utils/defaultForm';
 
 interface Props {
@@ -25,7 +25,7 @@ const CertificateForm = ({ issue_number }: Props) => {
   useEffect(() => {
     fetchEducationCenters().then(setCenters);
     if (issue_number) {
-      fetchCertificateById(issue_number).then((res) => {
+      fetchCertificateByUuid(issue_number).then((res) => {
         setForm({ ...res, education_center: res.education_center ?? null });
       });
     }
@@ -158,8 +158,7 @@ const CertificateForm = ({ issue_number }: Props) => {
       <ReissueLogModal
         isOpen={showReissueModal}
         onClose={() => setShowReissueModal(false)}
-        logs={form.reissue_logs || []}
-        onChange={(logs) => setForm(prev => ({ ...prev, reissue_logs: logs }))}
+        certificate={form}
       />
     </form>
   );

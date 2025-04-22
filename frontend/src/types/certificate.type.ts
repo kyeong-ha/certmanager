@@ -11,8 +11,8 @@ export interface Certificate {
   image_url?: string;
   pdf_url?: string;
 
-  created_at?: Date;
-  updated_at?: Date;
+  created_at?: string;
+  updated_at?: string;
   
   user: User;
   education_center: EducationCenter;

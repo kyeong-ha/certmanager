@@ -1,11 +1,10 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from api.logs.views import ReissueLogViewSet
+from .views.ReissueLogView import ReissueLogSearchView, ReissueLogCreateView, ReissueLogFullSearchView
 
 router = DefaultRouter()
-router.register(r'', ReissueLogViewSet, basename='reissue-log')
-
 
 urlpatterns = [
-    path('', include(router.urls)), 
+    path('', ReissueLogCreateView.as_view(), name='reissue-log-create'),
+    path('<uuid:pk>/', ReissueLogSearchView.as_view(), name='reissue-log-search'),
 ]
