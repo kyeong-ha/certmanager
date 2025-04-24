@@ -1,4 +1,4 @@
-import api from '../lib/axios';
+import api from '../libs/axios';
 import { Certificate } from '@/types/Certificate.type';
 
 export const fetchCertificates = (params: { filter_type: string; search_value: string }) =>

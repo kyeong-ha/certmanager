@@ -1,4 +1,4 @@
-import api from '../lib/axios';
+import api from '../libs/axios';
 import { EducationCenter } from '../types/EducationCenter.type';
 
 export const fetchEducationCenters = (): Promise<EducationCenter[]> =>
