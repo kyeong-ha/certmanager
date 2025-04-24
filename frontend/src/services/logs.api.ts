@@ -1,4 +1,4 @@
-import api from '@/lib/axios';
+import api from '@/libs/axios';
 
 export const createReissueLog = (data: {
   certificate_uuid: string;
