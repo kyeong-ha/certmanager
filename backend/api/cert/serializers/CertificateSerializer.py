@@ -1,28 +1,20 @@
 from rest_framework import serializers
 from api.cert.models.Certificate import Certificate
 from api.edu.models.EducationCenter import EducationCenter
+from api.edu.serializers.EducationCenterSerializer import EducationCenterSerializer
 from api.logs.serializers.ReissueLogSerializer import ReissueLogSerializer
 from api.user.models.User import User
 from api.user.serializers.UserSerializer import UserSerializer
-
 class CertificateSerializer(serializers.ModelSerializer):
     uuid = serializers.ReadOnlyField()
     user = UserSerializer(read_only=True)
-    education_center = serializers.SerializerMethodField()
+    education_center = EducationCenterSerializer(read_only=True)
     reissue_logs = ReissueLogSerializer(many=True, read_only=True)
 
     class Meta:
         model = Certificate
         fields = '__all__'
         read_only_fields = ['created_at', 'updated_at']
-
-    def get_user(self, obj):
-        from api.user.serializers.UserSerializer import UserSerializer
-        return UserSerializer(obj.user).data
-
-    def get_education_center(self, obj):
-        from api.edu.serializers.EducationCenterSerializer import EducationCenterSerializer
-        return EducationCenterSerializer(obj.education_center).data
 
     def create(self, validated_data):
         user_data = validated_data.pop('user')
