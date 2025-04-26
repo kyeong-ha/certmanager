@@ -10,8 +10,8 @@ export interface User {
     image_url: string | null;
     pdf_url: string | null;
 
-    created_at: Date;
-    updated_at: Date;
+    created_at: string;
+    updated_at: string;
 
     certificates: Certificate[];
 }

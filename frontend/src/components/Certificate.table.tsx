@@ -10,7 +10,7 @@ import ReissueModal from './Reissue.modal';
 import ContextMenu from './ui/ContextMenu';
 
 interface Props {
-  results: Certificate[];
+  searchResults: Certificate[];
 }
 
 type ModalKeys =
@@ -20,15 +20,15 @@ type ModalKeys =
   | 'centerModal'
   | 'reissueModal';
 
-const CertificateTable = ({ results }: Props) => {
+const CertificateTable = ({ searchResults }: Props) => {
   /* ----- state --------------------------------------------------------- */
-  const [data, setData] = useState<Certificate[]>(results);
+  const [tableDatas, setTableData] = useState<Certificate[]>(searchResults);
   const [targetCert, setTargetCert] = useState<Certificate | null>(null);
   const [targetUser, setTargetUser] = useState<User | null>(null);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null);
   const [modals, setModals] = useState<Record<ModalKeys, boolean>>({ detailModal: false, printModal: false, userModal: false, centerModal: false, reissueModal: false });
 
-  useEffect(() => setData(results), [results]);
+  useEffect(() => setTableData(searchResults), [searchResults]);
 
   /* ----- helpers ------------------------------------------------------- */
   const handleCellClick = (e: MouseEvent, cert: Certificate) => {
@@ -52,7 +52,6 @@ const CertificateTable = ({ results }: Props) => {
         try {
           const result = await fetchUserByUuid(targetCert.user.uuid);
           setTargetUser(result);
-          console.log(result);
         } catch {
           alert('회원 정보를 불러오지 못했습니다.');
         }
@@ -74,7 +73,7 @@ const CertificateTable = ({ results }: Props) => {
     setModals(prev => ({ ...prev, [key]: false }));
 
   const handleUpdate = (updated: Certificate) => {
-    setData(prev => prev.map(c => (c.uuid === updated.uuid ? updated : c)));
+    setTableData(prev => prev.map(c => (c.uuid === updated.uuid ? updated : c)));
     closeModal('detailModal');
   };
 
@@ -93,7 +92,7 @@ const CertificateTable = ({ results }: Props) => {
           </tr>
         </thead>
         <tbody>
-          {data.map((row, idx) => (
+          {tableDatas.map((row, idx) => (
             <tr
               key={row.uuid}
               className="cursor-pointer hover:bg-gray-100"
@@ -130,7 +129,7 @@ const CertificateTable = ({ results }: Props) => {
             isOpen={modals.detailModal}
             onClose={() => closeModal('detailModal')}
             onUpdate={handleUpdate}
-            certificate={targetCert}
+            targetCert={targetCert}
           />
 
           <PrintPreviewModal

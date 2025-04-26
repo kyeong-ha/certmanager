@@ -58,7 +58,7 @@ const SearchPage: React.FC = () => {
         </div>
       </div>
 
-      <CertificateTable results={results} />
+      <CertificateTable searchResults={results} />
     </div>
   );
 };

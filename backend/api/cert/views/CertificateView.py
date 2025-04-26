@@ -26,6 +26,26 @@ class CertificateViewSet(viewsets.ModelViewSet):
 
         return super().get_queryset()
 
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+
+        # 1. Certificate
+        cert_serializer = self.get_serializer(instance, data=request.data, partial=True)
+        cert_serializer.is_valid(raise_exception=True)
+        cert_serializer.save()
+
+        # 2. User
+        user_data = request.data.get('user')
+        if user_data:
+            user = instance.user
+            user_fields = [f.name for f in user._meta.fields]  # User모델의 실제 컬럼 목록만 가져옴
+            for attr, value in user_data.items():
+                if attr in user_fields:
+                    setattr(user, attr, value)
+            user.save()
+
+        return Response(cert_serializer.data, status=status.HTTP_200_OK)
+    
     @action(detail=False, methods=['post'], url_path='update')
     def update_by_issue_number(self, request):
         filter_data = request.data.get('filter')
