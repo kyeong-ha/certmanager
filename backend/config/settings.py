@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'config',
     'api.cert',
+    'api.dashboard',
     'api.edu',
     'api.logs',
     'api.user',
