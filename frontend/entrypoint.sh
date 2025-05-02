@@ -1,5 +1,5 @@
 #!/bin/sh
-npm isntall
+npm install
 
 if [ "$DB_ENV" = "production" ]; then
     echo "Production Mode started."
