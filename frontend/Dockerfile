@@ -4,7 +4,7 @@ WORKDIR /web/frontend
 
 COPY . .
 
-COPY ./entrypoint.sh .
+COPY --chmod=755 ./entrypoint.sh .
 RUN chmod +x /web/frontend/entrypoint.sh
 
-ENTRYPOINT ["/web/frontend/entrypoint.sh"]
+ENTRYPOINT ["sh", "/web/frontend/entrypoint.sh"]
