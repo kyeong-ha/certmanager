@@ -9,3 +9,6 @@ openpyxl
 whitenoise
 django-cors-headers
 Pillow
+python-docx
+docx
+docx2pdf
