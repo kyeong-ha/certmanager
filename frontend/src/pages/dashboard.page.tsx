@@ -3,12 +3,18 @@ import { Certificate } from '@/types/Certificate.type';
 import { getCertificateStats, getRecentCertificates } from '@/services/dashboard.api';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, LineChart, Line, CartesianGrid, ResponsiveContainer } from 'recharts';
 import { format } from 'date-fns';
+import { useNavigate } from "react-router-dom";
 
 export default function DashboardPage() {
   const [totalCount, setTotalCount] = useState(0);
   const [monthlyData, setMonthlyData] = useState<{ month: string; count: number }[]>([]);
   const [centerData, setCenterData] = useState<{ edu_name: string; count: number }[]>([]);
   const [recentCertificates, setRecentCertificates] = useState<Certificate[]>([]);
+  const navigate = useNavigate();
+
+  const handleGoToIssuePage = () => {
+    navigate("/issue");
+  };
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -29,6 +35,13 @@ export default function DashboardPage() {
   return (
     <div className="p-6 space-y-6">
       <h1 className="text-2xl font-bold">📊 자격증 발급 대시보드</h1>
+
+      <button
+          onClick={handleGoToIssuePage}
+          className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
+        >
+          발급하기
+        </button>
 
       {/* 전체 발급 수 */}
       <div className="bg-white rounded-lg shadow p-4">

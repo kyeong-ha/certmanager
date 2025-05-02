@@ -1,7 +1,7 @@
 import api from '../libs/axios';
 import { Certificate } from '@/types/Certificate.type';
 
-export const fetchCertificates = (params: { filter_type: string; search_value: string }) =>
+export const fetchCertificates = (params: any) => 
   api.get('/cert/search/', { params }).then(res => res.data);
 
 export const fetchCertificateByUuid = (uuid: string) =>
@@ -17,3 +17,6 @@ export const updateCertificate = async (uuid: string, data: Partial<Certificate>
   const response = await api.patch<Certificate>(`/cert/${uuid}/`, data);
   return response.data;
 };
+
+export const issueCertificates = (uuids: string[]) =>
+  api.post('/cert/issue/', { uuids }).then(res => res.data);

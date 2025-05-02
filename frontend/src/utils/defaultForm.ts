@@ -11,7 +11,7 @@ export const createDefaultUser = (): User => ({
   user_id: null,
   postal_code: '',
   address: '',
-  photo: '',
+  image_url: '',
   pdf_url: '',
 });
 
@@ -23,7 +23,7 @@ export const createDefaultEducationCenter = (): EducationCenter => ({
 
 export const createDefaultReissueLog = (): ReissueLog => ({
   uuid: '',
-  certificate: {} as Certificate,
+  certificate_uuid: '',
   reissue_date: '',
   reissue_cost: 0,
   delivery_type: '선불',
