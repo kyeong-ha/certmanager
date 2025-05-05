@@ -1,21 +1,9 @@
-# -------------------------------------------
+FullAccess
+FullAccess.*
 certbot
-frontend/package-lock.json
 .DS_Store
-node_modules
-desktop.ini
-*.env.*
-*.envrc
-*/Dockerfile.prod.*
 
-# TODO: 아래 파일을 backend/protects 로 통합시킬 것
-backend/templates/*
-backend/media/*
-backend/utils/fonts/*
-backend/api/cert/management/data/certificates.xlsx
-# -------------------------------------------
-
-
+package-lock.json
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -190,4 +178,9 @@ cython_debug/
 # PyPI configuration file
 .pypirc
 
+node_modules
+desktop.ini
+*.env.*
+*.envrc
 
+*/Dockerfile.prod.*
