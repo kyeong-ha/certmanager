@@ -10,13 +10,12 @@ class User(models.Model):
     postal_code = models.CharField(max_length=20, null=True, blank=True)  # 우편번호
     address = models.TextField(null=True, blank=True)  # 주소
     image_url = models.URLField(blank=True, null=True)  # 증명사진
-    pdf_url = models.URLField(null=True, blank=True)
-   
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
     class Meta:
         ordering = ['-user_name']
-         
+
     def __str__(self):
         return f'{self.user_name}({self.birth_date})'

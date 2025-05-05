@@ -12,7 +12,6 @@ export const createDefaultUser = (): User => ({
   postal_code: '',
   address: '',
   image_url: '',
-  pdf_url: '',
 });
 
 export const createDefaultEducationCenter = (): EducationCenter => ({

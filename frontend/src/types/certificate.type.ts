@@ -9,7 +9,7 @@ export interface Certificate {
   course_name: string;
   note?: string;
   image_url?: string;
-  pdf_url?: string;
+  copy_file?: string;
 
   created_at?: string;
   updated_at?: string;
