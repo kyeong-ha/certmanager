@@ -1,7 +1,7 @@
 import uuid
 from django.db import models
-from utils.storage import OverwriteStorage
-from api.cert.models.upload_path import certificate_pdf_upload_path
+from api.cert.services.storage import OverwriteStorage
+from api.cert.models.helpers import copy_file_upload_path
 
 from api.edu.models.EducationCenter import EducationCenter
 from api.user.models.User import User
@@ -10,7 +10,7 @@ class Certificate(models.Model):
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='certificates')
     education_center = models.ForeignKey(EducationCenter, null=True, on_delete=models.CASCADE, related_name='certificates')
-    copy_file = models.FileField(upload_to=certificate_pdf_upload_path, storage=OverwriteStorage(), blank=True, null=True )
+    copy_file = models.FileField(upload_to=copy_file_upload_path, storage=OverwriteStorage(), blank=True, null=True )
     
     course_name = models.CharField(max_length=100, null=True, blank=True) # 자격과정
     issue_type = models.CharField(max_length=10, null=True, blank=True) # 분류코드 (HS || HN || S || J || N)
@@ -19,7 +19,7 @@ class Certificate(models.Model):
     
     created_at = models.DateTimeField(auto_now_add=True)  # 생성일자
     updated_at = models.DateTimeField(auto_now=True)  # 수정일자
-   
+    
     class Meta:
         ordering = ['issue_date']
         
