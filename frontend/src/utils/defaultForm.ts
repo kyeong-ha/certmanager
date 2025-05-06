@@ -11,7 +11,10 @@ export const createDefaultUser = (): User => ({
   user_id: null,
   postal_code: '',
   address: '',
-  image_url: '',
+  photo: '',
+  created_at: '',
+  updated_at: '',
+  certificates: [],
 });
 
 export const createDefaultEducationCenter = (): EducationCenter => ({

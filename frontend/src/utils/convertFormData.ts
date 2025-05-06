@@ -1,6 +1,6 @@
-import { Certificate } from '@/types/certificate.type';
+import { Certificate } from '@/types/Certificate.type';
 
-export const convertCertificateToFormData = (certificate: Certificate, imageUrl?: File | null): FormData => {
+export const convertCertificateToFormData = (certificate: Certificate, photo?: File | null): FormData => {
   const formData = new FormData();
 
   formData.append('uuid', certificate.uuid);
@@ -21,8 +21,8 @@ export const convertCertificateToFormData = (certificate: Certificate, imageUrl?
     formData.append('education_center', certificate.education_center.uuid);
   }
 
-  if (imageUrl) {
-    formData.append('image_url', imageUrl);
+  if (photo) {
+    formData.append('photo', photo);
   }
   // 재발급 로그는 생략 or 별도 처리 필요 (리스트 전송 방식 논의 필요)
   return formData;

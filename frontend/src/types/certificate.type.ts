@@ -8,7 +8,6 @@ export interface Certificate {
   issue_type: string;
   course_name: string;
   note?: string;
-  image_url?: string;
   copy_file?: string;
 
   created_at?: string;

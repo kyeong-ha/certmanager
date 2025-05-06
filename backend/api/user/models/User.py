@@ -1,5 +1,6 @@
 import uuid
 from django.db import models
+from utils.helpers import user_photo_upload_path
 
 class User(models.Model):
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -9,7 +10,7 @@ class User(models.Model):
     phone_number = models.CharField(max_length=20) # 핸드폰
     postal_code = models.CharField(max_length=20, null=True, blank=True)  # 우편번호
     address = models.TextField(null=True, blank=True)  # 주소
-    image_url = models.URLField(blank=True, null=True)  # 증명사진
+    photo = models.FileField(upload_to=user_photo_upload_path, blank=True, null=True)  # 증명사진
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

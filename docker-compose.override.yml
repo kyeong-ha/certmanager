@@ -2,7 +2,7 @@ services:
   backend:
     volumes:
       - ./backend:/web/backend
-      - backend_data:/web/backend/.local
+      - ./backend/.local:/web/backend/.local
     ports:
       - "8000:8000"
     env_file:
@@ -30,4 +30,3 @@ services:
 
 volumes:
   db:
-  backend_data:
