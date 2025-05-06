@@ -8,7 +8,6 @@ export interface User {
     postal_code: string;
     address: string;
     image_url: string | null;
-    pdf_url: string | null;
 
     created_at: string;
     updated_at: string;
