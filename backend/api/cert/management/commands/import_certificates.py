@@ -7,7 +7,7 @@ from api.user.models.User import User
 
 class Command(BaseCommand):
     def handle(self, *args, **kwargs):
-        excel_path = 'api/cert/management/data/certificates.xlsx'
+        excel_path = 'data/test_certificates.xlsx'
 
         try:
             df = pd.read_excel(excel_path)

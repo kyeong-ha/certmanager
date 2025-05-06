@@ -1,19 +1,24 @@
-# -------------------------------------------
+# ── local artifacts ──────────────────────────────────
+/backend/.local/*
+/backend/**/__pycache__
+/backend/**/.pytest_cache
+/backend/**/.mypy_cache
+/backend/**/*.py[cod]
+
 certbot
 frontend/package-lock.json
+frontend/node_modules
+
 .DS_Store
-node_modules
 desktop.ini
+
+*/*.prod.*
+*.log
+*.sqlite3
+*.tmp
+*.bak
 *.env.*
 *.envrc
-*/Dockerfile.prod.*
-
-# TODO: 아래 파일을 backend/protects 로 통합시킬 것
-backend/templates/*
-backend/media/*
-backend/utils/fonts/*
-backend/api/cert/management/data/certificates.xlsx
-backend/api/cert/services/licenses.py
 # -------------------------------------------
 
 

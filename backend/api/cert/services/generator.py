@@ -137,7 +137,7 @@ def generate_certificate_pdf(cert, output_dir: str) -> str:
     pdf_path = os.path.join(output_dir, f"{issue_number}.pdf")
     
     # 템플릿 → DOCX (임시)
-    odt_tpl = os.path.join(settings.BASE_DIR, "templates", "phoenix_ver1.odt")
+    odt_tpl = os.path.join(settings.BASE_DIR, ".local/staticfiles/templates", "phoenix_ver1.odt")
     docx_tmp = _odt_to_docx(odt_tpl)
 
     # DOCX 로드 & 텍스트 치환

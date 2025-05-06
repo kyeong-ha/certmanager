@@ -6,7 +6,7 @@ ENV PYTHONUNBUFFERED=-1
 WORKDIR /web/backend
 
 # ── 시스템 패키지 + 한/영 커스텀 폰트 ──
-COPY ./utils/fonts /usr/share/fonts/truetype/custom/
+COPY ./.local/staticfiles/fonts /usr/share/fonts/truetype/custom/
 RUN apt-get update && \
     apt-get install -y libreoffice fontconfig && \
     fc-cache -f -v
