@@ -2,6 +2,7 @@ services:
   backend:
     volumes:
       - ./backend:/web/backend
+      - ./backend/.local:/web/backend/.local
     ports:
       - "8000:8000"
     env_file:

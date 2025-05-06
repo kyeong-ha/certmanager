@@ -1,21 +1,75 @@
 from pathlib import Path
 import os
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
 
 DEBUG = os.getenv('DB_DEBUG')
 SECRET_KEY = os.getenv('DB_SECRET_KEY')
 ALLOWED_HOSTS = os.getenv('DB_ALLOWED_HOSTS').split(' ')
 WSGI_APPLICATION = 'config.wsgi.application'
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.1/howto/static-files/
-STATIC_URL = 'static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static_volume')
+# ─────────────────────────────────────────────────────────────────────────
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+# 정적, 미디어, 로그·캐시 경로를 .local/ 하위로 통합
+LOCAL_DIR = Path(os.getenv("DJANGO_LOCAL_DIR", BASE_DIR / ".local"))
+LOCAL_DIR.mkdir(exist_ok=True)
+
+# 정적 파일(CSS, JavaScript, Images) 경로
+STATIC_URL = "/static/"
+STATIC_ROOT = LOCAL_DIR / "staticfiles"
+
+# 미디어 파일 경로
+MEDIA_URL = "/media/"
+MEDIA_ROOT = LOCAL_DIR / "media"
+
+# 로그 경로
+LOG_DIR = LOCAL_DIR / "logs"
+LOG_DIR.mkdir(exist_ok=True)
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "file": {
+            "class": "logging.FileHandler",
+            "filename": LOG_DIR / "django.log",
+        },
+    },
+    "root": {
+        "handlers": ["file"],
+        "level": "INFO",
+    },
+}
+
+# 캐시 경로
+CACHES_DIR = LOCAL_DIR / "cache"
+CACHES_DIR.mkdir(exist_ok=True)
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.filebased.FileBasedCache",
+        "LOCATION": LOCAL_DIR / "cache",
+    }
+}
+# ─────────────────────────────────────────────────────────────────────────
+
+# CORS 설정(Cross-Origin Resource Sharing)
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://certmanager-frontend:3000",
+    "https://your-domain.com",
+]
+
+# CSRF 설정(Cross-Site Request Forgery)
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://certmanager-frontend:3000"
+]
+CORS_ALLOW_CREDENTIALS = True
+
+# ─────────────────────────────────────────────────────────────────────────
 
 # Default primary key field type
-# https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 ROOT_URLCONF = 'config.urls'
@@ -66,7 +120,6 @@ TEMPLATES = [
 ]
 
 # Database
-# https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -80,7 +133,6 @@ DATABASES = {
 
 
 # Password validation
-# https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -96,28 +148,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-# 프론트엔드가 접근 가능한 주소
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "http://certmanager-frontend:3000",
-    "https://your-domain.com",
-]
-
-# CSRF 보호를 허용할 출처 (POST 요청 시 필요)
-CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "http://certmanager-frontend:3000"
-]
-
-CORS_ALLOW_CREDENTIALS = True
-
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
 # Internationalization
-# https://docs.djangoproject.com/en/5.1/topics/i18n/
 LANGUAGE_CODE = 'ko-kr'
 TIME_ZONE = 'Asia/Seoul'
 USE_I18N = True

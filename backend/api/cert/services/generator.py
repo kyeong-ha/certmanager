@@ -137,7 +137,7 @@ def generate_certificate_pdf(cert, output_dir: str) -> str:
     pdf_path = os.path.join(output_dir, f"{issue_number}.pdf")
     
     # 템플릿 → DOCX (임시)
-    odt_tpl = os.path.join(settings.BASE_DIR, "templates", "phoenix_ver1.odt")
+    odt_tpl = os.path.join(settings.BASE_DIR, ".local/staticfiles/templates", "phoenix_ver1.odt")
     docx_tmp = _odt_to_docx(odt_tpl)
 
     # DOCX 로드 & 텍스트 치환
@@ -153,8 +153,8 @@ def generate_certificate_pdf(cert, output_dir: str) -> str:
     _replace_placeholders(doc, replacements)
 
     # 사진
-    if cert.user.image_url:
-        _insert_photo(doc, cert.user.image_url.path)
+    if cert.user.photo:
+        _insert_photo(doc, cert.user.photo.path)
 
     # DOCX 저장 (tmp) & PDF 변환
     tmp_dir = tempfile.mkdtemp()

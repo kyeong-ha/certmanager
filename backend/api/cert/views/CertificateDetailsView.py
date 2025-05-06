@@ -44,7 +44,7 @@ def get_user_info(request):
             'note': cert.note,
             'postal_code': cert.postal_code,
             'address': cert.address,
-            'image_url': cert.image_url.url if cert.image_url else None
+            'photo': cert.photo.url if cert.photo else None
         }
         for cert in certificates
     ]

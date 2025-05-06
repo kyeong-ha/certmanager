@@ -7,7 +7,7 @@ export interface User {
     phone_number: string;
     postal_code: string;
     address: string;
-    image_url: string | null;
+    photo: string | null;
 
     created_at: string;
     updated_at: string;

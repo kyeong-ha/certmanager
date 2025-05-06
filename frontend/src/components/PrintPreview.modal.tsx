@@ -20,7 +20,7 @@ const PrintPreviewModal: React.FC<PrintPreviewModalProps> = ({ isOpen, onClose, 
 
         <div className="h-[500px] overflow-auto border rounded">
           <img
-            src={certificate.image_url}
+            src={certificate.user.photo || ''}
             alt="자격증 미리보기"
             className="w-full h-auto object-contain"
           />
