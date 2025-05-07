@@ -41,7 +41,7 @@ const CertificateTable = ({ searchResults }: Props) => {
     if (!targetCert) return;
 
     switch (action) {
-      case '상세보기':
+      case '상세정보':
         openModal('detailModal');
         break;
       case '출력하기':
@@ -117,7 +117,7 @@ const CertificateTable = ({ searchResults }: Props) => {
         <ContextMenu
           x={contextMenu.x}
           y={contextMenu.y}
-          options={['회원정보', '교육원정보', '상세보기', '출력하기', '재발급']}
+          options={['상세정보', '회원정보', '교육원정보', '출력하기', '재발급']}
           onSelect={handleContextSelect}
           onClose={() => setContextMenu(null)}
         />

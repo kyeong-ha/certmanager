@@ -60,7 +60,7 @@ def issue(request):  # noqa: ANN001 – DRF View 함수 시그니처 규칙
         .all()
     )
 
-    output_dir = Path(settings.MEDIA_ROOT) / "certificates"
+    output_dir = Path(settings.MEDIA_ROOT) / "certificate/copy_file"
     output_dir.mkdir(parents=True, exist_ok=True)
 
     success_results: List[Dict[str, str]] = []

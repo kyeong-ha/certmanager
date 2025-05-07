@@ -1,13 +1,22 @@
 from pathlib import Path
 import os
 
-
 DEBUG = os.getenv('DB_DEBUG')
 SECRET_KEY = os.getenv('DB_SECRET_KEY')
-ALLOWED_HOSTS = os.getenv('DB_ALLOWED_HOSTS').split(' ')
-WSGI_APPLICATION = 'config.wsgi.application'
 
 # ─────────────────────────────────────────────────────────────────────────
+
+ENVIRONMENT = os.getenv("DJANGO_ENV", "development")
+
+if ENVIRONMENT == "production":
+    BACKEND_DOMAIN = "https://api.example.com"
+    X_FRAME_OPTIONS = 'SAMEORIGIN'  
+else:
+    BACKEND_DOMAIN = "http://localhost:8000"
+    X_FRAME_OPTIONS = 'ALLOWALL'
+    
+# ─────────────────────────────────────────────────────────────────────────
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # 정적, 미디어, 로그·캐시 경로를 .local/ 하위로 통합
@@ -50,6 +59,9 @@ CACHES = {
     }
 }
 # ─────────────────────────────────────────────────────────────────────────
+
+ALLOWED_HOSTS = os.getenv('DB_ALLOWED_HOSTS').split(' ')
+WSGI_APPLICATION = 'config.wsgi.application'
 
 # CORS 설정(Cross-Origin Resource Sharing)
 CORS_ALLOWED_ORIGINS = [

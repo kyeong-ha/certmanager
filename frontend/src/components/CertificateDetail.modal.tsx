@@ -6,6 +6,7 @@ import { fetchReissueLogsByUuid } from '@/services/logs.api';
 import { updateCertificate } from '@/services/cert.api';
 import { useEffect, useState } from 'react';
 import type { ReissueLog } from '@/types/ReissueLog.type';
+import PDFPreview from './PDFPreview';
 
 interface Props {
   isOpen: boolean;
@@ -51,7 +52,7 @@ export default function CertificateDetailModal({ isOpen, onClose, onUpdate, targ
       <DialogContent>
         <div className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>자격증 상세정보 – {targetCert.issue_number}</DialogTitle>
+            <DialogTitle>자격증 상세정보 - {targetCert.issue_number}</DialogTitle>
           </DialogHeader>
 
           <div className="grid grid-cols-2 gap-4 mt-4">
@@ -107,6 +108,27 @@ export default function CertificateDetailModal({ isOpen, onClose, onUpdate, targ
                 ))}
               </tbody>
             </table>
+          )}
+          {targetCert?.copy_file ? (
+            <div className="border rounded-xl mt-6 p-4 space-y-4 bg-muted">
+              <h3 className="text-lg font-semibold">자격증 미리보기</h3>
+
+              <PDFPreview copy_file={targetCert.copy_file} />
+
+              <div className="text-right">
+                <a
+                  href={targetCert.copy_file}
+                  download={`자격증_${targetCert.user.user_name}_${targetCert.issue_number}.pdf`}
+                  className="inline-flex items-center px-4 py-2 text-sm font-medium bg-primary text-white rounded-md hover:bg-primary/90"
+              >
+                  PDF 다운로드
+                </a>
+              </div>
+            </div>
+          ) : (
+            <div className="mt-4 text-sm text-muted-foreground italic">
+              미리보기 가능한 자격증 PDF가 없습니다.
+            </div>
           )}
         </div>
       </DialogContent>
