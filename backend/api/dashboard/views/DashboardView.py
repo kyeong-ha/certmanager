@@ -8,44 +8,79 @@ from collections import defaultdict
 
 from api.cert.models import Certificate
 from api.cert.serializers.CertificateSerializer import CertificateSerializer
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from django.db.models import Count
+from django.db.models.functions import TruncMonth
+
+from api.cert.models import Certificate
 
 class CertificateStatsView(APIView):
     def get(self, request):
         total = Certificate.objects.count()
 
         # 월별 발급 통계
-        monthly_counts = (
+        monthly = (
             Certificate.objects
-            .values('issue_date')
-            .order_by('issue_date')
+            .annotate(month=TruncMonth('issue_date'))
+            .values('month')
+            .annotate(count=Count('uuid'))
+            .order_by('month')
         )
+        monthly_stats = [
+            {'month': item['month'].strftime('%Y-%m'), 'count': item['count']}
+            for item in monthly
+        ]
 
-        monthly_result = defaultdict(int)
-        for item in monthly_counts:
-            date = item['issue_date']
-            if date:
-                month_key = date.strftime('%Y-%m')
-                monthly_result[month_key] += 1
-
-        monthly = [{'month': k, 'count': v} for k, v in sorted(monthly_result.items())]
-
-        # 교육기관별 발급 수
-        by_center = (
+        # 교육원별 발급 통계
+        center_stats = (
             Certificate.objects
             .values('education_center__edu_name')
             .annotate(count=Count('uuid'))
-            .order_by('-count')
+            .order_by()
         )
-        by_center_data = [
+        center_stats = [
             {'edu_name': item['education_center__edu_name'], 'count': item['count']}
-            for item in by_center
+            for item in center_stats
+        ]
+        
+        # 교육원 & 기수별 발급 통계
+        center_session_stats = (
+             Certificate.objects
+            .values('education_center__edu_name', 'education_center__session')
+            .annotate(count=Count('uuid'))
+            .order_by()
+        )
+        center_session_stats = [
+            {
+                'edu_name': item['education_center__edu_name'],
+                'session': item['education_center__session'],
+                'count': item['count']
+            }
+            for item in center_session_stats
+        ]
+
+        # 과정별 발급 통계
+        course_stats = (
+            Certificate.objects
+            .values('course_name')
+            .annotate(count=Count('uuid'))
+            .order_by()
+        )
+        course_stats = [
+            {'course_name': item['course_name'], 'count': item['count']}
+            for item in course_stats
         ]
 
         return Response({
             'total': total,
-            'monthly': monthly,
-            'by_center': by_center_data
+            'monthly': monthly_stats,
+            'center': center_stats,
+            'center_session': center_session_stats,
+            'course': course_stats
         }, status=status.HTTP_200_OK)
+        
 
 class RecentCertificatesView(APIView):
     def get(self, request):
