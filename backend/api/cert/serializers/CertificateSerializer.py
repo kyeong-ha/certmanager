@@ -1,3 +1,4 @@
+from django.conf import settings
 from rest_framework import serializers
 from api.cert.models.Certificate import Certificate
 from api.edu.models.EducationCenter import EducationCenter
@@ -15,11 +16,12 @@ class CertificateSerializer(serializers.ModelSerializer):
 
     user_uuid = serializers.UUIDField(write_only=True)
     education_center_uuid = serializers.UUIDField(write_only=True)
-
+    
+    copy_file = serializers.SerializerMethodField() 
     class Meta:
         model = Certificate
         fields = [
-            'uuid', 'issue_number', 'issue_date', 'issue_type',
+            'uuid', 'issue_number', 'issue_date', 'issue_type', 'copy_file',
             'course_name', 'created_at', 'updated_at',
             'user', 'user_uuid',
             'education_center', 'education_center_uuid',
@@ -52,3 +54,8 @@ class CertificateSerializer(serializers.ModelSerializer):
 
         instance.save()
         return instance
+    
+    def get_copy_file(self, obj):
+        if obj.copy_file:
+            return f"{settings.BACKEND_DOMAIN}{obj.copy_file.url}"
+        return None
