@@ -11,10 +11,23 @@ export interface CenterStat {
   count: number;
 }
 
+export interface CenterSessionStat {
+  edu_name: string;
+  session: number;
+  count: number;
+}
+
+export interface CourseStat {
+  course_name: string;
+  count: number;
+}
+
 export interface CertificateStats {
   total: number;
   monthly: MonthlyStat[];
-  by_center: CenterStat[];
+  center: CenterStat[];
+  center_session: CenterSessionStat[];
+  course: CourseStat[];
 }
 
 export const getCertificateStats = async (): Promise<CertificateStats> => {
