@@ -4,6 +4,7 @@ import { Certificate } from '@/types/Certificate.type';
 import { getCertificateStats, getRecentCertificates } from '@/services/dashboard.api';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
+import AdminLayout from '@/layout/AdminLayout'
 
 type SortState = {
   key: string;
@@ -87,7 +88,7 @@ export default function DashboardPage() {
   }, []);
 
   return (
-    <div className="p-6 space-y-6">
+    <AdminLayout>
       <h1 className="text-2xl font-bold">📊 자격증 발급 대시보드</h1>
 
       {/* 주요 액션 버튼 */}
@@ -259,6 +260,6 @@ export default function DashboardPage() {
           </tbody>
         </table>
       </div>
-    </div>
+    </AdminLayout>
   );
 }

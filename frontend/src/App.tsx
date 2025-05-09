@@ -1,6 +1,6 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
-import CertificateFormPage from './pages/CertificateForm.page';
+import CreatePage from './pages/create.page';
 import SearchPage from './pages/search.page';
 import DashboardPage from './pages/dashboard.page';
 import IssuePage from './pages/issue.page';
@@ -15,9 +15,9 @@ const App: React.FC = () => {
   return (
     <Routes>
       <Route path="/" element={<DashboardPage />} />
-      <Route path="/create" element={<CertificateFormPage />} />
+      <Route path="/create" element={<CreatePage />} />
       <Route path="/search" element={<SearchPage />} />
-      <Route path="/update/:uuid" element={<CertificateFormPage />} />
+      <Route path="/update/:uuid" element={<CreatePage />} />
       <Route path="/issue" element={<IssuePage />} />
     </Routes>
   );
