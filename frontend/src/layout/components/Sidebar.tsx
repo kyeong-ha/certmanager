@@ -11,7 +11,7 @@ const sidebarItems: (SidebarItem & { icon?: React.ReactNode })[] = [
     {
       label: '자격증관리', icon: <FiAward />,
       children: [
-        { label: '검색하기', path: '/cert/search' },
+        { label: '검색하기', path: '/cert' },
         { label: '(재)발급하기', path: '/cert/create' },
         { label: '출력하기', path: '/cert/print' },
       ],

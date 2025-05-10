@@ -6,7 +6,7 @@ import SearchFilter from '../../../components/SearchFilter';
 import MainLayout from '@/layout/MainLayout';
 
 /* ----- Page ----------------------------------------------------- */
-const SearchPage: React.FC = () => {
+const CertificatePage: React.FC = () => {
   const [results, setResults] = useState<Certificate[]>([]);
   const [searched, setSearched] = useState(false);
 
@@ -38,4 +38,4 @@ const SearchPage: React.FC = () => {
   );
 };
 
-export default SearchPage;
+export default CertificatePage;

@@ -22,17 +22,17 @@ export default function SearchDropdown() {
         <DropdownMenu.Content className="z-50 mt-2 min-w-[160px] rounded-md bg-white shadow-lg border text-sm text-gray-700" sideOffset={5}>
           
           {/* 2.1. 회원 검색 */}
-          <DropdownMenu.Item className="px-3 py-2 hover:bg-gray-100 cursor-pointer" onClick={() => navigate('/user/search')}>
+          <DropdownMenu.Item className="px-3 py-2 hover:bg-gray-100 cursor-pointer" onClick={() => navigate('/user')}>
             회원검색
           </DropdownMenu.Item>
 
           {/* 2.2. 자격증 검색 */}
-          <DropdownMenu.Item className="px-3 py-2 hover:bg-gray-100 cursor-pointer" onClick={() => navigate('/cert/search')}>
+          <DropdownMenu.Item className="px-3 py-2 hover:bg-gray-100 cursor-pointer" onClick={() => navigate('/cert')}>
             자격증검색
           </DropdownMenu.Item>
 
           {/* 2.3. 교육원 검색 */}
-          <DropdownMenu.Item className="px-3 py-2 hover:bg-gray-100 cursor-pointer" onClick={() => navigate('/center/search')}>
+          <DropdownMenu.Item className="px-3 py-2 hover:bg-gray-100 cursor-pointer" onClick={() => navigate('/center')}>
             교육원검색
           </DropdownMenu.Item>
         </DropdownMenu.Content>

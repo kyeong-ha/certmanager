@@ -3,7 +3,7 @@ import { Certificate } from '@/features/certificate/types/Certificate.type';
 import { User } from '@/features/user/types/User.type';
 import { fetchUserByUuid } from '../../user/services/user.api';
 
-import CertModal from '@/features/certificate/modals/CertificateDetail.modal';
+import CertificateDetailModal from '@/features/certificate/modals/CertificateDetail.modal';
 import UserDetailModal from '@/features/user/modals/UserDetail.modal';
 import CenterDetailModal from '@/features/center/modals/CenterDetail.modal';
 import ReissueModal from '@/features/certificate/modals/ReissueLog.modal';
@@ -130,7 +130,7 @@ export default function CertificateTable({ searchResults }: CertificateTableProp
       {targetCert && (
         <>
           {/* 상세정보 */}
-          <CertModal isOpen={modals.certModal} onClose={() => closeModal('certModal')} onUpdate={handleUpdate} targetCert={targetCert} />
+          <CertificateDetailModal isOpen={modals.certModal} onClose={() => closeModal('certModal')} onUpdate={handleUpdate} targetCert={targetCert} />
 
           {/* 회원정보 */}
           {targetUser && (

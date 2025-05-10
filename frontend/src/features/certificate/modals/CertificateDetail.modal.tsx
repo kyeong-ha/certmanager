@@ -10,7 +10,7 @@ import PrintPreviewProps from '@/components/PrintPreview';
 import PrintButton from '@/components/PrintButton';
 
 //----------------------------------------------------------------------//
-interface CertModalProps {
+interface CertificateDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
   onUpdate: (updated: Certificate) => void;
@@ -20,7 +20,7 @@ interface CertModalProps {
 
 
 /* ----- Modal -------------------------------------------------------- */
-export default function CertModal({ isOpen, onClose, onUpdate, targetCert }: CertModalProps) {
+export default function CertificateDetailModal({ isOpen, onClose, onUpdate, targetCert }: CertificateDetailModalProps) {
   /* --- 1.states --- */
   const [editMode, setEditMode] = useState(false);
   const [logs, setLogs] = useState<ReissueLog[]>([]);
