@@ -2,7 +2,7 @@ import React from 'react';
 import { EducationCenter } from '@/features/center/types/EducationCenter.type';
 
 //----------------------------------------------------------------------//
-interface CenterModalProps {
+interface CenterDetailModal {
   isOpen: boolean;
   onClose: () => void;
   education_center: EducationCenter;
@@ -10,7 +10,7 @@ interface CenterModalProps {
 //----------------------------------------------------------------------//
 
 /* ----- Modal -------------------------------------------------------- */
-const CenterModal: React.FC<CenterModalProps> = ({ isOpen, onClose, education_center }) => {
+const CenterDetailModal: React.FC<CenterDetailModal> = ({ isOpen, onClose, education_center }) => {
   /* --- 1. Handlers --- */
   // 1.1. 모달 닫기
   if (!isOpen) return null;
@@ -62,4 +62,4 @@ const CenterModal: React.FC<CenterModalProps> = ({ isOpen, onClose, education_ce
   );
 };
 
-export default CenterModal;
+export default CenterDetailModal;

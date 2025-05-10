@@ -4,8 +4,8 @@ import { User } from '@/features/user/types/User.type';
 import { fetchUserByUuid } from '../../user/services/user.api';
 
 import CertModal from '@/features/certificate/modals/CertificateDetail.modal';
-import UserModal from '@/features/user/modals/UserDetail.modal';
-import CenterModal from '@/features/center/modals/CenterDetail.modal';
+import UserDetailModal from '@/features/user/modals/UserDetail.modal';
+import CenterDetailModal from '@/features/center/modals/CenterDetail.modal';
 import ReissueModal from '@/features/certificate/modals/ReissueLog.modal';
 import PrintModal from '@/features/certificate/modals/CertificatePrint.modal';
 import ContextMenu from '../../../components/ContextMenu';
@@ -134,12 +134,12 @@ export default function CertificateTable({ searchResults }: CertificateTableProp
 
           {/* 회원정보 */}
           {targetUser && (
-            <UserModal isOpen={modals.userModal} onClose={() => closeModal('userModal')} user={targetUser} />
+            <UserDetailModal isOpen={modals.userModal} onClose={() => closeModal('userModal')} user={targetUser} />
           )}
 
           {/* 교육원정보 */}
           {targetCert.education_center && (
-            <CenterModal isOpen={modals.centerModal}onClose={() => closeModal('centerModal')} education_center={targetCert.education_center}/>
+            <CenterDetailModal isOpen={modals.centerModal}onClose={() => closeModal('centerModal')} education_center={targetCert.education_center}/>
           )}
 
           {/* 재발급하기 */}
