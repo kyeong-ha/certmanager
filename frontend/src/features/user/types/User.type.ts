@@ -1,0 +1,16 @@
+import { Certificate } from '@/features/certificate/types/Certificate.type';
+export interface User {
+    uuid: string;
+    user_id: string | null;
+    user_name: string;
+    birth_date: string;
+    phone_number: string;
+    postal_code: string;
+    address: string;
+    photo: string | null;
+
+    created_at: string;
+    updated_at: string;
+
+    certificates: Certificate[];
+}

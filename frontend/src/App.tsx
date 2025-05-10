@@ -1,24 +1,30 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
-import CreatePage from './pages/create.page';
-import SearchPage from './pages/search.page';
-import DashboardPage from './pages/dashboard.page';
-import IssuePage from './pages/issue.page';
+import CreatePage from './features/certificate/pages/CertificateCreate.page';
+// import UserPage from 'features/user/User.page'
+import SearchPage from '@/features/certificate/pages/CertificateSearch.page';
+import HomePage from './features/Home.page';
+import CertificateCreatePage from '@/features/certificate/pages/CertificateCreate.page';
 
-// API 작성규칙: CURD (Create, Read, Update, Delete) 에 맞춰서 작성
-// Create : /create
-// Read : /search
-// Update : /:uuid/update
-// Delete : /delete (not implemented yet)
+/* 
+  URL은 Feature-based 에 맞춰 작성한다
+    /cert
+    /cert/issue
+    /cert/search
+    /cert/update/:uuid
+    ...
+*/
 
 const App: React.FC = () => {
   return (
     <Routes>
-      <Route path="/" element={<DashboardPage />} />
-      <Route path="/create" element={<CreatePage />} />
-      <Route path="/search" element={<SearchPage />} />
-      <Route path="/update/:uuid" element={<CreatePage />} />
-      <Route path="/issue" element={<IssuePage />} />
+      {/* 메인 페이지 */}
+      <Route path="/" element={<HomePage />} />
+      {/* <Route path="/cert" element={<CertificatePage />} /> */}
+      <Route path="/cert/create" element={<CertificateCreatePage />} />
+      <Route path="/cert/search" element={<SearchPage />} />
+      <Route path="/cert/update/:uuid" element={<CreatePage />} />
+      {/* <Route path="/user" element={<UserPage />} /> */}
     </Routes>
   );
 };

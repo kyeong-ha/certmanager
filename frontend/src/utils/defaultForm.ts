@@ -1,7 +1,7 @@
-import { User } from '@/types/User.type';
-import { EducationCenter } from '@/types/EducationCenter.type';
-import { ReissueLog } from '@/types/ReissueLog.type';
-import { Certificate } from '@/types/Certificate.type';
+import { User } from '@/features/user/types/User.type';
+import { EducationCenter } from '@/features/center/types/EducationCenter.type';
+import { ReissueLog } from '@/features/certificate/types/ReissueLog.type';
+import { Certificate } from '@/features/certificate/types/Certificate.type';
 
 export const createDefaultUser = (): User => ({
   uuid: '',
