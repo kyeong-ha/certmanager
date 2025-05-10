@@ -17,3 +17,14 @@ export interface Certificate {
   education_center: EducationCenter;
   reissue_logs?: ReissueLog[];
 }
+
+export interface CertificateSummary{
+  uuid: string;
+  issue_number: string;
+  course_name: string;
+  issue_date: string;
+  education_center?: {
+    edu_name: string;
+    session: string;
+  };
+}

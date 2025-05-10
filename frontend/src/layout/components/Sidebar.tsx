@@ -7,7 +7,7 @@ import { FiHome, FiCalendar, FiUsers, FiAward, FiChevronDown, FiChevronRight, Fi
 const sidebarItems: (SidebarItem & { icon?: React.ReactNode })[] = [
     { label: '홈', path: '/', icon: <FiHome /> },
     { label: '교육일정', icon: <FiCalendar /> },
-    { label: '회원관리', icon: <FiUsers /> },
+    { label: '회원관리', icon: <FiUsers />, path: '/user' },
     {
       label: '자격증관리', icon: <FiAward />,
       children: [

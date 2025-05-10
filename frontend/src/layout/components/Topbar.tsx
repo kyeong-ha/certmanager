@@ -4,11 +4,18 @@ import SearchDropdown from '@/components/SearchDropdown';
 
 const pageTitles: Record<string, string> = {
   '/': '홈',
+
   '/schedule': '교육일정',
-  '/search': '검색하기',
-  '/create': '(재)발급하기',
-  '/print': '출력하기',
+
+  '/user': '회원관리',
+  '/user/create': '회원관리: 회원 생성하기',
+  
+  '/cert': '자격증관리',
+  '/cert/create': '자격증관리: (재)발급하기',
+  '/cert/print': '출력하기',
+
   '/center': '교육기관 관리',
+
   '/delivery': '배송 관리',
 };
 

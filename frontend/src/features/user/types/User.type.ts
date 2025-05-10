@@ -1,4 +1,4 @@
-import { Certificate } from '@/features/certificate/types/Certificate.type';
+import { CertificateSummary } from '@/features/certificate/types/Certificate.type';
 export interface User {
     uuid: string;
     user_id: string | null;
@@ -12,5 +12,5 @@ export interface User {
     created_at: string;
     updated_at: string;
 
-    certificates: Certificate[];
+    certificates: CertificateSummary[];
 }
