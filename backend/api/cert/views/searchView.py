@@ -10,21 +10,21 @@ from api.cert.serializers.CertificateSerializer import CertificateSerializer
 def search(request):
     filter_type = request.GET.get('filter_type')
     search_value = request.GET.get('search_value')
-    edu_name = request.GET.get('edu_name')
-    session = request.GET.get('session')
+    center_name = request.GET.get('center_name')
+    center_session = request.GET.get('center_session')
 
     field_map = {
         'user_name': 'user__user_name',
         'phone_number': 'user__phone_number',
         'issue_number': 'issue_number',
-        'education_center': 'education_center__edu_name',
+        'education_center': 'education_center__center_name',
     }
 
     try:
-        if edu_name:
-            filters = {'education_center__edu_name__icontains': edu_name}
-            if session:
-                filters['education_center__session__icontains'] = session
+        if center_name:
+            filters = {'education_center__center_name__icontains': center_name}
+            if center_session:
+                filters['education_center__session__icontains'] = center_session
             certificates = Certificate.objects.select_related('user', 'education_center') \
                 .filter(**filters).order_by('-issue_date')
 

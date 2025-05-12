@@ -4,7 +4,7 @@ export interface CertificateSummary{
   issue_number: string; // 발급번호
   issue_date: string;   // 발급일자
   education_center?: {  // 교육원 정보
-    edu_name: string;
-    session: string;
+    center_name: string;
+    center_session: string;
   };
 }

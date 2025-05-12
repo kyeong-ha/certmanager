@@ -115,7 +115,7 @@ export default function CertificateTable({ searchResults }: CertificateTableProp
               <td className="px-2 py-1 border">{row.user.birth_date || '생년월일없음'}</td>
               <td className="px-2 py-1 border">{row.user.phone_number || '번호없음'}</td>
               <td className="px-2 py-1 border">{row.course_name}</td>
-              <td className="px-2 py-1 border">{row.education_center?.edu_name}_{row.education_center?.session}</td>
+              <td className="px-2 py-1 border">{row.education_center?.center_name}_{row.education_center?.center_session}</td>
             </tr>
           ))}
         </tbody>

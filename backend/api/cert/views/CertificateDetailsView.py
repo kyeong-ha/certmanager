@@ -38,8 +38,8 @@ def get_user_info(request):
             'issue_type': cert.issue_type,
             'education_center': {
                 'uuid': cert.education_center.uuid,
-                'edu_name': cert.education_center.edu_name,
-                'session': cert.education_center.session
+                'center_name': cert.education_center.center_name,
+                'center_session': cert.education_center.center_session
             },
             'note': cert.note,
             'postal_code': cert.postal_code,

@@ -5,4 +5,4 @@ from ..models.EducationCenter import EducationCenter
 class EducationCenterSummarySerializer(serializers.ModelSerializer):
     class Meta:
         model = EducationCenter
-        fields = ['uuid', 'edu_name', 'session']
+        fields = ['uuid', 'center_name', 'center_session']

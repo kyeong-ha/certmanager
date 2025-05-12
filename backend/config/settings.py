@@ -98,7 +98,7 @@ INSTALLED_APPS = [
     'config',
     'api.cert',
     'api.dashboard',
-    'api.edu',
+    'api.center',
     'api.logs',
     'api.user',
     'corsheaders',

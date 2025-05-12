@@ -16,8 +16,8 @@ export default function CertificateCreatePage() {
     "education_center" | "user_name" | "phone_number" | "issue_number"
   >("education_center");
 
-  const [eduName, setEduName] = useState("");
-  const [session, setSession] = useState("");
+  const [centerName, setCenterName] = useState("");
+  const [center_session, setCenterSession] = useState("");
   const [userName, setUserName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [issueNumber, setIssueNumber] = useState("");
@@ -32,8 +32,8 @@ export default function CertificateCreatePage() {
     try {
       const params: any = {};
       if (filterType === "education_center") {
-        params.edu_name = eduName;
-        params.session = session;
+        params.center_name = centerName;
+        params.center_session = center_session;
       } else {
         params.filter_type = filterType;
         params.search_value =
@@ -152,14 +152,14 @@ export default function CertificateCreatePage() {
             {filterType === "education_center" && (
               <div className="flex gap-2">
                 <Input
-                  placeholder="교육원명 (edu_name)"
-                  value={eduName}
-                  onChange={(e) => setEduName(e.target.value)}
+                  placeholder="교육원명 (center_name)"
+                  value={centerName}
+                  onChange={(e) => setCenterName(e.target.value)}
                 />
                 <Input
-                  placeholder="기수 (session)"
-                  value={session}
-                  onChange={(e) => setSession(e.target.value)}
+                  placeholder="기수 (center_session)"
+                  value={center_session}
+                  onChange={(e) => setCenterSession(e.target.value)}
                 />
               </div>
             )}
@@ -236,7 +236,7 @@ export default function CertificateCreatePage() {
                       <td className="p-2">{cert.user.phone_number}</td>
                       <td className="p-2">{cert.course_name}</td>
                       <td className="p-2">
-                        {cert.education_center.edu_name}_{cert.education_center.session}
+                        {cert.education_center.center_name}_{cert.education_center.center_session}
                       </td>
                     </tr>
                   ))}

@@ -14,7 +14,7 @@ export const fetchCertificateByUuid = async (uuid: string): Promise<Certificate[
 }
 
 // 자격증 조건검색 API
-export const searchCertificates = async (params: { filter_type?: string; search_value?: string; edu_name?: string; session?: string; }): Promise<Certificate[]> => {
+export const searchCertificates = async (params: { filter_type?: string; search_value?: string; center_name?: string; center_session?: string; }): Promise<Certificate[]> => {
   const response = await api.get('/cert/search/', {
     params,
   });

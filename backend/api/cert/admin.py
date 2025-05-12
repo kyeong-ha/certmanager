@@ -11,11 +11,11 @@ class CertificateAdmin(admin.ModelAdmin):
         'issue_number',
         'issue_date',
         'course_name',
-        'get_edu_name',
-        'get_edu_session',
+        'get_center_name',
+        'get_center_session',
     ]
     search_fields = ['issue_number', 'user__user_name', 'user__phone_number']
-    list_filter = ['issue_date', 'education_center__edu_name']
+    list_filter = ['issue_date', 'education_center__center_name']
     ordering = ['-issue_date']
     inlines = [ReissueLogInline]
 
@@ -27,10 +27,10 @@ class CertificateAdmin(admin.ModelAdmin):
         return obj.user.phone_number
     get_user_phone.short_description = '전화번호'
 
-    def get_edu_name(self, obj):
-        return obj.education_center.edu_name
-    get_edu_name.short_description = '교육원명'
+    def get_center_name(self, obj):
+        return obj.education_center.center_name
+    get_center_name.short_description = '교육원명'
 
-    def get_edu_session(self, obj):
-        return obj.education_center.session
-    get_edu_session.short_description = '기수'
+    def get_center_session(self, obj):
+        return obj.education_center.center_session
+    get_center_session.short_description = '기수'
