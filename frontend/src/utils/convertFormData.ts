@@ -1,4 +1,4 @@
-import { Certificate } from '@/types/Certificate.type';
+import { Certificate } from '@/features/certificate/types/Certificate.type';
 
 export const convertCertificateToFormData = (certificate: Certificate, photo?: File | null): FormData => {
   const formData = new FormData();
