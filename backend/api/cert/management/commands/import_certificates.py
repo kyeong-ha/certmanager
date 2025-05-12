@@ -2,7 +2,7 @@ import pandas as pd
 import datetime
 from django.core.management.base import BaseCommand
 from api.cert.models import Certificate
-from api.edu.models.EducationCenter import EducationCenter
+from api.center.models.EducationCenter import EducationCenter
 from api.user.models.User import User
 
 class Command(BaseCommand):
@@ -42,8 +42,8 @@ class Command(BaseCommand):
                 )
 
                 education_center_obj, _ = EducationCenter.objects.get_or_create(
-                    edu_name=row['edu_name'],
-                    session=row['session']
+                    center_name=row['center_name'],
+                    center_session=row['center_session']
                 )
 
                 certificates.append(Certificate(

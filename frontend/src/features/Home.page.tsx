@@ -13,11 +13,11 @@ type SortState = {
 export default function HomePage() {
   const [totalCount, setTotalCount] = useState(0);
   const [monthlyData, setMonthlyData] = useState<{ month: string; count: number }[]>([]);
-  const [centerData, setCenterData] = useState<{ edu_name: string; count: number }[]>([]);
-  const [centerSessionData, setCenterSessionData] = useState<{ edu_name: string; session: number; count: number }[]>([]);
+  const [centerData, setCenterData] = useState<{ center_name: string; count: number }[]>([]);
+  const [centerSessionData, setCenterSessionData] = useState<{ center_name: string; center_session: number; count: number }[]>([]);
   const [courseData, setCourseData] = useState<{ course_name: string; count: number }[]>([]);
   const [recentCertificates, setRecentCertificates] = useState<Certificate[]>([]);
-  const [expandedSections, setExpandedSections] = useState<{ [key: string]: boolean }>({ monthly: false, edu: false, course: false, eduSession: false, });
+  const [expandedSections, setExpandedSections] = useState<{ [key: string]: boolean }>({ monthly: false, center: false, course: false, centerSession: false, });
   const [sortState, setSortState] = useState<SortState>({ key: '', order: 'asc' });
 
   const toggleSection = (key: string) => {
@@ -40,7 +40,7 @@ export default function HomePage() {
     } else if (key === 'center') {
       setCenterData(prev =>
         [...prev].sort((a, b) =>
-          newOrder === 'asc' ? a.edu_name.localeCompare(b.edu_name) : b.edu_name.localeCompare(a.edu_name)
+          newOrder === 'asc' ? a.center_name.localeCompare(b.center_name) : b.center_name.localeCompare(a.center_name)
         )
       );
     } else if (key === 'course_name') {
@@ -52,12 +52,12 @@ export default function HomePage() {
     } else if (key === 'center_sseion') {
       setCenterSessionData(prev =>
         [...prev].sort((a, b) => {
-          if (a.edu_name === b.edu_name) {
-            return newOrder === 'asc' ? a.session - b.session : b.session - a.session;
+          if (a.center_name === b.center_name) {
+            return newOrder === 'asc' ? a.center_session - b.center_session : b.center_session - a.center_session;
           }
           return newOrder === 'asc'
-            ? a.edu_name.localeCompare(b.edu_name)
-            : b.edu_name.localeCompare(a.edu_name);
+            ? a.center_name.localeCompare(b.center_name)
+            : b.center_name.localeCompare(a.center_name);
         })
       );
     }
@@ -136,18 +136,18 @@ export default function HomePage() {
               </tr>
             </thead>
             <tbody>
-              {(expandedSections.eduSession ? centerSessionData : centerSessionData.slice(0, 5)).map((item, idx) => (
-                <tr key={`${item.edu_name}-${item.session}-${idx}`}>
-                  <td className="px-2 py-1 border">{item.edu_name}</td>
-                  <td className="px-2 py-1 border">{item.session}</td>
+              {(expandedSections.centerSession ? centerSessionData : centerSessionData.slice(0, 5)).map((item, idx) => (
+                <tr key={`${item.center_name}-${item.center_session}-${idx}`}>
+                  <td className="px-2 py-1 border">{item.center_name}</td>
+                  <td className="px-2 py-1 border">{item.center_session}</td>
                   <td className="px-2 py-1 border">{item.count}개</td>
                 </tr>
               ))}
             </tbody>
           </table>
           {centerSessionData.length > 5 && (
-            <button onClick={() => toggleSection('eduSession')} className="mt-2 text-blue-600 hover:underline text-sm">
-              {expandedSections.eduSession ? '접기' : '더보기'}
+            <button onClick={() => toggleSection('centerSession')} className="mt-2 text-blue-600 hover:underline text-sm">
+              {expandedSections.centerSession ? '접기' : '더보기'}
             </button>
           )}
         </div>
@@ -166,17 +166,17 @@ export default function HomePage() {
             </tr>
           </thead>
           <tbody>
-            {(expandedSections.edu ? centerData : centerData.slice(0, 5)).map((item, idx) => (
+            {(expandedSections.center ? centerData : centerData.slice(0, 5)).map((item, idx) => (
               <tr key={idx}>
-                <td className="px-2 py-1 border">{item.edu_name}</td>
+                <td className="px-2 py-1 border">{item.center_name}</td>
                 <td className="px-2 py-1 border">{item.count}</td>
               </tr>
             ))}
           </tbody>
         </table>
         {centerData.length > 5 && (
-          <button onClick={() => toggleSection('edu')} className="mt-2 text-blue-600 hover:underline text-sm">
-            {expandedSections.edu ? '접기' : '더보기'}
+          <button onClick={() => toggleSection('center')} className="mt-2 text-blue-600 hover:underline text-sm">
+            {expandedSections.center ? '접기' : '더보기'}
           </button>
         )}
       </div>
@@ -229,7 +229,7 @@ export default function HomePage() {
                 <td className="px-2 py-1 border">{cert.user?.user_name ?? '이름없음'}</td>
                 <td className="px-2 py-1 border">{cert.course_name}</td>
                 <td className="px-2 py-1 border">
-                  {cert.education_center?.edu_name}_{cert.education_center?.session}
+                  {cert.education_center?.center_name}_{cert.education_center?.center_session}
                 </td>
                 <td className="px-2 py-1 border">{format(new Date(cert.issue_date), 'yyyy-MM-dd')}</td>
               </tr>

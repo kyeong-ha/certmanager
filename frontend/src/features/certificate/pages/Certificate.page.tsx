@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { fetchCertificates } from '@/features/certificate/services/cert.api';
+import { searchCertificates } from '@/features/certificate/services/cert.api';
 import { Certificate } from '@/features/certificate/types/Certificate.type';
 import CertificateTable from '../components/CertificateTable';
 import SearchFilter from '../../../components/SearchFilter';
@@ -18,7 +18,7 @@ const CertificatePage: React.FC = () => {
 
         {/* 1.1.검색 기준 */}
         <div className="flex flex-col gap-4 mb-6">
-          <SearchFilter onSearch={(params) => {fetchCertificates(params).then(setResults); setSearched(true);}} onReset={() => {setResults([]); setSearched(false);}}/>
+          <SearchFilter onSearch={(params) => {searchCertificates(params).then(setResults); setSearched(true);}} onReset={() => {setResults([]); setSearched(false);}}/>
         </div>
 
         {/* 1.2.검색 결과 */}

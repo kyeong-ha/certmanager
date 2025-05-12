@@ -7,13 +7,13 @@ export interface MonthlyStat {
 }
 
 export interface CenterStat {
-  edu_name: string;
+  center_name: string;
   count: number;
 }
 
 export interface CenterSessionStat {
-  edu_name: string;
-  session: number;
+  center_name: string;
+  center_session: number;
   count: number;
 }
 

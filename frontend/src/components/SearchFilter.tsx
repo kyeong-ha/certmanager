@@ -25,8 +25,8 @@ const SearchFilter = ({ onSearch, onReset }: SearchFilterProps) => {
     }
 
     if (filterType === "education_center") {
-      const params: Record<string, string> = { edu_name: searchValue };
-      if (centerSession.trim()) params.session = centerSession;
+      const params: Record<string, string> = { center_name: searchValue };
+      if (centerSession.trim()) params.center_session = centerSession;
       onSearch(params);
     } else {
       onSearch({ filter_type: filterType, search_value: searchValue });
@@ -83,11 +83,11 @@ const SearchFilter = ({ onSearch, onReset }: SearchFilterProps) => {
       {/* 교육원명 선택 시 -> 교육기수 입력란 표시 */}
       {filterType === "education_center" && (
         <div>
-          <label htmlFor="session" className="block text-sm font-medium mb-1">
+          <label htmlFor="center_session" className="block text-sm font-medium mb-1">
             기수 (선택)
           </label>
           <Input
-            id="session"
+            id="center_session"
             type="text"
             placeholder="예: 1기"
             value={centerSession}

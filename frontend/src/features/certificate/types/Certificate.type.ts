@@ -24,7 +24,7 @@ export interface CertificateSummary{
   course_name: string;
   issue_date: string;
   education_center?: {
-    edu_name: string;
-    session: string;
+    center_name: string;
+    center_session: string;
   };
 }

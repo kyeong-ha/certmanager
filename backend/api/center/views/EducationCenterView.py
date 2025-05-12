@@ -3,5 +3,5 @@ from ..models import EducationCenter
 from ..serializers.EducationCenterSerializer import EducationCenterSerializer
 
 class EducationCenterViewSet(viewsets.ModelViewSet):
-    queryset = EducationCenter.objects.all().order_by('edu_name')
+    queryset = EducationCenter.objects.all().order_by('center_name')
     serializer_class = EducationCenterSerializer

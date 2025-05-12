@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Certificate } from '@/features/certificate/types/Certificate.type';
 import { fetchReissueLogsByUuid } from '@/features/certificate/services/logs.api';
-import { updateCertificate } from '@/features/certificate/services/cert.api';
+import { updateCertificates } from '@/features/certificate/services/cert.api';
 import { useEffect, useState } from 'react';
 import type { ReissueLog } from '@/features/certificate/types/ReissueLog.type';
 import PrintPreviewProps from '@/components/PrintPreview';
@@ -48,7 +48,7 @@ export default function CertificateDetailModal({ isOpen, onClose, onUpdate, targ
   // 2.3. 정보 저장
   const handleSave = async () => {
     try {
-      const updated = await updateCertificate(targetCert.uuid, targetCert);
+      const updated = await updateCertificates(targetCert.uuid, targetCert);
       onUpdate(updated);
       setEditMode(false);
     } catch (error) {

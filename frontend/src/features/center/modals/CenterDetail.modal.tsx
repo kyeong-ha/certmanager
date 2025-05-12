@@ -29,7 +29,7 @@ const CenterDetailModal: React.FC<CenterDetailModal> = ({ isOpen, onClose, educa
 
         {/* 2.2. 교육원 정보 */}
         <div>
-          <p><strong>교육원명:</strong> {education_center?.edu_name}</p>
+          <p><strong>교육원명:</strong> {education_center?.center_name}</p>
           <p className="text-sm text-gray-500 mt-2">※ 해당 교육원에 대한 상세 정보는 추후 연동 예정입니다.</p>
         </div>
 
