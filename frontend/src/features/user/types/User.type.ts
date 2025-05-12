@@ -1,4 +1,6 @@
-import { CertificateSummary } from '@/features/certificate/types/Certificate.type';
+import { CertificateSearchForm } from '@/features/certificate/types/CertificateSearchForm.type';
+import { EducationCenterSearchForm } from '@/features/center/types/EducationCenterSearchForm.type';
+
 export interface User {
     uuid: string;
     user_id: string | null;
@@ -12,5 +14,6 @@ export interface User {
     created_at: string;
     updated_at: string;
 
-    certificates: CertificateSummary[];
+    certificates: CertificateSearchForm[];
+    education_center: EducationCenterSearchForm;
 }

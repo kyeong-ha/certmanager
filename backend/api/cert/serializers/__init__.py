@@ -1,10 +1,10 @@
 from .CertificateSerializer import CertificateSerializer
 from .CertificateDetailsSerializer import CertificateDetailsSerializer
-from .CertificateSummarySerializer import CertificateSummarySerializer
+from .CertificateSearchSerializer import CertificateSearchSerializer
 
 
 __all__ = [
     "CertificateSerializer",
     "CertificateDetailsSerializer",
-    "CertificateSummarySerializer"
+    "CertificateSearchSerializer"
 ]

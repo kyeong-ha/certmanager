@@ -1,4 +1,4 @@
-import { EducationCenter } from "../../center/types/EducationCenter.type";
+import { EducationCenterSearchForm } from "../../center/types/EducationCenterSearchForm.type";
 import { ReissueLog } from "./ReissueLog.type";
 import { User } from "../../user/types/User.type";
 export interface Certificate {
@@ -14,17 +14,6 @@ export interface Certificate {
   updated_at?: string;
   
   user: User;
-  education_center: EducationCenter;
+  education_center: EducationCenterSearchForm;
   reissue_logs?: ReissueLog[];
-}
-
-export interface CertificateSummary{
-  uuid: string;
-  issue_number: string;
-  course_name: string;
-  issue_date: string;
-  education_center?: {
-    center_name: string;
-    center_session: string;
-  };
 }
