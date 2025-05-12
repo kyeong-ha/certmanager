@@ -1,16 +1,16 @@
 import React from 'react';
-import { EducationCenter } from '@/features/center/types/EducationCenter.type';
+import { EducationCenterSession } from '@/features/center/types/EducationCenter.type';
 
 //----------------------------------------------------------------------//
 interface CenterDetailModal {
   isOpen: boolean;
   onClose: () => void;
-  education_center: EducationCenter;
+  education_session: EducationCenterSession;
 }
 //----------------------------------------------------------------------//
 
 /* ----- Modal -------------------------------------------------------- */
-const CenterDetailModal: React.FC<CenterDetailModal> = ({ isOpen, onClose, education_center }) => {
+const CenterDetailModal: React.FC<CenterDetailModal> = ({ isOpen, onClose, education_session }) => {
   /* --- 1. Handlers --- */
   // 1.1. 모달 닫기
   if (!isOpen) return null;
@@ -29,7 +29,7 @@ const CenterDetailModal: React.FC<CenterDetailModal> = ({ isOpen, onClose, educa
 
         {/* 2.2. 교육원 정보 */}
         <div>
-          <p><strong>교육원명:</strong> {education_center?.center_name}</p>
+          <p><strong>교육원명:</strong> {education_session?.education_center.center_name}</p>
           <p className="text-sm text-gray-500 mt-2">※ 해당 교육원에 대한 상세 정보는 추후 연동 예정입니다.</p>
         </div>
 

@@ -1,5 +1,4 @@
 import { CertificateSearchForm } from '@/features/certificate/types/CertificateSearchForm.type';
-import { EducationCenterSearchForm } from '@/features/center/types/EducationCenterSearchForm.type';
 
 export interface User {
     uuid: string;
@@ -15,5 +14,10 @@ export interface User {
     updated_at: string;
 
     certificates: CertificateSearchForm[];
-    education_center: EducationCenterSearchForm;
+    latest_education_session?: {
+        education_center: {
+            center_name: string;
+        }
+        center_session: string | null;
+  };
 }

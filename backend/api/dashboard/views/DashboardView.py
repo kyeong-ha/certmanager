@@ -36,26 +36,26 @@ class CertificateStatsView(APIView):
         # 교육원별 발급 통계
         center_stats = (
             Certificate.objects
-            .values('education_center__center_name')
+            .values('education_session__education_center__center_name')
             .annotate(count=Count('uuid'))
             .order_by()
         )
         center_stats = [
-            {'center_name': item['education_center__center_name'], 'count': item['count']}
+            {'center_name': item['education_session__education_center__center_name'], 'count': item['count']}
             for item in center_stats
         ]
         
         # 교육원 & 기수별 발급 통계
         center_session_stats = (
              Certificate.objects
-            .values('education_center__center_name', 'education_center__center_session')
+            .values('education_session__education_center__center_name', 'education_session__center_session')
             .annotate(count=Count('uuid'))
             .order_by()
         )
         center_session_stats = [
             {
-                'center_name': item['education_center__center_name'],
-                'center_session': item['education_center__center_session'],
+                'center_name': item['education_session__education_center__center_name'],
+                'center_session': item['education_session__center_session'],
                 'count': item['count']
             }
             for item in center_session_stats

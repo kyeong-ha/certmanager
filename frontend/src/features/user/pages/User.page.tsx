@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
 import { Input } from '@/components/ui/input';
-import { User } from '../types/User.type';
-import { fetchAllUser } from '../services/user.api';
+import { User } from '@/features/user/types/User.type';
+import { UserSearchForm } from '@/features/user/types/UserSearchForm.type';
+import { fetchAllUser, fetchUserByUuid } from '../services/user.api';
 import MainLayout from '@/layout/MainLayout';
 import UserTable from '../components/UserTable';
 import UserDetailModal from '../modals/UserDetail.modal';
 
 export default function UserPage() {
-  const [users, setUsers] = useState<User[]>([]);
+  const [users, setUsers] = useState<UserSearchForm[]>([]);
   const [search, setSearch] = useState('');
   const [targetUser, setTargetUser] = useState<User | null>(null);
 
@@ -42,7 +43,11 @@ export default function UserPage() {
         />
 
         {/* 2.2. 검색결과 Table */}
-        <UserTable users={filteredUsers} onRowClick={setTargetUser} />
+        <UserTable users={filteredUsers} onRowClick={async (userSearch) => {
+          // targetUser의 상세정보만 fetch 후 set
+          const data = await fetchUserByUuid(userSearch.uuid);
+          setTargetUser(data);
+        }} />
 
         {/* 2.3. 회원 상세정보 Modal */}
         {targetUser && (

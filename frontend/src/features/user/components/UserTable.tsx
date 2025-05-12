@@ -1,9 +1,8 @@
-import React from 'react';
-import { User } from '../types/User.type';
+import { UserSearchForm } from '@/features/user/types/UserSearchForm.type';
 
 interface UserTableProps {
-  users: User[];
-  onRowClick: (user: User) => void;
+  users: UserSearchForm[];
+  onRowClick: (user: UserSearchForm) => void;
 }
 
 export default function UserTable({ users, onRowClick }: UserTableProps) {
@@ -17,6 +16,7 @@ export default function UserTable({ users, onRowClick }: UserTableProps) {
             <th className="px-4 py-2 text-left">전화번호</th>
             <th className="px-4 py-2 text-left">주소</th>
             <th className="px-4 py-2 text-left">회원 ID</th>
+            <th className="py-2 px-4 border">교육원</th>
           </tr>
         </thead>
         <tbody>
@@ -38,6 +38,9 @@ export default function UserTable({ users, onRowClick }: UserTableProps) {
                 <td className="px-4 py-2">{user.phone_number}</td>
                 <td className="px-4 py-2">{user.address || '-'}</td>
                 <td className="px-4 py-2">{user.user_id || '-'}</td>
+                <td className="py-2 px-4 border">
+                  {user.latest_education_session ? `${user.latest_education_session?.education_center.center_name ?? ''} ${user.latest_education_session.center_session ?? ''}` : '미지정'}
+                </td>
               </tr>
             ))
           )}

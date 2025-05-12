@@ -3,8 +3,13 @@ export interface CertificateSearchForm{
   course_name: string;  // 자격과정
   issue_number: string; // 발급번호
   issue_date: string;   // 발급일자
-  education_center?: {  // 교육원 정보
+  user: {              // 회원 정보
+    user_name: string,
+    birth_date: string,
+    phone_number: string
+  }
+  education_session?: {  // 교육원 정보
     center_name: string;
-    center_session: string;
+    center_session: string | null;
   };
 }

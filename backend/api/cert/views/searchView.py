@@ -17,24 +17,24 @@ def search(request):
         'user_name': 'user__user_name',
         'phone_number': 'user__phone_number',
         'issue_number': 'issue_number',
-        'education_center': 'education_center__center_name',
+        'education_center': 'education_session__education_center__center_name',
     }
 
     try:
         if center_name:
-            filters = {'education_center__center_name__icontains': center_name}
+            filters = {'education_session__education_center__center_name__icontains': center_name}
             if center_session:
                 filters['education_center__session__icontains'] = center_session
-            certificates = Certificate.objects.select_related('user', 'education_center') \
+            certificates = Certificate.objects.select_related('education_center') \
                 .filter(**filters).order_by('-issue_date')
 
         elif filter_type in field_map and search_value:
             filter_key = f"{field_map[filter_type]}__icontains"
-            certificates = Certificate.objects.select_related('user', 'education_center') \
+            certificates = Certificate.objects.select_related('education_center') \
                 .filter(**{filter_key: search_value}).order_by('-issue_date')
 
         else:
-            certificates = Certificate.objects.select_related('user', 'education_center').all()
+            certificates = Certificate.objects.select_related('education_center').all()
 
         serializer = CertificateSerializer(certificates, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)

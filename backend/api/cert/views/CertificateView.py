@@ -6,7 +6,6 @@ from rest_framework.decorators import action
 
 from api.cert.models.Certificate import Certificate
 from api.cert.serializers.CertificateSerializer import CertificateSerializer
-from api.center.models.EducationCenter import EducationCenter
 from api.logs.models.ReissueLog import ReissueLog
 
 class CertificateViewSet(viewsets.ModelViewSet):

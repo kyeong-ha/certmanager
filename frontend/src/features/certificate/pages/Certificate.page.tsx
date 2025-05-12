@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { searchCertificates } from '@/features/certificate/services/cert.api';
-import { Certificate } from '@/features/certificate/types/Certificate.type';
+import { CertificateSearchForm } from '@/features/certificate/types/CertificateSearchForm.type';
 import CertificateTable from '../components/CertificateTable';
 import SearchFilter from '../../../components/SearchFilter';
 import MainLayout from '@/layout/MainLayout';
 
 /* ----- Page ----------------------------------------------------- */
 const CertificatePage: React.FC = () => {
-  const [results, setResults] = useState<Certificate[]>([]);
+  const [results, setResults] = useState<CertificateSearchForm[]>([]);
   const [searched, setSearched] = useState(false);
 
   /* --- 1.Render --- */
