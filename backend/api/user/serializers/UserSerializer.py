@@ -1,9 +1,9 @@
 from rest_framework import serializers
 from ..models.User import User
-from api.cert.serializers.SimpleCertificateSerializer import SimpleCertificateSerializer
+from api.cert.serializers.CertificateSummarySerializer import CertificateSummarySerializer
 
 class UserSerializer(serializers.ModelSerializer):
-    certificates = SimpleCertificateSerializer(many=True, read_only=True)
+    certificates = CertificateSummarySerializer(many=True, read_only=True)
 
     class Meta:
         model = User

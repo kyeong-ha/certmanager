@@ -5,11 +5,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { formatIssueNumbers } from "@/utils/formatIssueNumbers";
-import { fetchCertificates } from "@/features/certificate/services/cert.api";
+import { searchCertificates } from "@/features/certificate/services/cert.api";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { issueCertificates } from '@/features/certificate/services/cert.api';
+import { createCertificates } from '@/features/certificate/services/cert.api';
 
 export default function CertificateCreatePage() {
   const [filterType, setFilterType] = useState<
@@ -44,7 +44,7 @@ export default function CertificateCreatePage() {
             : issueNumber;
       }
   
-      const certificates = await fetchCertificates(params);
+      const certificates = await searchCertificates(params);
       setCertificateList(certificates);
       setSelectedCertificates([]);
     } catch (error) {
@@ -74,7 +74,7 @@ export default function CertificateCreatePage() {
   const handleIssueCertificates = async () => {
     try {
       const uuids = selectedCertificates.map((c) => c.uuid);
-      await issueCertificates(uuids);
+      await createCertificates(uuids);
       alert("발급 요청이 완료되었습니다.");
       setIsConfirmModalOpen(false);
       setCertificateList([]);
