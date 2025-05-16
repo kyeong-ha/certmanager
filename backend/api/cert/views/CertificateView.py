@@ -13,16 +13,6 @@ class CertificateViewSet(viewsets.ModelViewSet):
     serializer_class = CertificateSerializer
 
     def get_queryset(self):
-        filter_type = self.request.query_params.get('filter_type')
-        search_value = self.request.query_params.get('search_value')
-
-        if filter_type and search_value:
-            try:
-                filter_kwargs = {f"{filter_type}__icontains": search_value}
-                return Certificate.objects.filter(**filter_kwargs)
-            except FieldError:
-                return Certificate.objects.none()
-
         return super().get_queryset()
 
     def update(self, request, *args, **kwargs):

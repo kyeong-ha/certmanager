@@ -1,9 +1,9 @@
 from rest_framework import serializers
 from api.center.models.EducationCenterSession import EducationCenterSession
-from api.center.serializers.EducationCenterSearchSerializer import EducationCenterSearchSerializer
+from api.center.serializers.EducationCenterSerializer import EducationCenterSerializer
 
 class EducationCenterSessionSerializer(serializers.ModelSerializer):
-    education_center = EducationCenterSearchSerializer(read_only=True)
+    education_center = EducationCenterSerializer()
     
     class Meta:
         model = EducationCenterSession

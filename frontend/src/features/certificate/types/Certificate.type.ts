@@ -1,6 +1,7 @@
-import { EducationCenterSession } from '@/features/center/types/EducationCenter.type';
+import { EducationCenterSession } from '@/features/center/types/EducationCenterSession.type';
 import { ReissueLog } from "./ReissueLog.type";
-import { User } from "../../user/types/User.type";
+import { UserSearchForm } from "../../user/types/UserSearchForm.type";
+
 export interface Certificate {
   uuid: string;
   issue_number: string;
@@ -12,7 +13,7 @@ export interface Certificate {
   created_at?: string;
   updated_at?: string;
   
-  user: User;
+  user: UserSearchForm;
   education_session: EducationCenterSession | null;
   reissue_logs?: ReissueLog[];
 }

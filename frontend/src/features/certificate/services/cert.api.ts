@@ -10,7 +10,7 @@ export const fetchAllCertificate = async (): Promise<Certificate[]> => {
 
 // 단일 자격증 상세조회 API
 export const fetchCertificateByUuid = async (uuid: string): Promise<Certificate> => {
-  const response = await api.get(`/cert/${uuid}/`).then(res => res.data);
+  const response = await api.get(`/cert/${uuid}/`);
   return response.data;
 }
 

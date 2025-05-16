@@ -3,27 +3,22 @@ from rest_framework import serializers
 from api.cert.models.Certificate import Certificate
 from api.logs.serializers.ReissueLogSerializer import ReissueLogSerializer
 from api.user.models.User import User
-from api.user.serializers.UserSerializer import UserSerializer
+from api.user.serializers.UserSearchSerializer import UserSearchSerializer
+from api.center.serializers.EducationCenterSessionSerializer import EducationCenterSessionSerializer
+
 
 class CertificateSerializer(serializers.ModelSerializer):
     uuid = serializers.ReadOnlyField()
-
-    user = UserSerializer(read_only=True)
-    reissue_logs = ReissueLogSerializer(many=True, read_only=True)
-
+    user = UserSearchSerializer(read_only=True)
     user_uuid = serializers.UUIDField(write_only=True)
+    education_session = EducationCenterSessionSerializer(read_only=True)
     education_center_uuid = serializers.UUIDField(write_only=True)
+    reissue_logs = ReissueLogSerializer(many=True, read_only=True)
+    copy_file = serializers.SerializerMethodField()
     
-    copy_file = serializers.SerializerMethodField() 
     class Meta:
         model = Certificate
-        fields = [
-            'uuid', 'issue_number', 'issue_date', 'issue_type', 'copy_file',
-            'course_name', 'created_at', 'updated_at',
-            'user', 'user_uuid',
-            'reissue_logs',
-        ]
-        read_only_fields = ['created_at', 'updated_at', 'user', 'education_center', 'reissue_logs']
+        fields = '__all__'
 
     def create(self, validated_data):
         user_uuid = validated_data.pop('user_uuid')

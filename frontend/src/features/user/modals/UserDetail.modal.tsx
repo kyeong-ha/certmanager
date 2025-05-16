@@ -90,9 +90,7 @@ const UserDetailModal: React.FC<UserDetailModalProps> = ({ isOpen, onClose, user
                 <td className="py-2 text-center border">{cert.issue_number}</td>
                 <td className="py-2 text-center border">{cert.issue_date}</td>
                 <td className="py-2 text-center border">
-                  {cert.education_session ? ( 
-                    <> {cert.education_session?.center_name || ''} {cert.education_session?.center_session || ''} </> ) 
-                    : ( '-' )}
+                    {cert.center_name || ''} {cert.center_session || ''}
                 </td>
               </tr>
             ))

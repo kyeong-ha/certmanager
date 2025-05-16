@@ -1,5 +1,5 @@
 import React from 'react';
-import { EducationCenterSession } from '@/features/center/types/EducationCenter.type';
+import { EducationCenterSession } from '@/features/center/types/EducationCenterSession.type';
 
 //----------------------------------------------------------------------//
 interface CenterDetailModal {

@@ -1,16 +1,19 @@
 from rest_framework import serializers
-from api.cert.models.Certificate import Certificate
-from api.user.serializers.UserSearchSerializer import UserSearchSerializer
+from api.cert.models import Certificate
 from api.center.serializers.EducationCenterSessionSerializer import EducationCenterSessionSerializer
+from api.user.serializers.UserSearchSerializer import UserSearchSerializer
 
 # 자격증 요약 Serializer (User 모델과 EducationCenter 모델도 필요한 정보만 불러옴)
 class CertificateSearchSerializer(serializers.ModelSerializer):
-    user = UserSearchSerializer()
-    education_session = serializers.SerializerMethodField()
+    user = UserSearchSerializer(read_only=True)
+    education_session = EducationCenterSessionSerializer(read_only=True)
     
     class Meta:
         model = Certificate
-        fields = ['uuid', 'issue_number', 'course_name', 'issue_date', 'user', 'education_session']
+        fields = fields = [
+            'uuid', 'issue_number', 'issue_date', 'course_name',
+            'user', 'education_session'
+        ]
         read_only_fields = ['created_at', 'updated_at']
         
     def get_education_session(self, obj):
