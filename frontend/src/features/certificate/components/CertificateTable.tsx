@@ -9,10 +9,15 @@ import CenterDetailModal from '@/features/center/modals/CenterDetail.modal';
 import ReissueModal from '@/features/certificate/modals/ReissueLog.modal';
 import PrintModal from '@/features/certificate/modals/CertificatePrint.modal';
 import ContextMenu from '../../../components/ContextMenu';
+import { CertificateSearchForm } from '../types/CertificateSearchForm.type';
+import { fetchCertificateByUuid } from '../services/cert.api';
+import { EducationCenterSession } from '@/features/center/types/EducationCenterSession.type';
+import { fetchEducationSessionByUuid } from '@/features/center/services/center.api';
 
 //----------------------------------------------------------------------//
 interface CertificateTableProps {
-  searchResults: Certificate[];
+  searchResults: CertificateSearchForm[];
+  onRefresh: () => void;
 }
 //----------------------------------------------------------------------//
 type ModalKeys =
@@ -25,32 +30,48 @@ type ModalKeys =
 
 
 /* ----- Component ----------------------------------------------------- */
-export default function CertificateTable({ searchResults }: CertificateTableProps) {
+export default function CertificateTable({ searchResults, onRefresh }: CertificateTableProps) {
   /* --- 1.states --- */
-  const [tableDatas, setTableData] = useState<Certificate[]>(searchResults);
+  const [tableDatas, setTableData] = useState<CertificateSearchForm[]>(searchResults);
   const [targetCert, setTargetCert] = useState<Certificate | null>(null);
   const [targetUser, setTargetUser] = useState<User | null>(null);
+  const [targetCenter, setTargetCenter] = useState<EducationCenterSession | null>(null);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null);
   const [modals, setModals] = useState<Record<ModalKeys, boolean>>({ certModal: false, printModal: false, userModal: false, centerModal: false, reissueModal: false, });
 
-  useEffect(() =>
-    setTableData(searchResults),
-  [searchResults]);
+  useEffect(() => {
+    setTableData(searchResults);
+  }, [searchResults]);
+
 
   /* --- 2.handlers --- */
   // 2.1. 셀 좌클릭 시 상세정보(certModal) 열기
-  const handleLeftClick = (e: MouseEvent, cert: Certificate) => {
+  const handleLeftClick = async (e: MouseEvent, cert: CertificateSearchForm) => {
     e.preventDefault();
-    setTargetCert(cert);
-    openModal('certModal');
+    // console.log('[handleLeftClick] 클릭된 cert:', cert); // Debug: 클릭된 Object
+
+    try {
+      const result = await fetchCertificateByUuid(cert.uuid);
+      // console.log('[handleLeftClick] 받아온 상세 result:', result); // Debug: API response 확인
+      setTargetCert(result);
+      openModal('certModal');
+    } catch (err) {
+      alert('자격증 상세 정보를 불러오지 못했습니다.');
+    }
   };
 
   // 2.2. 셀 우클릭시 ContextMenu 열기
-  const handleRightClick = (e: MouseEvent, cert: Certificate) => {
+  const handleRightClick = async (e: MouseEvent, cert: CertificateSearchForm) => {
     e.preventDefault();
-    setTargetCert(cert);
-    setContextMenu({ x: e.clientX, y: e.clientY });
+    try {
+      const result = await fetchCertificateByUuid(cert.uuid);
+      setTargetCert(result);
+      setContextMenu({ x: e.clientX, y: e.clientY });
+    } catch {
+      alert('자격증 상세 정보를 불러오지 못했습니다.');
+    }
   };
+
 
   // 2.3. ContextMenu에서 선택한 항목에 따라 모달 열기
   const handleContextSelect = async (action: string) => {
@@ -59,6 +80,12 @@ export default function CertificateTable({ searchResults }: CertificateTableProp
     switch (action) {
       case '상세정보':
         openModal('certModal');
+        try {
+          const result = await fetchCertificateByUuid(targetCert.uuid);
+          setTargetCert(result);
+        } catch {
+          alert('자격증 정보를 불러오지 못했습니다.');
+        }
         break;
       case '회원정보':
         openModal('userModal');
@@ -71,6 +98,12 @@ export default function CertificateTable({ searchResults }: CertificateTableProp
         break;
       case '교육원정보':
         openModal('centerModal');
+        try {
+          const result = await fetchEducationSessionByUuid(targetCert.education_session!.uuid);
+          setTargetCenter(result);
+        } catch {
+          alert('교육원 정보를 불러오지 못했습니다.');
+        }
         break;
       case '재발급하기':
         openModal('reissueModal');
@@ -87,10 +120,8 @@ export default function CertificateTable({ searchResults }: CertificateTableProp
   const closeModal = (key: ModalKeys) => setModals((prev) => ({ ...prev, [key]: false }));
 
   // 2.5. 상세정보 모달에서 업데이트 후 Table의 데이터에 수정반영
-  const handleUpdate = (updated: Certificate) => {
-    setTableData((prev) =>
-      prev.map((c) => (c.uuid === updated.uuid ? updated : c))
-    );
+  const handleUpdate = async (_updated: Certificate) => {
+    await onRefresh();
     closeModal('certModal');
   };
 
@@ -111,11 +142,11 @@ export default function CertificateTable({ searchResults }: CertificateTableProp
               <td className="px-2 py-1 border text-center">{idx + 1}</td>
               <td className="px-2 py-1 border">{row.issue_date}</td>
               <td className="px-2 py-1 border">{row.issue_number}</td>
-              <td className="px-2 py-1 border">{row.user.user_name || '이름없음'}</td>
-              <td className="px-2 py-1 border">{row.user.birth_date || '생년월일없음'}</td>
-              <td className="px-2 py-1 border">{row.user.phone_number || '번호없음'}</td>
+              <td className="px-2 py-1 border">{row.user?.user_name || '이름없음'}</td>
+              <td className="px-2 py-1 border">{row.user?.birth_date || '생년월일없음'}</td>
+              <td className="px-2 py-1 border">{row.user?.phone_number || '번호없음'}</td>
               <td className="px-2 py-1 border">{row.course_name}</td>
-              <td className="px-2 py-1 border">{row.education_center?.center_name}_{row.education_center?.center_session}</td>
+              <td className="px-2 py-1 border">{row.education_session?.education_center?.center_name ?? ''} {row.education_session?.center_session ?? ''}</td>
             </tr>
           ))}
         </tbody>
@@ -127,29 +158,33 @@ export default function CertificateTable({ searchResults }: CertificateTableProp
       )}
 
       {/* Modals */}
-      {targetCert && (
+
         <>
           {/* 상세정보 */}
-          <CertificateDetailModal isOpen={modals.certModal} onClose={() => closeModal('certModal')} onUpdate={handleUpdate} targetCert={targetCert} />
+          {modals.certModal && targetCert && (
+            <CertificateDetailModal isOpen={modals.certModal} onClose={() => closeModal('certModal')} onUpdate={handleUpdate} targetCert={targetCert} />
+          )}
 
           {/* 회원정보 */}
-          {targetUser && (
+          {modals.userModal && targetUser && (
             <UserDetailModal isOpen={modals.userModal} onClose={() => closeModal('userModal')} user={targetUser} />
           )}
 
           {/* 교육원정보 */}
-          {targetCert.education_center && (
-            <CenterDetailModal isOpen={modals.centerModal}onClose={() => closeModal('centerModal')} education_center={targetCert.education_center}/>
+          {modals.centerModal && targetCenter && (
+            <CenterDetailModal isOpen={modals.centerModal}onClose={() => closeModal('centerModal')} education_session={targetCenter}/>
           )}
 
           {/* 재발급하기 */}
-          <ReissueModal isOpen={modals.reissueModal} onClose={() => closeModal('reissueModal')} certificate={targetCert}/>
+          {modals.reissueModal && targetCert && (
+            <ReissueModal isOpen={modals.reissueModal} onClose={() => closeModal('reissueModal')} certificate={targetCert}/>
+          )}
 
           {/* 출력하기 */}
-          <PrintModal isOpen={modals.printModal} onClose={() => closeModal('printModal')} certificate={targetCert} />
-
+          {modals.printModal && targetCert && (
+            <PrintModal isOpen={modals.printModal} onClose={() => closeModal('printModal')} certificate={targetCert} />
+          )}
         </>
-      )}
     </div>
   );
 }

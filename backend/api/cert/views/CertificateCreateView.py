@@ -55,7 +55,7 @@ def create(request):  # noqa: ANN001 – DRF View 함수 시그니처 규칙
         )
 
     certificates = (
-        Certificate.objects.select_related("user", "education_center")
+        Certificate.objects.select_related("user")
         .filter(uuid__in=uuids)
         .all()
     )

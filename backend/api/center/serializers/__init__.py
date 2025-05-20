@@ -1,7 +1,7 @@
 from .EducationCenterSerializer import EducationCenterSerializer
-from .EducationCenterSummarySerializer import EducationCenterSummarySerializer
+from .EducationCenterSearchSerializer import EducationCenterSearchSerializer
 
 __all__ = [
     "EducationCenterSerializer",
-    "EducationCenterSummarySerializer"
+    "EducationCenterSearchSerializer"
 ]

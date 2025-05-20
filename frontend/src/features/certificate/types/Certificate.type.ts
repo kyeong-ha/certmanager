@@ -1,11 +1,11 @@
-import { EducationCenter } from "../../center/types/EducationCenter.type";
+import { EducationCenterSession } from '@/features/center/types/EducationCenterSession.type';
 import { ReissueLog } from "./ReissueLog.type";
-import { User } from "../../user/types/User.type";
+import { UserSearchForm } from "../../user/types/UserSearchForm.type";
+
 export interface Certificate {
   uuid: string;
   issue_number: string;
   issue_date: string;
-  issue_type: string;
   course_name: string;
   note?: string;
   copy_file?: string;
@@ -13,18 +13,7 @@ export interface Certificate {
   created_at?: string;
   updated_at?: string;
   
-  user: User;
-  education_center: EducationCenter;
+  user: UserSearchForm;
+  education_session: EducationCenterSession | null;
   reissue_logs?: ReissueLog[];
-}
-
-export interface CertificateSummary{
-  uuid: string;
-  issue_number: string;
-  course_name: string;
-  issue_date: string;
-  education_center?: {
-    center_name: string;
-    center_session: string;
-  };
 }

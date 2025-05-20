@@ -3,20 +3,20 @@ from django.db import models
 from api.cert.services.storage import OverwriteStorage
 from utils.helpers import certificate_copy_file_upload_path
 
-from api.center.models.EducationCenter import EducationCenter
 from api.user.models.User import User
+from api.center.models.EducationCenterSession import EducationCenterSession
 
 class Certificate(models.Model):
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='certificates')
-    education_center = models.ForeignKey(EducationCenter, null=True, on_delete=models.CASCADE, related_name='certificates')
-    copy_file = models.FileField(upload_to=certificate_copy_file_upload_path, storage=OverwriteStorage(), blank=True, null=True )
-    
     course_name = models.CharField(max_length=100, null=True, blank=True) # 자격과정
     issue_type = models.CharField(max_length=10, null=True, blank=True) # 분류코드 (HS || HN || S || J || N)
     issue_number = models.CharField(max_length=30, unique=True)  # 발급번호
     issue_date = models.DateField() # 발급일자
+    copy_file = models.FileField(upload_to=certificate_copy_file_upload_path, storage=OverwriteStorage(), blank=True, null=True )
     
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='certificates') # 자격증 소유자
+    education_session = models.ForeignKey(EducationCenterSession, on_delete=models.SET_NULL, null=True, blank=True) # 교육원명+기수
+
     created_at = models.DateTimeField(auto_now_add=True)  # 생성일자
     updated_at = models.DateTimeField(auto_now=True)  # 수정일자
     
