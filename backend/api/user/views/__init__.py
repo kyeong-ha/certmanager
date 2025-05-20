@@ -1,5 +1,8 @@
-from .UserView import UserViewSet
+from .UserView import UserListView, UserCreateView, UserDetailView, UserDeleteView
 
 __all__ = [
-    "UserViewSet",
+    "UserListView",
+    "UserCreateView",
+    "UserDetailView",
+    "UserDeleteView"
 ]

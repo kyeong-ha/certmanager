@@ -55,13 +55,13 @@ export const AutoCompleteInput: React.FC<AutoCompleteInputProps> = ({
       {showSuggestions && (
         <ul className="absolute z-50 w-full bg-white border rounded shadow max-h-40 overflow-y-auto">
           {/* 신규 생성 옵션 */}
-          {value.trim() && (
+          {value.trim() && !options.includes(value.trim()) && (
             <li
               key="__new__"
               className="px-3 py-2 font-semibold bg-gray-50 text-blue-600 hover:bg-blue-50 cursor-pointer"
               onMouseDown={(e) => {
                 e.preventDefault();
-                onCreateNew(value);
+                onCreateNew(value.trim());
                 setIsCreatingNew(true);
                 setShowSuggestions(false);
               }}
@@ -77,7 +77,9 @@ export const AutoCompleteInput: React.FC<AutoCompleteInputProps> = ({
               className="px-3 py-2 hover:bg-gray-100 cursor-pointer"
               onMouseDown={(e) => {
                 e.preventDefault();
-                onSelect(opt);
+                if (opt !== value) {
+                  onSelect(opt);
+                }
                 setIsCreatingNew(false);
                 setShowSuggestions(false);
               }}

@@ -1,30 +1,30 @@
 // src/features/center/slices/educationCenterSlice.ts
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { fetchCenterByUuid, fetchAllEducationSession } from '@/features/center/services/center.api';
-import type { EducationCenterSession } from '@/features/center/types/EducationCenterSession.type';
-import { EducationCenterCreateForm } from '../types/EducationCenterCreateForm.type';
+import type { EducationCenterSummary, EducationCenterDetail } from '@/features/center/types/EducationCenter.type';
+import type { EducationCenterSessionSummary } from '@/features/center/types/EducationCenterSession.type';
+
 
 // 전체 state 타입 정의
 interface EducationCenterState {
-  sessions: EducationCenterSession[];
-  centers: Record<string, EducationCenterSession>; // 대표 세션 (center_name 기준)
-  centerDetails: Record<string, EducationCenterCreateForm>; // center_name 기준 상세정보
-  centerDetailsByUuid: Record<string, EducationCenterCreateForm>; // uuid 기준 상세정보
+  sessions: EducationCenterSessionSummary[]; // 모든 교육기수 목록
+  centersByName: Record<string, EducationCenterSummary>; // center_name 기준 교육기관 요약 정보 (대표 session 포함)
+  // centerDetails: Record<string, EducationCenterDetail>; // center_name 기준 상세정보
+  centerDetailsByUuid: Record<string, EducationCenterDetail>; // uuid 기준 상세정보
   loading: boolean;
   error: string | null;
 }
 
 const initialState: EducationCenterState = {
   sessions: [],
-  centers: {},
-  centerDetails: {},
+  centersByName: {} as Record<string, EducationCenterSummary>,
   centerDetailsByUuid: {},
   loading: false,
   error: null,
 };
 
 // 모든 기수 불러오기 (center + session 리스트)
-export const fetchSessions = createAsyncThunk<EducationCenterSession[]>(
+export const fetchSessions = createAsyncThunk<EducationCenterSessionSummary[]>(
   'educationCenter/fetchSessions',
   async () => {
     return await fetchAllEducationSession();
@@ -32,7 +32,7 @@ export const fetchSessions = createAsyncThunk<EducationCenterSession[]>(
 );
 
 // 단일 center 상세정보 불러오기
-export const fetchCenterDetailByUuid = createAsyncThunk<EducationCenterCreateForm, string>('educationCenter/fetchCenterDetailByUuid', async (uuid) => {
+export const fetchCenterDetailByUuid = createAsyncThunk<EducationCenterDetail, string>('educationCenter/fetchCenterDetailByUuid', async (uuid) => {
   return await fetchCenterByUuid(uuid);
 });
 
@@ -46,49 +46,26 @@ const educationCenterSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
+      // fetchSessions 성공 시
       .addCase(fetchSessions.fulfilled, (state, action) => {
-        const sessions = action.payload;
-        const centerMap: Record<string, EducationCenterSession> = {};
-        const detailMap: Record<string, EducationCenterCreateForm> = {};
-
-        for (const s of sessions) {
-          const c = s.education_center as EducationCenterCreateForm;
-          const name = c.center_name;
-
-          if (!(name in centerMap)) {
-            centerMap[name] = s;
+        state.sessions = action.payload;
+        action.payload.forEach(session => {
+          const name = session.education_center.center_name;
+          const center = session.education_center;
+          if (!state.centersByName[name]) {
+            state.centersByName[name] = { ...center, center_session_list: [session] };
+          } else {
+            state.centersByName[name].center_session_list?.push(session);
           }
-
-          if (!(name in detailMap)) {
-            detailMap[name] = {
-              uuid: c.uuid,
-              center_name: c.center_name,
-              center_tel: c.center_tel ?? '',
-              ceo_name: c.ceo_name ?? '',
-              ceo_mobile: c.ceo_mobile ?? '',
-              manager_name: c.manager_name ?? '',
-              manager_mobile: c.manager_mobile ?? '',
-              center_address: c.center_address ?? '',
-              delivery_address: c.delivery_address ?? '',
-              unit_price: c.unit_price ?? '',
-              center_session: '', // session은 사용자가 입력
-            };
-          }
-        }
-
-        state.sessions = sessions;
-        state.centers = centerMap;
-        state.centerDetails = detailMap;
-        state.loading = false;
-        state.error = null;
+        });
       })
       .addCase(fetchSessions.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message ?? '세션 목록 불러오기 실패';
       })
+      // fetchCenterDetailByUuid 성공 시
       .addCase(fetchCenterDetailByUuid.fulfilled, (state, action) => {
-        const center = action.payload;
-        state.centerDetailsByUuid[center.uuid] = center;
+        state.centerDetailsByUuid[action.payload.uuid] = action.payload;
       });
   },
 });
