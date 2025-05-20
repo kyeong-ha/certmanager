@@ -30,7 +30,7 @@ class CertificateSearchSerializer(serializers.ModelSerializer):
 
 # 2. 생성 및 수정용
 class CertificateWriteSerializer(serializers.ModelSerializer):
-    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+    user = serializers.JSONField()
     education_session = serializers.PrimaryKeyRelatedField(queryset=EducationCenterSession.objects.all(), required=False, allow_null=True)
 
     class Meta:
@@ -47,6 +47,25 @@ class CertificateWriteSerializer(serializers.ModelSerializer):
             'user',
             'education_session',
         ]
+    def create(self, validated_data):
+        user_data = validated_data.pop("user")
+
+        # 1. phone_number 기준으로 사용자 조회 or 생성
+        user, _ = User.objects.get_or_create(
+            phone_number=user_data["phone_number"],
+            defaults={
+                "user_name": user_data.get("user_name"),
+                "birth_date": user_data.get("birth_date"),
+                "postal_code": user_data.get("postal_code"),
+                "address": user_data.get("address"),
+                "user_id": user_data.get("user_id", None),
+                "photo": user_data.get("photo", None),  # 필요 시 처리
+            },
+        )
+
+        # 2. ForeignKey로 연결
+        certificate = Certificate.objects.create(user=user, **validated_data)
+        return certificate
 
 
 

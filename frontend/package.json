@@ -40,6 +40,7 @@
     "react-router-dom": "^7.4.0",
     "react-scripts": "^5.0.1",
     "react-select": "^5.10.1",
+    "react-selectable-fast": "^3.4.0",
     "recharts": "^2.15.3",
     "shadcn": "^2.5.0",
     "tailwind-merge": "^3.2.0",
