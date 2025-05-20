@@ -1,22 +1,24 @@
 import { useState, useEffect, MouseEvent } from 'react';
-import { Certificate } from '@/features/certificate/types/Certificate.type';
-import { User } from '@/features/user/types/User.type';
+import ContextMenu from '../../../components/ContextMenu';
+
+import type { CertificateSummary, CertificateDetail } from '../types/Certificate.type';
+import type { UserDetail } from '@/features/user/types/User.type';
+import type { EducationCenterSessionDetail } from '@/features/center/types/EducationCenterSession.type';
+
+import { fetchCertificateByUuid } from '../services/cert.api';
 import { fetchUserByUuid } from '../../user/services/user.api';
+import { fetchEducationSessionByUuid } from '@/features/center/services/center.api';
 
 import CertificateDetailModal from '@/features/certificate/modals/CertificateDetail.modal';
 import UserDetailModal from '@/features/user/modals/UserDetail.modal';
 import CenterDetailModal from '@/features/center/modals/CenterDetail.modal';
 import ReissueModal from '@/features/certificate/modals/ReissueLog.modal';
 import PrintModal from '@/features/certificate/modals/CertificatePrint.modal';
-import ContextMenu from '../../../components/ContextMenu';
-import { CertificateSearchForm } from '../types/CertificateSearchForm.type';
-import { fetchCertificateByUuid } from '../services/cert.api';
-import { EducationCenterSession } from '@/features/center/types/EducationCenterSession.type';
-import { fetchEducationSessionByUuid } from '@/features/center/services/center.api';
+import { convertToSummary } from '../utils/convertToSummary';
 
 //----------------------------------------------------------------------//
 interface CertificateTableProps {
-  searchResults: CertificateSearchForm[];
+  searchResults: CertificateSummary[];
   onRefresh: () => void;
 }
 //----------------------------------------------------------------------//
@@ -32,10 +34,10 @@ type ModalKeys =
 /* ----- Component ----------------------------------------------------- */
 export default function CertificateTable({ searchResults, onRefresh }: CertificateTableProps) {
   /* --- 1.states --- */
-  const [tableDatas, setTableData] = useState<CertificateSearchForm[]>(searchResults);
-  const [targetCert, setTargetCert] = useState<Certificate | null>(null);
-  const [targetUser, setTargetUser] = useState<User | null>(null);
-  const [targetCenter, setTargetCenter] = useState<EducationCenterSession | null>(null);
+  const [tableDatas, setTableData] = useState<CertificateSummary[]>(searchResults);
+  const [targetCert, setTargetCert] = useState<CertificateDetail | null>(null);
+  const [targetUser, setTargetUser] = useState<UserDetail | null>(null);
+  const [targetCenter, setTargetCenter] = useState<EducationCenterSessionDetail | null>(null);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null);
   const [modals, setModals] = useState<Record<ModalKeys, boolean>>({ certModal: false, printModal: false, userModal: false, centerModal: false, reissueModal: false, });
 
@@ -46,13 +48,13 @@ export default function CertificateTable({ searchResults, onRefresh }: Certifica
 
   /* --- 2.handlers --- */
   // 2.1. 셀 좌클릭 시 상세정보(certModal) 열기
-  const handleLeftClick = async (e: MouseEvent, cert: CertificateSearchForm) => {
+  const handleLeftClick = async (e: MouseEvent, cert: CertificateSummary) => {
     e.preventDefault();
     // console.log('[handleLeftClick] 클릭된 cert:', cert); // Debug: 클릭된 Object
 
     try {
       const result = await fetchCertificateByUuid(cert.uuid);
-      // console.log('[handleLeftClick] 받아온 상세 result:', result); // Debug: API response 확인
+      console.log('[handleLeftClick] 받아온 상세 result:', result); // Debug: API response 확인
       setTargetCert(result);
       openModal('certModal');
     } catch (err) {
@@ -61,7 +63,7 @@ export default function CertificateTable({ searchResults, onRefresh }: Certifica
   };
 
   // 2.2. 셀 우클릭시 ContextMenu 열기
-  const handleRightClick = async (e: MouseEvent, cert: CertificateSearchForm) => {
+  const handleRightClick = async (e: MouseEvent, cert: CertificateSummary) => {
     e.preventDefault();
     try {
       const result = await fetchCertificateByUuid(cert.uuid);
@@ -99,7 +101,7 @@ export default function CertificateTable({ searchResults, onRefresh }: Certifica
       case '교육원정보':
         openModal('centerModal');
         try {
-          const result = await fetchEducationSessionByUuid(targetCert.education_session!.uuid);
+          const result = await fetchEducationSessionByUuid(targetCert.education_session.uuid);
           setTargetCenter(result);
         } catch {
           alert('교육원 정보를 불러오지 못했습니다.');
@@ -120,10 +122,24 @@ export default function CertificateTable({ searchResults, onRefresh }: Certifica
   const closeModal = (key: ModalKeys) => setModals((prev) => ({ ...prev, [key]: false }));
 
   // 2.5. 상세정보 모달에서 업데이트 후 Table의 데이터에 수정반영
-  const handleUpdate = async (_updated: Certificate) => {
-    await onRefresh();
-    closeModal('certModal');
-  };
+const handleUpdate = async (updated: CertificateDetail) => {
+  // 2.5.1. 테이블에 반영
+  const updatedSummary = convertToSummary(updated);
+
+  setTableData((prev) =>
+    prev.map((row) =>
+      row.user.uuid === updatedSummary.user.uuid
+        ? {
+            ...row,
+            user: updatedSummary.user,
+          }
+        : row
+    )
+  );
+  console.log('[handleUpdate] 업데이트된 데이터:', updatedSummary); // Debug: 업데이트된 데이터 확인
+  // 2.5.2. 모달 닫기
+  closeModal('certModal');
+};
 
   /* --- 3.Render --- */
   return (
@@ -146,7 +162,7 @@ export default function CertificateTable({ searchResults, onRefresh }: Certifica
               <td className="px-2 py-1 border">{row.user?.birth_date || '생년월일없음'}</td>
               <td className="px-2 py-1 border">{row.user?.phone_number || '번호없음'}</td>
               <td className="px-2 py-1 border">{row.course_name}</td>
-              <td className="px-2 py-1 border">{row.education_session?.education_center?.center_name ?? ''} {row.education_session?.center_session ?? ''}</td>
+              <td className="px-2 py-1 border">{row.center_name ?? ''} {row.center_session ? `${row.center_session}기` : ''}</td>
             </tr>
           ))}
         </tbody>

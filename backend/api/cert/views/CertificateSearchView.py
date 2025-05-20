@@ -4,8 +4,9 @@ from rest_framework import status
 from django.core.exceptions import FieldError
 
 from api.cert.models.Certificate import Certificate
-from api.cert.serializers.CertificateSearchSerializer import CertificateSearchSerializer
+from api.cert.serializers.CertificateSerializer import CertificateSearchSerializer
 
+# GET /api/cert/search → 자격증 전체 목록 요약조회
 @api_view(['GET'])
 def search(request):
     filter_type = request.GET.get('filter_type')

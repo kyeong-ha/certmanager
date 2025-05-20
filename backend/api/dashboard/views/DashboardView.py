@@ -7,7 +7,7 @@ from datetime import datetime
 from collections import defaultdict
 
 from api.cert.models import Certificate
-from api.cert.serializers.CertificateSerializer import CertificateSerializer
+from api.cert.serializers.CertificateSerializer import CertificateSearchSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -85,5 +85,5 @@ class CertificateStatsView(APIView):
 class RecentCertificatesView(APIView):
     def get(self, request):
         recent = Certificate.objects.order_by('-issue_date', '-created_at')[:10]
-        serializer = CertificateSerializer(recent, many=True)
+        serializer = CertificateSearchSerializer(recent, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)

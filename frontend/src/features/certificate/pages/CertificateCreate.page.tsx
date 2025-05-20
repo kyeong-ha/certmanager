@@ -1,6 +1,6 @@
 import MainLayout from '@/layout/MainLayout';
 import { useState } from "react";
-import { Certificate } from "@/features/certificate/types/Certificate.type";
+import { CertificateSummary } from "@/features/certificate/types/Certificate.type";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,7 +9,7 @@ import { searchCertificates } from "@/features/certificate/services/cert.api";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { createCertificates } from '@/features/certificate/services/cert.api';
+import { generateCertificatesPdf } from '@/features/certificate/services/cert.api';
 
 export default function CertificateCreatePage() {
   const [filterType, setFilterType] = useState<
@@ -22,8 +22,8 @@ export default function CertificateCreatePage() {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [issueNumber, setIssueNumber] = useState("");
 
-  const [certificateList, setCertificateList] = useState<Certificate[]>([]);
-  const [selectedCertificates, setSelectedCertificates] = useState<Certificate[]>([]);
+  const [certificateList, setCertificateList] = useState<CertificateSummary[]>([]);
+  const [selectedCertificates, setSelectedCertificates] = useState<CertificateSummary[]>([]);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -53,7 +53,7 @@ export default function CertificateCreatePage() {
     }
   };
 
-  const toggleSelectCertificate = (cert: Certificate) => {
+  const toggleSelectCertificate = (cert: CertificateSummary) => {
     setSelectedCertificates((prev) => {
       if (prev.find((c) => c.uuid === cert.uuid)) {
         return prev.filter((c) => c.uuid !== cert.uuid);
@@ -74,7 +74,7 @@ export default function CertificateCreatePage() {
   const handleIssueCertificates = async () => {
     try {
       const uuids = selectedCertificates.map((c) => c.uuid);
-      await createCertificates(uuids);
+      await generateCertificatesPdf(uuids);
       alert("발급 요청이 완료되었습니다.");
       setIsConfirmModalOpen(false);
       setCertificateList([]);
@@ -85,10 +85,10 @@ export default function CertificateCreatePage() {
     }
   };
 
-  const isSelected = (cert: Certificate) =>
+  const isSelected = (cert: CertificateSummary) =>
     selectedCertificates.some((c) => c.uuid === cert.uuid);
 
-  const handleRowClick = (cert: Certificate) => {
+  const handleRowClick = (cert: CertificateSummary) => {
     toggleSelectCertificate(cert);
   };
 
@@ -236,7 +236,7 @@ export default function CertificateCreatePage() {
                       <td className="p-2">{cert.user.phone_number}</td>
                       <td className="p-2">{cert.course_name}</td>
                       <td className="p-2">
-                        {cert.education_center.center_name}_{cert.education_center.center_session}
+                        {cert.center_name}_{cert.center_session}
                       </td>
                     </tr>
                   ))}
@@ -265,7 +265,7 @@ export default function CertificateCreatePage() {
           {/* ✅ 과정별 요약 + 수강생 상세 펼치기 */}
           <Accordion type="multiple" className="space-y-2">
             {Object.entries(
-              selectedCertificates.reduce<Record<string, Certificate[]>>((acc, cert) => {
+              selectedCertificates.reduce<Record<string, CertificateSummary[]>>((acc, cert) => {
                 acc[cert.course_name] = acc[cert.course_name] || [];
                 acc[cert.course_name].push(cert);
                 return acc;

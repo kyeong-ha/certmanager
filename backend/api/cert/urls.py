@@ -1,14 +1,16 @@
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
-from api.cert.views.CertificateView import CertificateViewSet
-from api.cert.views.CertificateSearchView import search
-from api.cert.views.CertificateCreateView import create
-
-router = DefaultRouter()
-router.register('', CertificateViewSet, basename='cert')
+from django.urls import path
+from .views.CertificateListView import CertificateListView
+from .views.CertificateDetailView import CertificateDetailView
+from .views.CertificateDeleteView import CertificateDeleteView
+from .views.CertificateCreateView import create
+from .views.CertificateSearchView import search
+from .views.CertificateUpdateView import CertificateUpdateByIssueNumberView
 
 urlpatterns = [
-    path('create/', create, name='create'),
-    path('search/', search, name='search'),
-    path('', include(router.urls)), 
+    path('', CertificateListView.as_view(), name='cert-list'),
+    path('create/', create, name='cert-create'),
+    path('<uuid:pk>/', CertificateDetailView.as_view(), name='cert-detail'),
+    path('<uuid:pk>/', CertificateDeleteView.as_view(), name='cert-delete'),
+    path('search/', search, name='cert-search'),
+    path("update/", CertificateUpdateByIssueNumberView.as_view(), name="cert-update-by-issue-number"),
 ]

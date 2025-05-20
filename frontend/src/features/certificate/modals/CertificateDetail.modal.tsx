@@ -1,28 +1,32 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogOverlay } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Certificate } from '@/features/certificate/types/Certificate.type';
-import { fetchReissueLogsByUuid } from '@/features/certificate/services/logs.api';
-import { updateCertificates } from '@/features/certificate/services/cert.api';
 import { useEffect, useState } from 'react';
-import type { ReissueLog } from '@/features/certificate/types/ReissueLog.type';
-import PrintPreviewProps from '@/components/PrintPreview';
-import PrintButton from '@/components/PrintButton';
-import InputBlock from '@/components/ui/InputBlock';
-import CenterCreateModal from '@/features/center/modals/CenterCreate.modal';
-import CenterNameSelect from '@/features/center/components/CenterNameSelect';
-import CenterSessionSelect from '@/features/center/components/CenterSessionSelect';
-import { EducationCenterSession } from '@/features/center/types/EducationCenterSession.type';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
 import useAppDispatch from '@/hooks/useAppDispatch';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogOverlay } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import PrintButton from '@/components/PrintButton';
+import InputBlock from '@/components/ui/InputBlock';
+
+import type { CertificateDetail, CertificateWriteForm } from '@/features/certificate/types/Certificate.type';
+import type { ReissueLog } from '@/features/certificate/types/ReissueLog.type';
+import type { EducationCenterSessionSummary } from '@/features/center/types/EducationCenterSession.type';
+
 import { fetchSessions } from '@/features/center/slices/educationCenterSlice';
+import { fetchReissueLogsByUuid } from '@/features/certificate/services/logs.api';
+import { updateCertificate } from '@/features/certificate/services/cert.api';
+
+import PrintPreviewProps from '@/components/PrintPreview';
+import CenterNameSelect from '@/features/center/components/CenterNameSelect';
+import CenterSessionSelect from '@/features/center/components/CenterSessionSelect';
+import { convertToWriteForm } from '@/features/certificate/utils/convertToWriteForm';
+import CenterCreateModal from '@/features/center/modals/CenterCreate.modal';
 
 //----------------------------------------------------------------------//
 interface CertificateDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onUpdate: (updated: Certificate) => void;
-  targetCert: Certificate;
+  onUpdate: (updated: CertificateDetail) => void;
+  targetCert: CertificateDetail;
 }
 //----------------------------------------------------------------------//
 
@@ -30,29 +34,32 @@ interface CertificateDetailModalProps {
 /* ----- Modal -------------------------------------------------------- */
 export default function CertificateDetailModal({ isOpen, onClose, onUpdate, targetCert }: CertificateDetailModalProps) {
   /* --- 1.states --- */
-  const [formData, setFormData] = useState<Certificate | null>(null);
+  const [detailData, setDetailData] = useState<CertificateDetail | null>(null);
   const [editMode, setEditMode] = useState(false);
   const [logs, setLogs] = useState<ReissueLog[]>([]);
   const [isCenterModalOpen, setIsCenterModalOpen] = useState(false);
   const [selectedCenterName, setSelectedCenterName] = useState('');
-  const [selectedSession, setSelectedSession] = useState<EducationCenterSession | null>(null);
-  const sessions = useSelector((state: RootState) => state.educationCenter.sessions);
-  const dispatch = useAppDispatch();
+  const [selectedSession, setSelectedSession] = useState<EducationCenterSessionSummary | null>(null);
+  
+  const sessionList = useSelector((state: RootState) => state.educationCenter.sessions);
 
   useEffect(() => {
     if (isOpen) {
-      setFormData(structuredClone(targetCert));
+      setDetailData(structuredClone(targetCert));
 
-      const session = sessions.find((s) => s.uuid === targetCert.education_session?.uuid);
-      if (session) {
-        setSelectedSession(session);
-        setSelectedCenterName(session.education_center.center_name);
-      } else {
-        setSelectedSession(null);
-        setSelectedCenterName('');
-      }
+      // 1) center_name → selectedCenterName
+      setSelectedCenterName(targetCert.education_session.education_center.center_name);
+
+      // 2) center_session → sessionList에서 매칭
+      const matched = sessionList.find(
+        (s) =>
+          s.center_session === targetCert.education_session.center_session &&
+          s.education_center.center_name === targetCert.education_session.education_center.center_name
+      );
+      setSelectedSession(matched ?? null);
     }
-  }, [isOpen, targetCert, sessions]);
+  }, [isOpen, targetCert, sessionList]);
+
 
   useEffect(() => {
     if (targetCert?.uuid) {
@@ -62,40 +69,71 @@ export default function CertificateDetailModal({ isOpen, onClose, onUpdate, targ
 
   useEffect(() => {
     if (isOpen) {
-      dispatch(fetchSessions());
+      
     }
   }, [isOpen]);
 
   /* --- 2.handlers --- */
   // 2.1. EditMode 시작
   const handleEditStart = () => {
-    setFormData(structuredClone(targetCert));
+    setDetailData(structuredClone(targetCert));
     setEditMode(true);
   };
   // 2.2. 자격증 정보 변경
   const handleChangeCert = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!formData) return;
+    if (!detailData) return;
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setDetailData({ ...detailData, [name]: value });
   };
   // 2.3. 사용자 정보 변경
   const handleChangeUser = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!formData || !formData.user) return;
+    if (!detailData || !detailData.user) return;
     const { name, value } = e.target;
-    setFormData({ ...formData, user: { ...formData.user, [name]: value } });
+    setDetailData({ ...detailData, user: { ...detailData.user, [name]: value } });
   };
   // 2.4. 정보 저장
-  const handleSave = async () => {
-    if (!formData) return;
-    try {
-      const updated = await updateCertificates(formData.uuid, formData);
-      onUpdate(updated);
-      setEditMode(false);
-    } catch (error) {
-      console.error(error);
-      alert('수정 실패');
-    }
-  };
+const handleSave = async () => {
+  if (!detailData || !selectedSession) return;
+
+  const isUnchanged =
+    detailData.issue_number === targetCert.issue_number &&
+    detailData.issue_date === targetCert.issue_date &&
+    detailData.course_name === targetCert.course_name &&
+    detailData.note === targetCert.note &&
+    detailData.delivery_address === targetCert.delivery_address &&
+    detailData.tracking_number === targetCert.tracking_number &&
+    detailData.user.user_name === targetCert.user.user_name &&
+    detailData.user.birth_date === targetCert.user.birth_date &&
+    detailData.user.phone_number === targetCert.user.phone_number &&
+    detailData.user.address === targetCert.user.address &&
+    detailData.education_session.uuid === targetCert.education_session.uuid;
+
+  if (isUnchanged) {
+    setEditMode(false);
+    return;
+  }
+
+  try {
+    const writeData = {
+      ...convertToWriteForm(detailData),
+      user_data: {
+        user_name: detailData.user.user_name,
+        birth_date: detailData.user.birth_date,
+        phone_number: detailData.user.phone_number,
+        address: detailData.user.address ?? '',
+      },
+    };
+
+    const updated = await updateCertificate(detailData.uuid, writeData);
+    onUpdate(updated);
+    setEditMode(false);
+  } catch (error) {
+    console.error(error);
+    alert('수정 실패');
+  }
+};
+
+
 
   /* --- 3.Render --- */
   return (
@@ -123,12 +161,12 @@ export default function CertificateDetailModal({ isOpen, onClose, onUpdate, targ
               <div className="border rounded-xl p-4 space-y-4 bg-muted shadow-sm">
                 <h3 className="text-lg font-semibold">👤 사용자 정보</h3>
                 <div className="grid grid-cols-2 gap-4 mt-4 p-2">
-                  {formData ? (
+                  {detailData ? (
                     <>
-                      <InputBlock label="성명" name="user_name" value={formData.user.user_name} onChange={handleChangeUser} editable={editMode} />
-                      <InputBlock label="생년월일" name="birth_date" value={formData.user.birth_date} onChange={handleChangeUser} editable={editMode} />
-                      <InputBlock label="전화번호" name="phone_number" value={formData.user.phone_number} onChange={handleChangeUser} editable={editMode} />
-                      <InputBlock label="주소" name="address" value={formData.user.address ?? ''} onChange={handleChangeUser} editable={editMode} />
+                      <InputBlock label="성명" name="user_name" value={detailData.user.user_name} onChange={handleChangeUser} editable={editMode} />
+                      <InputBlock label="생년월일" name="birth_date" value={detailData.user.birth_date} onChange={handleChangeUser} editable={editMode} />
+                      <InputBlock label="전화번호" name="phone_number" value={detailData.user.phone_number} onChange={handleChangeUser} editable={editMode} />
+                      <InputBlock label="주소" name="address" value={detailData.user.address ?? ''} onChange={handleChangeUser} editable={editMode} />
                     </>
                     ) : (
                       <p className="text-sm text-muted-foreground">데이터를 불러오는 중입니다.</p>
@@ -140,11 +178,11 @@ export default function CertificateDetailModal({ isOpen, onClose, onUpdate, targ
             <div className="border rounded-xl p-4 space-y-4 bg-muted shadow-sm mt-6">
               <h3 className="text-lg font-semibold">🎖️ 자격증 정보</h3>
               <div className="grid grid-cols-2 gap-4 mt-4 p-2">
-                {formData ? (
+                {detailData ? (
                   <>
-                    <InputBlock label="발급번호" name="issue_number" value={formData.issue_number} onChange={handleChangeCert} editable={editMode} />
-                    <InputBlock label="발급일자" name="issue_date" value={formData.issue_date} onChange={handleChangeCert} editable={editMode} type="date" />
-                    <InputBlock label="과정명" name="course_name" value={formData.course_name} onChange={handleChangeCert} editable={editMode} />
+                    <InputBlock label="발급번호" name="issue_number" value={detailData.issue_number} onChange={handleChangeCert} editable={editMode} />
+                    <InputBlock label="발급일자" name="issue_date" value={detailData.issue_date} onChange={handleChangeCert} editable={editMode} type="date" />
+                    <InputBlock label="과정명" name="course_name" value={detailData.course_name} onChange={handleChangeCert} editable={editMode} />
                   </>
                   ) : (
                     <p className="text-sm text-muted-foreground">데이터를 불러오는 중입니다.</p>
@@ -191,21 +229,20 @@ export default function CertificateDetailModal({ isOpen, onClose, onUpdate, targ
                 <CenterNameSelect value={selectedCenterName} onChange={(name) => {
                   setSelectedCenterName(name);
                   setSelectedSession(null);
-                  setFormData((prev) => prev ? { ...prev, education_session: { uuid: '', center_session: '', education_center: { uuid: '', center_name: name }}} : prev);
+                  setDetailData((prev) => prev ? { ...prev, education_center_uuid: '', education_session_uuid: '', } : prev);
                   }} 
                   disabled={!editMode}
                 />
-
                 <CenterSessionSelect
                   centerName={selectedCenterName}
                   value={selectedSession?.uuid ?? ''}
                   onChange={(uuid) => {
                     const session = selectedCenterName
-                      ? sessions.find((s) => s.uuid === uuid && s.education_center.center_name === selectedCenterName)
+                      ? sessionList.find((s) => s.uuid === uuid && s.education_center.center_name === selectedCenterName)
                       : null;
                     if (!session) return;
                     setSelectedSession(session);
-                    setFormData((prev) => prev ? { ...prev, education_session: session } : prev);
+                    setDetailData((prev) => prev ? { ...prev, education_session: session } : prev);
                   }}
                   disabled={!editMode}
                 />
@@ -262,11 +299,11 @@ export default function CertificateDetailModal({ isOpen, onClose, onUpdate, targ
         onClose={() => setIsCenterModalOpen(false)}
         onSuccess={(newUuid) => {
           setIsCenterModalOpen(false);
-          const session = sessions.find((s) => s.uuid === newUuid);
+          const session = sessionList.find((s) => s.uuid === newUuid);
           if (!session) return;
           setSelectedCenterName(session.education_center.center_name);
           setSelectedSession(session);
-          setFormData((prev) => prev ? { ...prev, education_session: session } : prev);
+          setDetailData((prev) => prev ? { ...prev, education_session: session } : prev);
         }}
       />
     </Dialog>

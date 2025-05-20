@@ -1,20 +1,42 @@
-export interface EducationCenter {
+import { EducationCenterSessionSummary, EducationCenterSessionDetail } from './EducationCenterSession.type';
+
+// 교육기관 요약 정보
+export interface EducationCenterSummary {
   uuid: string;
   center_name: string;
-  
-  center_tel?: string;             // 교육원 전화번호
-  center_address?: string;         // 사업자주소
-  delivery_address?: string;       // 배송주소
+  center_session_list?: EducationCenterSessionSummary[];
+}
 
-  unit_price?: number;             // 발급 단가
+// 교육기관 상세 정보
+export interface EducationCenterDetail extends EducationCenterSummary {
+  center_tel?: string;
+  center_address?: string;
+  unit_price?: number;
 
-  ceo_name?: string;               // 대표자명
-  ceo_mobile?: string;             // 대표자 휴대폰
+  ceo_name?: string;
+  ceo_mobile?: string;
 
-  manager_name?: string;           // 담당자명
-  manager_mobile?: string;         // 담당자 핸드폰
+  manager_name?: string;
+  manager_mobile?: string;
+
+  created_at: string;
+  updated_at: string;
+
+  center_session_list: EducationCenterSessionDetail[];
+}
 
 
-  created_at: Date;
-  updated_at: Date;
+// 교육기관 등록/수정 공통 폼
+export interface EducationCenterWriteForm {
+  uuid: string;
+  center_name: string;
+  center_tel?: string;
+  ceo_name?: string;
+  ceo_mobile?: string;
+  manager_name?: string;
+  manager_mobile?: string;
+  center_address?: string;
+  delivery_address?: string;
+  unit_price?: string;
+  center_session?: string;
 }
