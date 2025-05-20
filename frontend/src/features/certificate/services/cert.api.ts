@@ -20,10 +20,10 @@ export const searchCertificates = async (params: { filter_type?: string; search_
 };
 
 // 자격증 단건 생성 API
-export const createCertificate = async (data: CertificateWriteForm): Promise<CertificateDetail> => {
+export async function createCertificate(data: FormData): Promise<CertificateDetail> {
   const response = await api.post('/cert/create/', data);
   return response.data;
-};
+}
 
 // 자격증 수정 API
 export const updateCertificate = async (uuid: string, data: Partial<CertificateWriteForm>): Promise<CertificateDetail> => {

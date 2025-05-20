@@ -7,6 +7,8 @@ export interface UserSummary {
   user_name: string;
   birth_date: string;
   phone_number: string;
+  postal_code: string;
+  address: string;
 }
 
 // 사용자 상세 정보
@@ -14,7 +16,7 @@ export interface UserDetail extends UserSummary {
   user_id: string | null;
   postal_code: string;
   address: string;
-  photo: string | null;
+  photo: File | string | null;
 
   created_at: string;
   updated_at: string;
@@ -32,5 +34,5 @@ export interface UserWriteForm {
   phone_number: string;
   postal_code: string;
   address: string;
-  photo: string | null;
+  photo: File | string | null;
 }

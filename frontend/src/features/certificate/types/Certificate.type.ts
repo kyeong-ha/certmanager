@@ -50,25 +50,10 @@ export interface CertificateWriteForm {
   issue_number: string;
   issue_date: string;
   course_name: string;
-  copy_file?: File | null;
   delivery_address?: string;
   tracking_number?: string;
   note?: string;
 
   user: string;                 // user UUID
   education_session: string;   // session UUID
-}
-
-// 자격증 등록/수정 표시용 폼
-export interface CertificateForm {
-  issue_number: string;
-  issue_date: string;
-  course_name: string;
-  copy_file?: File | null;
-  delivery_address?: string;
-  tracking_number?: string;
-  note?: string;
-
-  user: UserSummary;
-  education_session: EducationCenterSessionSummary;
 }

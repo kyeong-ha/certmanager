@@ -27,17 +27,12 @@ def create(request):
     return _create_single_certificate(request)
 
 
-# POST /api/cert/create → 단일 자격증 생성 로직
-@api_view(["POST"])
 @parser_classes([MultiPartParser, FormParser])
 def _create_single_certificate(request):
     serializer = CertificateWriteSerializer(data=request.data)
     if serializer.is_valid():
         certificate = serializer.save()
-        return Response({
-            "message": "자격증이 성공적으로 생성되었습니다.",
-            "certificate": CertificateDetailSerializer(certificate).data
-        }, status=status.HTTP_201_CREATED)
+        return Response(CertificateDetailSerializer(certificate).data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 

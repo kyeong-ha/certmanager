@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { searchCertificates } from '@/features/certificate/services/cert.api';
-import { CertificateSearchForm } from '@/features/certificate/types/CertificateSearchForm.type';
+import { CertificateSummary } from '@/features/certificate/types/Certificate.type';
 import CertificateTable from '../components/CertificateTable';
 import SearchFilter from '../../../components/SearchFilter';
 import MainLayout from '@/layout/MainLayout';
@@ -8,7 +8,7 @@ import MainLayout from '@/layout/MainLayout';
 /* ----- Page ----------------------------------------------------- */
 const CertificatePage: React.FC = () => {
   const [lastSearchParams, setLastSearchParams] = useState<Record<string, string>>({});
-  const [results, setResults] = useState<CertificateSearchForm[]>([]);
+  const [results, setResults] = useState<CertificateSummary[]>([]);
   const [searched, setSearched] = useState(false);
 
   /*--- 1.Handlers ---*/

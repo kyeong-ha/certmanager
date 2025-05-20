@@ -1,6 +1,6 @@
 import MainLayout from '@/layout/MainLayout';
 import { useState } from "react";
-import { CertificateSummary } from "@/features/certificate/types/Certificate.type";
+import { CertificateDetail, CertificateSummary } from "@/features/certificate/types/Certificate.type";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,8 +10,14 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { generateCertificatesPdf } from '@/features/certificate/services/cert.api';
+import CertificateCreateModal from '../modals/CertificateCreate.modal'; 
+import CertificateTable from '../components/CertificateTable';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store';
+import { convertToSummary } from '../utils/convertToSummary';
 
 export default function CertificateCreatePage() {
+  const [showCreateModal, setShowCreateModal] = useState(false);
   const [filterType, setFilterType] = useState<
     "education_center" | "user_name" | "phone_number" | "issue_number"
   >("education_center");
@@ -23,9 +29,10 @@ export default function CertificateCreatePage() {
   const [issueNumber, setIssueNumber] = useState("");
 
   const [certificateList, setCertificateList] = useState<CertificateSummary[]>([]);
+  const sessionList = useSelector((state: RootState) => state.educationCenter.sessions);
   const [selectedCertificates, setSelectedCertificates] = useState<CertificateSummary[]>([]);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
-
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
   
@@ -51,6 +58,21 @@ export default function CertificateCreatePage() {
       console.error(error);
       alert("발급 대상 검색 중 오류가 발생했습니다.");
     }
+  };
+
+  const handleSuccess = (newCert: CertificateDetail) => {
+    const updatedSummary = convertToSummary(newCert);
+    setCertificateList((prev) =>
+      prev.map((row) =>
+        row.user.uuid === updatedSummary.user.uuid
+          ? {
+              ...row,
+              user: updatedSummary.user,
+            }
+          : row
+      )
+    ); // 등록 후 행 추가
+    setShowCreateModal(false); // 모달 닫기
   };
 
   const toggleSelectCertificate = (cert: CertificateSummary) => {
@@ -103,8 +125,11 @@ export default function CertificateCreatePage() {
   return (
     <MainLayout>
       <div className="relative min-h-screen">
-        {/* 🔵 상단 고정 영역 */}
+        {/* 상단 고정 영역 */}
         <div className="sticky top-0 z-10 bg-white p-4 border-b space-y-4">
+          <Button className="mb-4" onClick={() => setShowCreateModal(true)}>
+            신규 자격증 발급
+          </Button>
           <h1 className="text-2xl font-bold">자격증 발급</h1>
 
           {/* 검색 폼 */}
@@ -191,58 +216,19 @@ export default function CertificateCreatePage() {
           </form>
         </div>
 
-        {/* 📋 발급 대상 테이블 */}
+        {/* 발급 대상 테이블 */}
         <div className="p-4">
           {certificateList.length > 0 && (
-            <div className="overflow-x-auto border rounded">
-              <table className="w-full text-sm text-left">
-                <thead className="bg-gray-100">
-                  <tr>
-                    <th className="p-2">
-                      <input
-                        type="checkbox"
-                        checked={selectedCertificates.length === certificateList.length}
-                        onChange={(e) => handleSelectAll(e.target.checked)}
-                      />
-                    </th>
-                    <th className="p-2">발급번호</th>
-                    <th className="p-2">성명</th>
-                    <th className="p-2">생년월일</th>
-                    <th className="p-2">전화번호</th>
-                    <th className="p-2">자격과정</th>
-                    <th className="p-2">교육기관_기수</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {certificateList.map((cert) => (
-                    <tr
-                      key={cert.uuid}
-                      className={`hover:bg-gray-50 cursor-pointer ${
-                        isSelected(cert) ? "bg-blue-50" : ""
-                      }`}
-                      onClick={() => handleRowClick(cert)}
-                    >
-                      <td className="p-2">
-                        <input
-                          type="checkbox"
-                          checked={isSelected(cert)}
-                          onChange={() => {}}
-                          onClick={(e) => e.stopPropagation()}
-                        />
-                      </td>
-                      <td className="p-2">{cert.issue_number}</td>
-                      <td className="p-2">{cert.user.user_name}</td>
-                      <td className="p-2">{cert.user.birth_date}</td>
-                      <td className="p-2">{cert.user.phone_number}</td>
-                      <td className="p-2">{cert.course_name}</td>
-                      <td className="p-2">
-                        {cert.center_name}_{cert.center_session}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <CertificateTable
+              searchResults={certificateList}
+              onRefresh={() => {}}
+              onSelectChange={(selectedUuids) => {
+                const selected = certificateList.filter((cert) =>
+                  selectedUuids.includes(cert.uuid)
+                );
+                setSelectedCertificates(selected);
+              }}
+            />
           )}
         </div>
 
@@ -255,14 +241,14 @@ export default function CertificateCreatePage() {
           </div>
         )}
 
-        {/* ✅ 발급 확인 모달 */}
+        {/* 발급 확인 모달 */}
         <Dialog open={isConfirmModalOpen} onOpenChange={setIsConfirmModalOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>발급할 자격증 요약 확인</DialogTitle>
           </DialogHeader>
 
-          {/* ✅ 과정별 요약 + 수강생 상세 펼치기 */}
+          {/* 과정별 요약 + 수강생 상세 펼치기 */}
           <Accordion type="multiple" className="space-y-2">
             {Object.entries(
               selectedCertificates.reduce<Record<string, CertificateSummary[]>>((acc, cert) => {
@@ -305,7 +291,7 @@ export default function CertificateCreatePage() {
 
           <Separator className="my-4" />
 
-          {/* ✅ 발급번호 요약 */}
+          {/* 발급번호 요약 */}
           <div className="space-y-2 text-sm">
             <div>
               <span className="font-semibold">발급번호 요약: </span>
@@ -317,13 +303,21 @@ export default function CertificateCreatePage() {
             </div>
           </div>
 
-          {/* ✅ 발급 버튼 */}
+          {/* 발급 버튼 */}
           <Button onClick={handleIssueCertificates} className="w-full mt-6">
             최종 발급 요청
           </Button>
         </DialogContent>
       </Dialog>
       </div>
+
+      {/* 자격증 등록 모달 */}
+      <CertificateCreateModal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        onSuccess={handleSuccess}
+      />
       </MainLayout>
+      
   );
 }
