@@ -1,44 +1,58 @@
-// DropDown 컴포넌트
-
-import { useEffect } from 'react';
-import { useSelector } from 'react-redux';
-import { RootState } from '@/store';
-import { fetchSessions } from '@/features/center/slices/educationCenterSlice';
-import { EducationCenterSession } from '@/features/center/types/EducationCenterSession.type';
-import { fetchAllEducationSession } from '../services/center.api';
+// 교육기관 + 기수 선택 UI
+import CenterNameSelect from './CenterNameSelect';
+import CenterSessionSelect from './CenterSessionSelect';
 import { Button } from '@/components/ui/button';
-import useAppDispatch from '@/hooks/useAppDispatch';
+import { EducationCenterSessionSummary } from '../types/EducationCenterSession.type';
 
 interface CenterSelectProps {
-  value: string | null;
-  onChange: (uuid: string) => void;
+  editMode: boolean;
+  selectedCenterName: string;
+  setSelectedCenterName: (name: string) => void;
+  selectedSession: EducationCenterSessionSummary | null;
+  setSelectedSession: (session: EducationCenterSessionSummary | null) => void;
+  sessionList: EducationCenterSessionSummary[];
   onOpenCreateModal: () => void;
 }
 
-export default function CenterSelect({ value, onChange, onOpenCreateModal }: CenterSelectProps) {
-  const dispatch = useAppDispatch();
-  const { sessions, loading } = useSelector((state: RootState) => state.educationCenter);
-
-  useEffect(() => {
-    dispatch(fetchSessions());
-  }, [dispatch]);
-
+export default function CenterSelect({
+  editMode,
+  selectedCenterName,
+  setSelectedCenterName,
+  selectedSession,
+  setSelectedSession,
+  sessionList,
+  onOpenCreateModal,
+}: CenterSelectProps) {
   return (
-    <div className="flex gap-2 items-center">
-      <select
-        className="border rounded px-3 py-2 w-full"
-        value={value ?? ''}
-        onChange={(e) => onChange(e.target.value)}
-      >
-        <option value="">교육기관을 선택하세요</option>
-        {sessions.map((s: EducationCenterSession) => (
-          <option key={s.uuid} value={s.uuid}>
-            {s.education_center.center_name} / {s.center_session}
-          </option>
-        ))}
-      </select>
-
-      <Button variant="outline" onClick={onOpenCreateModal}>➕</Button>
+    <div className="grid grid-cols-3 gap-2 mt-2">
+      <CenterNameSelect
+        value={selectedCenterName}
+        onChange={(name) => {
+          setSelectedCenterName(name);
+          setSelectedSession(null);
+        }}
+        disabled={!editMode}
+      />
+      <CenterSessionSelect
+        centerName={selectedCenterName}
+        value={selectedSession?.uuid ?? ''}
+        onChange={(uuid) => {
+          const session = sessionList.find((s) => s.uuid === uuid && s.education_center.center_name === selectedCenterName);
+          if (!session) return;
+          setSelectedSession(session);
+        }}
+        disabled={!editMode}
+      />
+      {editMode && (
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onOpenCreateModal}
+          className="text-sm whitespace-nowrap"
+        >
+          ➕ 신규 등록
+        </Button>
+      )}
     </div>
   );
 }
