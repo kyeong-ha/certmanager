@@ -16,7 +16,8 @@ import { fetchReissueLogsByUuid } from '@/features/certificate/services/logs.api
 import { updateCertificate } from '@/features/certificate/services/cert.api';
 
 import PrintPreviewProps from '@/components/PrintPreview';
-import CenterNameSelect from '@/features/center/components/CenterNameSelect';
+import CenterSelect from '@/features/center/components/CenterSelect';
+import UserFormBlock from '@/features/user/components/UserFormBlock';
 import CenterSessionSelect from '@/features/center/components/CenterSessionSelect';
 import { convertToWriteForm } from '@/features/certificate/utils/convertToWriteForm';
 import CenterCreateModal from '@/features/center/modals/CenterCreate.modal';
@@ -160,18 +161,13 @@ const handleSave = async () => {
             
               <div className="border rounded-xl p-4 space-y-4 bg-muted shadow-sm">
                 <h3 className="text-lg font-semibold">👤 사용자 정보</h3>
-                <div className="grid grid-cols-2 gap-4 mt-4 p-2">
-                  {detailData ? (
-                    <>
-                      <InputBlock label="성명" name="user_name" value={detailData.user.user_name} onChange={handleChangeUser} editable={editMode} />
-                      <InputBlock label="생년월일" name="birth_date" value={detailData.user.birth_date} onChange={handleChangeUser} editable={editMode} />
-                      <InputBlock label="전화번호" name="phone_number" value={detailData.user.phone_number} onChange={handleChangeUser} editable={editMode} />
-                      <InputBlock label="주소" name="address" value={detailData.user.address ?? ''} onChange={handleChangeUser} editable={editMode} />
-                    </>
-                    ) : (
-                      <p className="text-sm text-muted-foreground">데이터를 불러오는 중입니다.</p>
-                    )}
-                  </div>
+                {detailData && (
+                  <UserFormBlock
+                    user={detailData.user}
+                    onChange={handleChangeUser}
+                    editable={editMode}
+                  />
+                )}
               </div>
 
             {/* 3.2.2. 자격증 정보 */}
@@ -225,38 +221,15 @@ const handleSave = async () => {
             {/* 3.2.4. 교육기관 정보 */}
             <div className="border rounded-xl p-4 space-y-4 bg-muted shadow-sm mt-6">
               <h3 className="text-lg font-semibold">🏫 교육기관 정보</h3>
-              <div className="grid grid-cols-3 gap-2 mt-2">
-                <CenterNameSelect value={selectedCenterName} onChange={(name) => {
-                  setSelectedCenterName(name);
-                  setSelectedSession(null);
-                  setDetailData((prev) => prev ? { ...prev, education_center_uuid: '', education_session_uuid: '', } : prev);
-                  }} 
-                  disabled={!editMode}
+              <CenterSelect
+                  editMode={editMode}
+                  selectedCenterName={selectedCenterName}
+                  setSelectedCenterName={setSelectedCenterName}
+                  selectedSession={selectedSession}
+                  setSelectedSession={setSelectedSession}
+                  sessionList={sessionList}
+                  onOpenCreateModal={() => setIsCenterModalOpen(true)}
                 />
-                <CenterSessionSelect
-                  centerName={selectedCenterName}
-                  value={selectedSession?.uuid ?? ''}
-                  onChange={(uuid) => {
-                    const session = selectedCenterName
-                      ? sessionList.find((s) => s.uuid === uuid && s.education_center.center_name === selectedCenterName)
-                      : null;
-                    if (!session) return;
-                    setSelectedSession(session);
-                    setDetailData((prev) => prev ? { ...prev, education_session: session } : prev);
-                  }}
-                  disabled={!editMode}
-                />
-                  {editMode && (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => setIsCenterModalOpen(true)}
-                      className="text-sm whitespace-nowrap"
-                    >
-                      ➕ 신규 등록
-                    </Button>
-                  )}
-              </div>
             </div>
 
             {/* 3.2.5. Edit Button */}
