@@ -10,3 +10,4 @@ whitenoise
 django-cors-headers
 Pillow
 python-docx
+PyPDF2

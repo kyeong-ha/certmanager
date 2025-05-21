@@ -1,4 +1,6 @@
 from rest_framework import serializers
+from django.conf import settings
+
 from api.cert.models.Certificate import Certificate
 from api.user.models.User import User
 from api.center.models.EducationCenter import EducationCenter
@@ -74,6 +76,14 @@ class CertificateDetailSerializer(serializers.ModelSerializer):
     user = UserSearchSerializer(read_only=True)
     # education_center = EducationCenterSearchSerializer(read_only=True)
     education_session = EducationCenterSessionSummarySerializer(read_only=True)
+    copy_file = serializers.SerializerMethodField()
+
+    def get_copy_file(self, obj):
+        if obj.copy_file:
+            return f"{settings.MEDIA_URL}{obj.copy_file.name}"
+        return None
+    
+                                      
     class Meta:
         model = Certificate
         fields = [

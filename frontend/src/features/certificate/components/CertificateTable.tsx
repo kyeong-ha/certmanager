@@ -13,7 +13,7 @@ import CertificateDetailModal from '@/features/certificate/modals/CertificateDet
 import UserDetailModal from '@/features/user/modals/UserDetail.modal';
 import CenterDetailModal from '@/features/center/modals/CenterDetail.modal';
 import ReissueModal from '@/features/certificate/modals/ReissueLog.modal';
-import PrintModal from '@/features/certificate/modals/CertificatePrint.modal';
+import CertificatePrintModal from '@/features/certificate/modals/CertificatePrint.modal';
 import { convertToSummary } from '../utils/convertToSummary';
 
 //----------------------------------------------------------------------//
@@ -236,14 +236,9 @@ export default function CertificateTable({ searchResults, onRefresh, onSelectCha
             <CenterDetailModal isOpen={modals.centerModal}onClose={() => closeModal('centerModal')} education_session={targetCenter}/>
           )}
 
-          {/* 재발급하기 */}
-          {modals.reissueModal && targetCert && (
-            <ReissueModal isOpen={modals.reissueModal} onClose={() => closeModal('reissueModal')} certificate={targetCert}/>
-          )}
-
           {/* 출력하기 */}
           {modals.printModal && targetCert && (
-            <PrintModal isOpen={modals.printModal} onClose={() => closeModal('printModal')} certificate={targetCert} />
+            <CertificatePrintModal isOpen={modals.printModal} onClose={() => closeModal('printModal')} certificate={targetCert} />
           )}
         </>
     </div>
