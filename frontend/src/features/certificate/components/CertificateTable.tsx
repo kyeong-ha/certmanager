@@ -11,8 +11,7 @@ import { fetchEducationSessionByUuid } from '@/features/center/services/center.a
 
 import CertificateDetailModal from '@/features/certificate/modals/CertificateDetail.modal';
 import UserDetailModal from '@/features/user/modals/UserDetail.modal';
-import CenterDetailModal from '@/features/center/modals/CenterDetail.modal';
-import ReissueModal from '@/features/certificate/modals/ReissueLog.modal';
+import CenterSessionDetailModal from '@/features/center/modals/CenterSessionDetail.modal';
 import CertificatePrintModal from '@/features/certificate/modals/CertificatePrint.modal';
 import { convertToSummary } from '../utils/convertToSummary';
 
@@ -27,7 +26,6 @@ type ModalKeys =
   | 'certModal'
   | 'userModal'
   | 'centerModal'
-  | 'reissueModal'
   | 'printModal';
 //----------------------------------------------------------------------//
 
@@ -40,7 +38,7 @@ export default function CertificateTable({ searchResults, onRefresh, onSelectCha
   const [targetUser, setTargetUser] = useState<UserDetail | null>(null);
   const [targetCenter, setTargetCenter] = useState<EducationCenterSessionDetail | null>(null);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null);
-  const [modals, setModals] = useState<Record<ModalKeys, boolean>>({ certModal: false, printModal: false, userModal: false, centerModal: false, reissueModal: false, });
+  const [modals, setModals] = useState<Record<ModalKeys, boolean>>({ certModal: false, printModal: false, userModal: false, centerModal: false });
   const [selectedUuids, setSelectedUuids] = useState<string[]>([]); // 선택된 UUID 리스트
   
 
@@ -109,9 +107,6 @@ export default function CertificateTable({ searchResults, onRefresh, onSelectCha
         } catch {
           alert('교육원 정보를 불러오지 못했습니다.');
         }
-        break;
-      case '재발급하기':
-        openModal('reissueModal');
         break;
       case '출력하기':
         openModal('printModal');
@@ -216,7 +211,7 @@ export default function CertificateTable({ searchResults, onRefresh, onSelectCha
       
       {/* Context Menu */}
       {contextMenu && (
-        <ContextMenu x={contextMenu.x} y={contextMenu.y} options={['상세정보', '회원정보', '교육원정보', '재발급하기', '출력하기']} onSelect={handleContextSelect} onClose={() => setContextMenu(null)}/>
+        <ContextMenu x={contextMenu.x} y={contextMenu.y} options={['상세정보', '회원정보', '교육원정보', '출력하기']} onSelect={handleContextSelect} onClose={() => setContextMenu(null)}/>
       )}
 
       {/* Modals */}
@@ -233,7 +228,7 @@ export default function CertificateTable({ searchResults, onRefresh, onSelectCha
 
           {/* 교육원정보 */}
           {modals.centerModal && targetCenter && (
-            <CenterDetailModal isOpen={modals.centerModal}onClose={() => closeModal('centerModal')} education_session={targetCenter}/>
+            <CenterSessionDetailModal isOpen={modals.centerModal}onClose={() => closeModal('centerModal')} education_session={targetCenter}/>
           )}
 
           {/* 출력하기 */}

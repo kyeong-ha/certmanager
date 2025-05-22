@@ -1,8 +1,8 @@
-import { UserSearchForm } from '@/features/user/types/UserSearchForm.type';
+import { UserSummary } from '@/features/user/types/User.type';
 
 interface UserTableProps {
-  users: UserSearchForm[];
-  onRowClick: (user: UserSearchForm) => void;
+  users: UserSummary[];
+  onRowClick: (user: UserSummary) => void;
 }
 
 export default function UserTable({ users, onRowClick }: UserTableProps) {

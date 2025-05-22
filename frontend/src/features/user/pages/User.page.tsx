@@ -1,16 +1,16 @@
 import { useEffect, useState } from 'react';
 import { Input } from '@/components/ui/input';
-import { User } from '@/features/user/types/User.type';
-import { UserSearchForm } from '@/features/user/types/UserSearchForm.type';
+import { UserDetail } from '@/features/user/types/User.type';
+import { UserSummary } from '@/features/user/types/User.type';
 import { fetchAllUser, fetchUserByUuid } from '../services/user.api';
 import MainLayout from '@/layout/MainLayout';
 import UserTable from '../components/UserTable';
 import UserDetailModal from '../modals/UserDetail.modal';
 
 export default function UserPage() {
-  const [users, setUsers] = useState<UserSearchForm[]>([]);
+  const [users, setUsers] = useState<UserSummary[]>([]);
   const [search, setSearch] = useState('');
-  const [targetUser, setTargetUser] = useState<User | null>(null);
+  const [targetUser, setTargetUser] = useState<UserDetail | null>(null);
 
   /* 1.Handlers */
   // 1.1. 사용자 데이터 가져오기
@@ -31,8 +31,8 @@ export default function UserPage() {
   /* 2.Render */
   return (
     <MainLayout>
-      <div className="p-6 max-w-4xl mx-auto">
-        <h1 className="text-2xl font-bold mb-4">회원관리</h1>
+      <div className="p-6 mx-auto">
+        <h1 className="text-2xl font-bold mb-4">🔍 회원검색</h1>
 
         {/* 2.1. 검색창 */}
         <Input

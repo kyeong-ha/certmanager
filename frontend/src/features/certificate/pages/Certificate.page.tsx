@@ -23,7 +23,7 @@ const CertificatePage: React.FC = () => {
   /* --- 2.Render --- */
   return (
     <MainLayout>
-      <div className="p-6 max-w-4xl mx-auto">
+      <div className="p-6 mx-auto">
         <h2 className="text-2xl font-bold mb-6">🔍 자격증 검색</h2>
 
         {/* 2.1.검색 기준 */}

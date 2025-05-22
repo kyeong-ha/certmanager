@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { SidebarItem } from '@/types/Layout.type';
 import { FiHome, FiCalendar, FiUsers, FiAward, FiChevronDown, FiChevronRight, FiTruck, FiBookOpen } from 'react-icons/fi';
+import CertificateCreateModal from '@/features/certificate/modals/CertificateCreate.modal';
+import toast from 'react-hot-toast';
 
 //----------------------------------------------------------------------//
 const sidebarItems: (SidebarItem & { icon?: React.ReactNode })[] = [
@@ -11,12 +13,12 @@ const sidebarItems: (SidebarItem & { icon?: React.ReactNode })[] = [
     {
       label: '자격증관리', icon: <FiAward />,
       children: [
+        { label: '새로 만들기' },
         { label: '검색하기', path: '/cert' },
-        { label: '(재)발급하기', path: '/cert/create' },
         { label: '출력하기', path: '/cert/print' },
       ],
     },
-    { label: '교육원관리', icon: <FiBookOpen /> },
+    { label: '교육원관리', icon: <FiBookOpen />, path: '/center' },
     { label: '배송관리', icon: <FiTruck /> },
   ];
 //----------------------------------------------------------------------//
@@ -26,6 +28,7 @@ export default function Sidebar() {
   /* --- 1. State --- */
   const location = useLocation();
   const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({});
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   /* --- 2. Handlers --- */
   const toggleMenu = (label: string) => {
@@ -63,12 +66,35 @@ export default function Sidebar() {
 
                      {/* 하위 메뉴 리스트 */}
                     {isOpen &&
-                      item.children!.map((child) => (
-                        <Link key={child.path} to={child.path || '#'} className={`block px-8 py-2 text-sm rounded-l-lg hover:bg-gray-100 ${ location.pathname === child.path ? 'bg-gray-100 font-medium text-blue-600' : 'text-gray-600' }`}>
-                           <span className="text-xs">▸ </span>
-                           {child.label}
+                      item.children!.map((child) => {
+                      const isSelected = location.pathname === child.path;
+                      const isNewCreate = child.label === '새로 만들기';
+
+                      if (isNewCreate) {
+                        return (
+                          <button
+                            key="cert-create"
+                            type="button"
+                            onClick={() => setIsModalOpen(true)}
+                            className={`block w-full text-left px-8 py-2 text-sm rounded-l-lg hover:bg-gray-100 text-gray-600`}
+                          >
+                            <span className="text-xs">▸ </span>
+                            {child.label}
+                          </button>
+                        );
+                      }
+
+                      return (
+                        <Link
+                          key={child.path}
+                          to={child.path || '#'}
+                          className={`block px-8 py-2 text-sm rounded-l-lg hover:bg-gray-100 ${isSelected ? 'bg-gray-100 font-medium text-blue-600' : 'text-gray-600'}`}
+                        >
+                          <span className="text-xs">▸ </span>
+                          {child.label}
                         </Link>
-                      ))}
+                      );
+                    })}
                   </>
                 ) : isClickable ? (
                 // 3.2.2. 하위 메뉴가 없고 path가 있는 경우, Link 연결
@@ -89,6 +115,18 @@ export default function Sidebar() {
             );
           })}
         </nav>
+
+        {isModalOpen && (
+          <CertificateCreateModal
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            onSuccess={(cert) => {
+              setIsModalOpen(false);
+              toast.success(`자격증 등록 성공: ${cert.issue_number}`);
+            }}
+          />
+        )}
       </aside>
+      
     );
   }

@@ -1,21 +1,21 @@
 import { useState, useEffect } from 'react';
-import { User } from '@/features/user/types/User.type';
+import { UserDetail } from '@/features/user/types/User.type';
 import { updateUser, deleteUser } from '@/features/user/services/user.api';
-import { UserEditForm } from '@/features/user/types/UserEditForm.type';
+import { UserWriteForm } from '@/features/user/types/User.type';
 import InputField from '@/components/ui/InputField';
 
 //----------------------------------------------------------------------//
 interface UserDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
-  user: User;
+  user: UserDetail;
 }
 //----------------------------------------------------------------------//
 
 
 /* ----- Modal -------------------------------------------------------- */
 const UserDetailModal: React.FC<UserDetailModalProps> = ({ isOpen, onClose, user }) => {
-  const [form, setForm] = useState<UserEditForm>({ user_id: '', user_name: '', birth_date: '', phone_number: '', postal_code: '', address: '', photo: '' });
+  const [form, setForm] = useState<UserWriteForm>({ user_id: '', user_name: '', birth_date: '', phone_number: '', postal_code: '', address: '', photo: '' });
 
   // User Data 가 바뀔 때마다 form 동기화
   useEffect(() => {

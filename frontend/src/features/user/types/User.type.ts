@@ -1,19 +1,20 @@
 import { CertificateSummary } from '@/features/certificate/types/Certificate.type';
 import { EducationCenterSummary } from '@/features/center/types/EducationCenter.type';
+import { EducationCenterSessionSummary } from '@/features/center/types/EducationCenterSession.type';
 
 // 사용자 요약 정보 (리스트, 서브 참조용)
 export interface UserSummary {
   uuid: string;
+  user_id: string | null;
   user_name: string;
   birth_date: string;
   phone_number: string;
   postal_code: string;
   address: string;
+  latest_education_session?: EducationCenterSessionSummary;
 }
-
 // 사용자 상세 정보
 export interface UserDetail extends UserSummary {
-  user_id: string | null;
   postal_code: string;
   address: string;
   photo: File | string | null;
