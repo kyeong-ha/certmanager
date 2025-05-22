@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 
 interface ContextMenuProps {
   x: number;
@@ -9,9 +10,17 @@ interface ContextMenuProps {
 }
 
 const ContextMenu: React.FC<ContextMenuProps> = ({ x, y, options, onSelect, onClose }) => {
-  return (
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
+  }, [onClose]);
+
+  const menu = (
     <div
-      className="absolute z-50 bg-white border rounded shadow-md text-sm"
+      className="fixed z-[9999] bg-white border rounded shadow-md text-sm"
       style={{ top: y, left: x }}
       onMouseLeave={onClose}
     >
@@ -26,6 +35,8 @@ const ContextMenu: React.FC<ContextMenuProps> = ({ x, y, options, onSelect, onCl
       ))}
     </div>
   );
+
+  return createPortal(menu, document.body); // 🧩 브라우저 전체 기준
 };
 
 export default ContextMenu;

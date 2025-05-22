@@ -12,10 +12,15 @@ export interface EducationCenterSessionSummary {
 export interface EducationCenterSessionDetail extends EducationCenterSessionSummary {
   delivery_address?: string;
   tracking_numbers?: string[];
+  
+  // TODO: 추후에 추가해야 할 필드들
+  // issue_date?: string;
+  // issue_count?: number;
+  // issue_status?: string;
+  // delivery_date?: string;
+  
   created_at: string;
   updated_at: string;
-
-  education_center: EducationCenterSummary;
 }
 
 // 교육기수 등록/수정 공통 폼
