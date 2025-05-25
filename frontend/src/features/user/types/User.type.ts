@@ -23,7 +23,7 @@ export interface UserDetail extends UserSummary {
   updated_at: string;
 
   // 교육기관+기수 리스트
-  education_center_list: EducationCenterSummary[];
+  education_session_list: EducationCenterSessionSummary[];
   certificates?: CertificateSummary[];
 }
 
@@ -36,4 +36,5 @@ export interface UserWriteForm {
   postal_code: string;
   address: string;
   photo: File | string | null;
+  education_session?: string[]; // 교육기관+기수 UUID 리스트
 }

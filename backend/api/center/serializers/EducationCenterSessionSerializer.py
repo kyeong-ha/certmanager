@@ -4,16 +4,15 @@ from api.center.models.EducationCenterSession import EducationCenterSession
 # 요약 응답용
 class EducationCenterSessionSummarySerializer(serializers.ModelSerializer):
     """교육기관 기수 요약 목록 조회용"""
-
-    def get_fields(self):
-        from api.center.serializers.EducationCenterSerializer import EducationCenterSearchSerializer
-        fields = super().get_fields()
-        fields['education_center'] = EducationCenterSearchSerializer(read_only=True)
-        return fields
+    education_center = serializers.SerializerMethodField()
 
     class Meta:
         model = EducationCenterSession
         fields = ['uuid', 'center_session', 'education_center', 'unit_price']
+
+    def get_education_center(self, obj):
+        from api.center.serializers.EducationCenterSerializer import EducationCenterSearchSerializer
+        return EducationCenterSearchSerializer(obj.education_center).data
 
 # 2. 생성/수정용
 class EducationCenterSessionWriteSerializer(serializers.ModelSerializer):

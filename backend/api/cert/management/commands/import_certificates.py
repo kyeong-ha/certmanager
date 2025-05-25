@@ -3,6 +3,7 @@
 import uuid
 from openpyxl import load_workbook
 from django.core.management.base import BaseCommand
+from datetime import datetime
 
 # 관련 모델 import
 from api.user.models.User import User
@@ -37,6 +38,19 @@ class Command(BaseCommand):
                 user_id,              # 회원 ID
                 address,              # 회원 주소
             ) = row[:9]
+            
+            # 생년월일 처리
+            if isinstance(birth_date, datetime):
+                birth_date = birth_date.date()
+            elif isinstance(birth_date, str):
+                try:
+                    birth_date = datetime.strptime(birth_date, "%Y.%m.%d").date()
+                except ValueError:
+                    self.stderr.write(f"[오류] {i}행 생년월일 형식 오류: {birth_date}")
+                    continue
+            else:
+                self.stderr.write(f"[오류] {i}행 생년월일 타입 미지원: {birth_date}")
+                continue
 
             # 1. 교육원명 / 기수 분리
             try:
@@ -66,7 +80,7 @@ class Command(BaseCommand):
                 defaults={'delivery_address': delivery_address}
             )
 
-            # 5. 사용자 생성
+            # 5. 사용자 생성 또는 업데이트
             try:
                 user = User.objects.get(phone_number=phone_number)
                 updated = False
@@ -94,6 +108,10 @@ class Command(BaseCommand):
                     address=address,
                 )
                 created = True
+
+            # 5.1. 사용자와 세션 관계 연결 (중복 방지)
+            if not user.education_session.filter(uuid=session.uuid).exists():
+                user.education_session.add(session)
                     
             # 6. 자격증 생성
             certificate = Certificate.objects.create(

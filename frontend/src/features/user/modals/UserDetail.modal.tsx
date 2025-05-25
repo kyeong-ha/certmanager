@@ -65,11 +65,11 @@ const UserDetailModal: React.FC<UserDetailModalProps> = ({ isOpen, onClose, user
         {/* 2.2. 회원 정보 */}
         <div className="grid grid-cols-2 gap-4 mb-6">
           <InputField label="회원 ID" name="user_id" value={form.user_id || ''} onChange={handleChange} />
-          <InputField label="이름" name="user_name" value={form.user_name} onChange={handleChange} />
-          <InputField label="생년월일" name="birth_date" value={form.birth_date} onChange={handleChange} type="date" />
+          <InputField label="이름" name="user_name" value={form.user_name || ''} onChange={handleChange} />
+          <InputField label="생년월일" name="birth_date" value={form.birth_date || ''} onChange={handleChange} type="date" />
           <InputField label="전화번호" name="phone_number" value={form.phone_number} onChange={handleChange} />
-          <InputField label="우편번호" name="postal_code" value={form.postal_code} onChange={handleChange} />
-          <InputField label="주소" name="address" value={form.address} onChange={handleChange} />
+          <InputField label="우편번호" name="postal_code" value={form.postal_code || ''} onChange={handleChange} />
+          <InputField label="주소" name="address" value={form.address || ''} onChange={handleChange} />
         </div>
 
         {/* 2.3. 자격증 발급내역 */}

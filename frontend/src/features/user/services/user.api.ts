@@ -22,9 +22,21 @@ export const searchUsers = async (params: { filter_type?: string; search_value?:
 
 // 회원 등록 API
 export const createUser = async (payload: UserWriteForm): Promise<UserDetail> => {
-  const response = await api.post('/user/create/', payload);
+  const data = new FormData();
+  Object.entries(payload).forEach(([key, value]) => {
+    if (value !== null) {
+      data.append(key, value as string | Blob);
+    }
+  });
+
+  const response =   await api.post('/user/create', data, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
   return response.data;
 };
+
+
+
 
 // 회원 수정 API
 export const updateUser = async (uuid: string, payload: Partial<UserWriteForm>): Promise<UserWriteForm> => {
@@ -33,6 +45,8 @@ export const updateUser = async (uuid: string, payload: Partial<UserWriteForm>):
 };
 
 // 회원 삭제 API
-export const deleteUser = async (uuid: string): Promise<void> => {
-  await api.delete(`/api/user/${uuid}/`);
+export const deleteUser = async (uuids: string[] | string): Promise<void> => {
+    const ids = Array.isArray(uuids) ? uuids : [uuids];
+  // DELETE 요청을 순차적으로 처리
+  await Promise.all(ids.map((uuid) => api.delete(`/user/${uuid}/`)));
 };
