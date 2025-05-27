@@ -40,7 +40,7 @@ const CenterSessionDetailModal: React.FC<CenterSessionDetailModal> = ({ isOpen, 
   /* --- 2. Render --- */
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      {/* 🔄 modal 너비 확대 */}
+      {/* modal 너비 확대 */}
       <DialogContent className="max-w-3xl">
         {/* 3.1. 모달 헤더 */}
         <DialogHeader>
@@ -72,7 +72,7 @@ const CenterSessionDetailModal: React.FC<CenterSessionDetailModal> = ({ isOpen, 
         <div className="space-y-2 text-sm mt-2">
           <div>
             <strong>교육기관:</strong>{' '}
-            {education_session.education_center.center_name}
+            {education_session.education_center?.center_name ?? '정보 없음'}
           </div>
           <div>
             <strong>배송주소:</strong>{' '}

@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from api.center.models.EducationCenterSession import EducationCenterSession
 from api.user.serializers.UserSerializer import UserSearchSerializer
+from api.center.serializers.EducationCenterSerializer import EducationCenterSearchSerializer
+from api.logs.serializers.ReissueLogSerializer import ReissueLogSerializer
 
 # 요약 응답용
 class EducationCenterSessionSummarySerializer(serializers.ModelSerializer):
@@ -54,54 +56,25 @@ class EducationCenterSessionWriteSerializer(serializers.ModelSerializer):
 class EducationCenterSessionDetailSerializer(serializers.ModelSerializer):
     """교육기관 기수(Session) 상세 조회용"""
 
-    education_center = serializers.SerializerMethodField()
-    users            = serializers.SerializerMethodField()
-    logs             = serializers.SerializerMethodField()
+    education_center = EducationCenterSearchSerializer(read_only=True)
+    users = UserSearchSerializer(many=True, read_only=True)
+    logs = ReissueLogSerializer(many=True, read_only=True)
 
     class Meta:
-        model  = EducationCenterSession
+        model = EducationCenterSession
         fields = [
-            'uuid', 'education_center', 'center_session',
-            'issue_date', 'issue_count', 'issue_status', 'delivery_date',
-            'unit_price', 'delivery_address', 'tracking_numbers',
-            'users', 'logs',
-            'created_at', 'updated_at',
+            'uuid',
+            'center_session',
+            'education_center',
+            'delivery_address',
+            'tracking_numbers',
+            'unit_price',
+            'issue_status',
+            'issue_count',
+            'issue_date',
+            'delivery_date',
+            'users',
+            'logs',
+            'created_at',
+            'updated_at',
         ]
-
-    # ──────────────────────────────────────────────
-    # Lazy import helpers
-    # ──────────────────────────────────────────────
-    def get_education_center(self, obj):
-        from api.center.serializers.EducationCenterSerializer import EducationCenterSearchSerializer
-        return EducationCenterSearchSerializer(obj.education_center, context=self.context).data
-
-    def get_users(self, obj):
-        """
-        소속 Certificate 들의 user 를 **중복 제거**해서 요약 리스트 반환
-        """
-        # 🪄 지연 import (순환 방지)
-        from api.user.serializers.UserSerializer import UserSearchSerializer
-        from api.user.models import User  # 커스텀 User 모델 경로에 맞춰 수정
-
-        user_ids = (
-            obj.certificates.values_list("user__uuid", flat=True)
-            .distinct()
-        )
-        users = User.objects.filter(uuid__in=user_ids)
-        return UserSearchSerializer(users, many=True, context=self.context).data
-
-    def get_logs(self, obj):
-        """
-        해당 Session 에 속한 Certificate 들의 ReissueLog 전체 집계
-        (최신순 정렬)
-        """
-        # 🪄 지연 import
-        from logs.models import ReissueLog
-        from api.logs.serializers import ReissueLogSerializer
-
-        qs = (
-            ReissueLog.objects.filter(certificate__education_session=obj)
-            .select_related("certificate")
-            .order_by("-created_at")
-        )
-        return ReissueLogSerializer(qs, many=True, context=self.context).data
