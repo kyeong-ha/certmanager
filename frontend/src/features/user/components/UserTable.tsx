@@ -98,7 +98,7 @@ export default function UserTable({ users, onRowClick, onSelectChange, onContext
                 <td className="px-4 py-2">{user.user_id || '-'}</td>
                 <td className="py-2 px-4 border">
                   {user.latest_education_session
-                    ? `${user.latest_education_session.education_center.center_name} ${user.latest_education_session.center_session}기`
+                    ? `${user.latest_education_session.education_center?.center_name ?? ''} ${user.latest_education_session.center_session ? `${user.latest_education_session.center_session}기` : ''}`
                     : '미지정'}
                 </td>
               </tr>

@@ -1,6 +1,9 @@
 from pathlib import Path
 import os
 
+from dotenv import load_dotenv
+load_dotenv()
+
 DEBUG = os.getenv('DB_DEBUG')
 SECRET_KEY = os.getenv('DB_SECRET_KEY')
 

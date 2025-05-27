@@ -14,6 +14,9 @@ import { fetchCenterByUuid } from '@/features/center/services/center.api';
 import type { UserWriteForm } from '@/features/user/types/User.type';
 import { cn } from '@/libs/utils';
 import { useEffect, useState } from 'react';
+import CenterSelect from '@/features/center/components/CenterSelect';
+import CenterCreateModal from '@/features/center/modals/CenterCreate.modal';
+import { EducationCenterSessionSummary } from '@/features/center/types/EducationCenterSession.type';
 
 interface UserCreateModalProps {
   isOpen: boolean;
@@ -35,9 +38,12 @@ const fieldLabels: Record<keyof UserWriteForm, string> = {
 export default function UserCreateModal({ isOpen, onClose, onSuccess }: UserCreateModalProps) {
   const dispatch = useAppDispatch();
   const centersByName = useSelector((state: RootState) => state.educationCenter.centersByName);
+  const sessionList = useSelector((state: RootState) => state.educationCenter.sessions);
 
   const [selectedCenterName, setSelectedCenterName] = useState('');
-  const [selectedCenterSession, setSelectedCenterSession] = useState<number | null>(null);
+  const [selectedSession, setSelectedSession] = useState<EducationCenterSessionSummary | null>(null);
+  const [isCenterModalOpen, setIsCenterModalOpen] = useState(false);
+
 
   const form = useForm<UserWriteForm>({
     defaultValues: {
@@ -59,17 +65,14 @@ export default function UserCreateModal({ isOpen, onClose, onSuccess }: UserCrea
 
   const handleSubmit = async (values: UserWriteForm) => {
     try {
-      const center = centersByName[selectedCenterName];
-      const session =
-        center && Array.isArray(center.center_session_list)
-          ? center.center_session_list.find(
-              (s) => s.center_session === selectedCenterSession
-            )
-          : undefined;
+      if (!selectedSession) {
+        alert('교육기관 및 기수를 선택해주세요.');
+        return;
+      }
 
       const fullPayload = {
         ...values,
-        education_session: session ? [session.uuid] : [],
+        education_session: [selectedSession.uuid],
       };
 
       await createUser(fullPayload as any);
@@ -145,54 +148,30 @@ export default function UserCreateModal({ isOpen, onClose, onSuccess }: UserCrea
 
             {/* 교육기관 선택 영역 */}
             <div className="border rounded-md p-4 bg-gray-50">
-              <h3 className="text-sm font-semibold text-gray-700 mb-3">🔍 교육기관/기수 선택</h3>
+              <div>
+                <h3 className="text-sm font-semibold text-gray-700 mb-3">🏫 교육기관 정보</h3>
+                <CenterSelect
+                  editMode={true}
+                  selectedCenterName={selectedCenterName}
+                  setSelectedCenterName={setSelectedCenterName}
+                  selectedSession={selectedSession}
+                  setSelectedSession={setSelectedSession}
+                  sessionList={useSelector((state: RootState) => state.educationCenter.sessions)}
+                  onOpenCreateModal={() => setIsCenterModalOpen(true)}
+                />
+              </div>
 
-              <FormItem className="grid grid-cols-3 items-center gap-2 mb-2">
-                <Label className="text-right">교육기관명</Label>
-                <div className="col-span-2">
-                  <AutoCompleteInput
-                    value={selectedCenterName}
-                    onChange={setSelectedCenterName}
-                    onSelect={(name) => {
-                      setSelectedCenterName(name);
-                      setSelectedCenterSession(null);
-                    }}
-                    onCreateNew={(value: string) => {
-                      setSelectedCenterName(value);
-                    }}
-                    options={Object.keys(centersByName)}
-                    placeholder="교육기관명 입력 또는 선택"
-                  />
-                </div>
-              </FormItem>
-
-              {selectedCenterName && (
-                <FormItem className="grid grid-cols-3 items-center gap-2 mb-2">
-                  <Label className="text-right">교육기수</Label>
-                  <div className="col-span-2">
-                    <select
-                      className="border rounded px-2 py-1 w-full"
-                      value={selectedCenterSession ?? ''}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        setSelectedCenterSession(val ? Number(val) : null);
-                      }}
-                    >
-                      <option value="">기수 선택</option>
-                      {Array.from(
-                        new Map(
-                          (centersByName[selectedCenterName]?.center_session_list || []).map((s) => [
-                            s.center_session,
-                            s
-                          ])
-                        ).values()
-                      ).map((s) => (
-                        <option key={s.uuid} value={s.center_session}>{s.center_session}기</option>
-                      ))}
-                    </select>
-                  </div>
-                </FormItem>
-              )}
+              <CenterCreateModal
+                isOpen={isCenterModalOpen}
+                onClose={() => setIsCenterModalOpen(false)}
+                onSuccess={(newUuid) => {
+                  setIsCenterModalOpen(false);
+                  const session = sessionList.find((s) => s.uuid === newUuid);
+                  if (!session) return;
+                  setSelectedCenterName(session.education_center.center_name);
+                  setSelectedSession(session);
+                }}
+              />
             </div>
             <Button type="submit" className="w-full">
               등록

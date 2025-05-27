@@ -43,7 +43,7 @@ export const fetchAllEducationSession = async (): Promise<EducationCenterSession
 export const fetchEducationSessionByUuid = async ( uuid: string ): Promise<EducationCenterSessionDetail> => {
   const response = await api.get(`/center/session/${uuid}/`);
   return response.data;
-};
+}
 
 // 특정 교육기관의 교육기수 생성 API
 export const createEducationSession = async ( data: EducationCenterSessionWriteForm ): Promise<EducationCenterSessionDetail> => {

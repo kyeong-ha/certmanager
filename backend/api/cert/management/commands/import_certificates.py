@@ -74,11 +74,23 @@ class Command(BaseCommand):
                     delivery_address = prev_session.delivery_address
 
             # 4. 세션 생성 또는 조회
-            session, _ = EducationCenterSession.objects.get_or_create(
-                education_center=center,
+            session = EducationCenterSession.objects.filter(
                 center_session=center_session,
-                defaults={'delivery_address': delivery_address}
-            )
+                education_center=center
+            ).first()
+
+            if not session:
+                session = EducationCenterSession.objects.create(
+                    education_center=center,
+                    center_session=center_session,
+                    delivery_address=delivery_address
+                )
+            else:
+                # education_center 연결 누락되어 있으면 복구
+                if session.education_center is None:
+                    session.education_center = center
+                    session.save()
+
 
             # 5. 사용자 생성 또는 업데이트
             try:

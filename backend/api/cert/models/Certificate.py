@@ -19,7 +19,7 @@ class Certificate(models.Model):
     
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='certificates')# 자격증 소유자
     education_center = models.ForeignKey(EducationCenter, on_delete=models.SET_NULL, null=True) #교육기관
-    education_session = models.ForeignKey(EducationCenterSession, on_delete=models.SET_NULL, null=True, blank=True) # 교육기수
+    education_session = models.ForeignKey(EducationCenterSession, on_delete=models.SET_NULL, null=True, blank=True, related_name='certificates') # 교육기수
 
     created_at = models.DateTimeField(auto_now_add=True)  # 생성일자
     updated_at = models.DateTimeField(auto_now=True)  # 수정일자

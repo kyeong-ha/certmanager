@@ -9,7 +9,8 @@ class EducationCenterSearchSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = EducationCenter
-        fields = ['uuid', 'center_name', 'center_tel', 'center_tel', 'center_address', 'ceo_name', 'ceo_mobile']  # 기본 요약 필드
+        fields = ['uuid', 'center_name', 'center_tel', 'center_address', 'ceo_name', 'ceo_mobile']
+
 
 # 2. 생성/수정용
 class EducationCenterWriteSerializer(serializers.ModelSerializer):
