@@ -24,16 +24,28 @@ class CertificateLogSerializer(serializers.ModelSerializer):
 
 # ReissueLogSerializer 
 class ReissueLogSerializer(serializers.ModelSerializer):
-    certificate = CertificateLogSerializer(read_only=True)
+    certificate_uuid = serializers.UUIDField(write_only=True)
 
     class Meta:
         model = ReissueLog
         fields = (
             "uuid",
-            "certificate",
+            "certificate_uuid",
             "reissue_date",
             "delivery_type",
-            "cost",
+            "reissue_cost",
             "created_at",
         )
-        read_only_fields = fields
+        read_only_fields = ("uuid", "created_at")
+
+    def create(self, validated_data):
+        # UUID → 실제 ForeignKey 필드명(certificate_uuid)으로 매핑
+        cert_uuid = validated_data.pop("certificate_uuid")
+        validated_data["certificate_uuid"] = Certificate.objects.get(uuid=cert_uuid)
+        return super().create(validated_data)
+
+    def to_representation(self, instance):
+        # 기본 반환값을 받고, certificate_uuid 키를 nested serializer 결과로 덮어쓰기
+        ret = super().to_representation(instance)
+        ret["certificate_uuid"] = CertificateLogSerializer(instance.certificate_uuid).data
+        return ret

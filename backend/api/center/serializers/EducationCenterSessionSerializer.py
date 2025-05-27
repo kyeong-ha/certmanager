@@ -3,6 +3,7 @@ from api.center.models.EducationCenterSession import EducationCenterSession
 from api.user.serializers.UserSerializer import UserSearchSerializer
 from api.center.serializers.EducationCenterSerializer import EducationCenterSearchSerializer
 from api.logs.serializers.ReissueLogSerializer import ReissueLogSerializer
+from api.logs.models import ReissueLog
 
 # 요약 응답용
 class EducationCenterSessionSummarySerializer(serializers.ModelSerializer):
@@ -58,23 +59,31 @@ class EducationCenterSessionDetailSerializer(serializers.ModelSerializer):
 
     education_center = EducationCenterSearchSerializer(read_only=True)
     users = UserSearchSerializer(many=True, read_only=True)
-    logs = ReissueLogSerializer(many=True, read_only=True)
+    logs = serializers.SerializerMethodField()
 
     class Meta:
         model = EducationCenterSession
-        fields = [
-            'uuid',
-            'center_session',
-            'education_center',
-            'delivery_address',
-            'tracking_numbers',
-            'unit_price',
-            'issue_status',
-            'issue_count',
-            'issue_date',
-            'delivery_date',
-            'users',
-            'logs',
-            'created_at',
-            'updated_at',
-        ]
+        fields = (
+            "uuid",
+            "center_session",
+            "education_center",
+            "unit_price",
+            "issue_date",
+            "issue_count",
+            "issue_status",
+            "delivery_date",
+            "delivery_address",
+            "tracking_numbers",
+            "users",
+            "created_at",
+            "updated_at",
+            "logs",
+        )
+        read_only_fields = fields
+        
+    def get_logs(self, obj):
+        # Certificate의 모든 ReissueLog를 생성일자 역순으로 직렬화
+        qs = ReissueLog.objects.filter(
+            certificate_uuid__education_session=obj
+        ).order_by("-created_at")
+        return ReissueLogSerializer(qs, many=True).data

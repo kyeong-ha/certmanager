@@ -24,7 +24,15 @@ const CenterSessionDetailModal: React.FC<CenterSessionDetailModal> = ({ isOpen, 
   /* --- 1. Handlers --- */
   // 1.1. 모달 닫기
   if (!isOpen) return null;
-
+  
+  const users = education_session.users ?? [];
+  const logs = education_session.logs ?? [];
+  const sessionLogs = (education_session as any).session_logs ?? [];
+  const allLogs = [...logs, ...sessionLogs].sort(
+    (a, b) =>
+      new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+  );
+  
   // 1.2. 상태에 따른 배지 UI 설정
   const statusVariant = (() => {
     switch (education_session.issue_status) {
@@ -44,27 +52,20 @@ const CenterSessionDetailModal: React.FC<CenterSessionDetailModal> = ({ isOpen, 
       <DialogContent className="max-w-3xl">
         {/* 3.1. 모달 헤더 */}
         <DialogHeader>
-          <DialogTitle>
-            {education_session.center_session}기 상세정보
-          </DialogTitle>
+          <DialogTitle>{education_session.center_session}기 상세정보</DialogTitle>
         </DialogHeader>
 
         {/* 3.2. KPI Badges */}
-        {/* ➕ 발급현황, 배송일자 KPI */}
+        {/* 발급현황, 배송일자 KPI */}
         <div className="flex flex-wrap gap-2 my-2">
           <Badge variant={statusVariant}>
-            {education_session.issue_status} · {education_session.issue_count}
-            개
+            {education_session.issue_status} · {education_session.issue_count}개
           </Badge>
           {education_session.issue_date && (
-            <Badge variant="outline">
-              최초 발급일 : {education_session.issue_date}
-            </Badge>
+            <Badge variant="outline">최초 발급일 : {education_session.issue_date}</Badge>
           )}
           {education_session.delivery_date && (
-            <Badge variant="outline">
-              배송일 : {education_session.delivery_date}
-            </Badge>
+            <Badge variant="outline">배송일 : {education_session.delivery_date}</Badge>
           )}
         </div>
 
@@ -75,8 +76,7 @@ const CenterSessionDetailModal: React.FC<CenterSessionDetailModal> = ({ isOpen, 
             {education_session.education_center?.center_name ?? '정보 없음'}
           </div>
           <div>
-            <strong>배송주소:</strong>{' '}
-            {education_session.delivery_address || '-'}
+            <strong>배송주소:</strong> {education_session.delivery_address || '-'}
           </div>
           <div>
             <strong>운송장 번호:</strong>{' '}
@@ -105,16 +105,14 @@ const CenterSessionDetailModal: React.FC<CenterSessionDetailModal> = ({ isOpen, 
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {education_session.users.map((u) => (
+                {users.map((u) => (
                   <TableRow key={u.uuid}>
                     <TableCell>{u.user_name}</TableCell>
                     <TableCell>{u.phone_number}</TableCell>
                     <TableCell>
-                      {education_session.logs
-                        .filter(
-                          (l) => l.certificate.user.uuid === u.uuid,
-                        )
-                        .map((l) => l.certificate.issue_number)
+                      { logs
+                        .filter((l) => l.certificate_uuid.user.uuid === u.uuid)
+                        .map((l) => l.certificate_uuid.issue_number)
                         .join(', ') || '-'}
                     </TableCell>
                   </TableRow>
@@ -126,18 +124,17 @@ const CenterSessionDetailModal: React.FC<CenterSessionDetailModal> = ({ isOpen, 
           {/* ── 로그 목록 ── */}
           <TabsContent value="logs">
             <ul className="space-y-1 text-sm max-h-60 overflow-y-auto pr-2">
-              {education_session.logs.map((log) => (
+              {logs.map((log) => (
                 <li key={log.uuid}>
-                  • [{log.reissue_date}] {log.certificate.issue_number} –{' '}
-                  {log.delivery_type} {log.cost && `(${log.cost}원)`}{' '}
+                  • [{log.reissue_date}] {log.certificate_uuid.issue_number} –{' '}
+                  {log.delivery_type}{' '}
+                  {log.reissue_cost && `(${log.reissue_cost}원)`}{' '}
                   <span className="text-gray-500">
                     ({log.created_at.slice(0, 10)})
                   </span>
                 </li>
               ))}
-              {education_session.logs.length === 0 && (
-                <li className="text-gray-400">로그가 없습니다.</li>
-              )}
+              {logs.length === 0 && <li className="text-gray-400">로그가 없습니다.</li>}
             </ul>
           </TabsContent>
         </Tabs>
