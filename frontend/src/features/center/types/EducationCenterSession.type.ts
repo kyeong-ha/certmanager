@@ -1,4 +1,6 @@
+import { UserSummary } from '@/features/user/types/User.type';
 import { EducationCenterSummary } from './EducationCenter.type';
+import { ReissueLog } from '@/features/certificate/types/ReissueLog.type';
 
 // 요약용: 드롭다운 등 간단한 선택시 사용
 export interface EducationCenterSessionSummary {
@@ -12,10 +14,17 @@ export interface EducationCenterSessionSummary {
 export interface EducationCenterSessionDetail extends EducationCenterSessionSummary {
   delivery_address?: string;
   tracking_numbers?: string[];
+  issue_date?: string;
+  issue_count: number;
+  issue_status: 'DRAFT' | 'ISSUED' | 'DELIVERED';
+  delivery_date?: string;
+
+  users: UserSummary[];
+  logs: ReissueLog[];
+
   created_at: string;
   updated_at: string;
 
-  education_center: EducationCenterSummary;
 }
 
 // 교육기수 등록/수정 공통 폼

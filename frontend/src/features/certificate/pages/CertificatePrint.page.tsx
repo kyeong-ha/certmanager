@@ -16,7 +16,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
 import { convertToSummary } from '../utils/convertToSummary';
 
-export default function CertificateCreatePage() {
+export default function CertificatePrintPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [filterType, setFilterType] = useState<
     "education_center" | "user_name" | "phone_number" | "issue_number"
@@ -124,15 +124,13 @@ export default function CertificateCreatePage() {
 
   return (
     <MainLayout>
-      <div className="relative min-h-screen">
+      <div className="relative p-6 mx-auto">
         {/* 상단 고정 영역 */}
-        <div className="sticky top-0 z-10 bg-white p-4 border-b space-y-4">
-          <Button className="mb-4" onClick={() => setShowCreateModal(true)}>
-            신규 자격증 발급
-          </Button>
-          <h1 className="text-2xl font-bold">자격증 발급</h1>
+        <div className="sticky top-0 z-10">
+          <h1 className="text-2xl font-bold mb-6">🖨️ 자격증 출력하기</h1>
 
           {/* 검색 폼 */}
+          <div className='flex flex-col gap-4 bg-white p-4 rounded-md shadow-sm'>
           <form onSubmit={handleSubmit} className="flex flex-wrap gap-4 items-center">
             <div className="flex gap-2">
               <label className="flex items-center gap-1">
@@ -214,6 +212,7 @@ export default function CertificateCreatePage() {
               발급 대상 조회
             </Button>
           </form>
+        </div>
         </div>
 
         {/* 발급 대상 테이블 */}

@@ -1,4 +1,5 @@
 from rest_framework import serializers
+
 from ..models.EducationCenter import EducationCenter
 from ..models.EducationCenterSession import EducationCenterSession
 
@@ -8,7 +9,8 @@ class EducationCenterSearchSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = EducationCenter
-        fields = ['uuid', 'center_name', 'center_tel']  # 기본 요약 필드
+        fields = ['uuid', 'center_name', 'center_tel', 'center_address', 'ceo_name', 'ceo_mobile']
+
 
 # 2. 생성/수정용
 class EducationCenterWriteSerializer(serializers.ModelSerializer):
@@ -56,8 +58,15 @@ class EducationCenterWriteSerializer(serializers.ModelSerializer):
 # 3. 상세 조회용 (read 전용)
 class EducationCenterDetailSerializer(serializers.ModelSerializer):
     """교육기관 상세 조회용"""
+    center_session_list = serializers.SerializerMethodField()
 
     class Meta:
         model = EducationCenter
         fields = '__all__'
         read_only_fields = ['created_at', 'updated_at']
+
+    def get_center_session_list(self, obj):
+        from api.center.serializers.EducationCenterSessionSerializer import EducationCenterSessionDetailSerializer
+
+        sessions = obj.sessions.all().order_by("center_session")
+        return EducationCenterSessionDetailSerializer(sessions, many=True).data

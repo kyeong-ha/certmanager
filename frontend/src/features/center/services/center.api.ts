@@ -27,10 +27,11 @@ export const updateEducationCenter = async ( uuid: string, data: Partial<Educati
 };
 
 // 교육기관 삭제 API
-export const deleteEducationCenter = async (uuid: string): Promise<void> => {
-  await api.delete(`/center/${uuid}/`);
+export const deleteEducationCenters = async (uuids: string[] | string): Promise<void> => {
+  const ids = Array.isArray(uuids) ? uuids : [uuids];
+  // DELETE 요청을 순차적으로 처리
+  await Promise.all(ids.map((uuid) => api.delete(`/center/${uuid}/`)));
 };
-
 
 // 특정 교육기관의 교육기수 조회 API
 export const fetchAllEducationSession = async (): Promise<EducationCenterSessionSummary[]> => {
@@ -42,7 +43,7 @@ export const fetchAllEducationSession = async (): Promise<EducationCenterSession
 export const fetchEducationSessionByUuid = async ( uuid: string ): Promise<EducationCenterSessionDetail> => {
   const response = await api.get(`/center/session/${uuid}/`);
   return response.data;
-};
+}
 
 // 특정 교육기관의 교육기수 생성 API
 export const createEducationSession = async ( data: EducationCenterSessionWriteForm ): Promise<EducationCenterSessionDetail> => {

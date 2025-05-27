@@ -50,7 +50,7 @@ const educationCenterSlice = createSlice({
       .addCase(fetchSessions.fulfilled, (state, action) => {
         state.sessions = action.payload;
         action.payload.forEach(session => {
-          const name = session.education_center.center_name;
+          const name = session.education_center?.center_name ?? '이름 없음';
           const center = session.education_center;
           if (!state.centersByName[name]) {
             state.centersByName[name] = { ...center, center_session_list: [session] };

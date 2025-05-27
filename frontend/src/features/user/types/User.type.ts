@@ -1,19 +1,20 @@
 import { CertificateSummary } from '@/features/certificate/types/Certificate.type';
 import { EducationCenterSummary } from '@/features/center/types/EducationCenter.type';
+import { EducationCenterSessionSummary } from '@/features/center/types/EducationCenterSession.type';
 
 // 사용자 요약 정보 (리스트, 서브 참조용)
 export interface UserSummary {
   uuid: string;
+  user_id: string | null;
   user_name: string;
   birth_date: string;
   phone_number: string;
   postal_code: string;
   address: string;
+  latest_education_session?: EducationCenterSessionSummary;
 }
-
 // 사용자 상세 정보
 export interface UserDetail extends UserSummary {
-  user_id: string | null;
   postal_code: string;
   address: string;
   photo: File | string | null;
@@ -22,7 +23,7 @@ export interface UserDetail extends UserSummary {
   updated_at: string;
 
   // 교육기관+기수 리스트
-  education_center_list: EducationCenterSummary[];
+  education_session_list: EducationCenterSessionSummary[];
   certificates?: CertificateSummary[];
 }
 
@@ -35,4 +36,5 @@ export interface UserWriteForm {
   postal_code: string;
   address: string;
   photo: File | string | null;
+  education_session?: string[]; // 교육기관+기수 UUID 리스트
 }

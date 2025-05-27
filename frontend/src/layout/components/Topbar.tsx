@@ -7,16 +7,15 @@ const pageTitles: Record<string, string> = {
 
   '/schedule': '교육일정',
 
-  '/user': '회원관리',
+  '/user': '회원관리: 검색하기',
   '/user/create': '회원관리: 회원 생성하기',
   
-  '/cert': '자격증관리',
-  '/cert/create': '자격증관리: (재)발급하기',
-  '/cert/print': '출력하기',
+  '/cert': '자격증관리: 검색하기',
+  '/cert/print': '자격증관리: 출력하기',
 
-  '/center': '교육기관 관리',
+  '/center': '교육원관리: 검색하기',
 
-  '/delivery': '배송 관리',
+  '/delivery': '배송관리',
 };
 
 export default function Topbar() {
@@ -38,7 +37,7 @@ export default function Topbar() {
         <SearchDropdown />
 
         {/* 2.2. 신규발급 버튼 */}
-        <button onClick={() => navigate('/cert/create')} className="flex items-center gap-1 px-3 py-1.5 text-sm rounded bg-blue-600 text-white hover:bg-blue-700">
+        <button onClick={() => navigate('/cert/print')} className="flex items-center gap-1 px-3 py-1.5 text-sm rounded bg-blue-600 text-white hover:bg-blue-700">
           <PlusCircle size={16} />
           신규발급
         </button>

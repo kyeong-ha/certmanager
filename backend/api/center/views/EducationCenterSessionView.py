@@ -5,10 +5,19 @@ from api.center.models.EducationCenterSession import EducationCenterSession
 from api.center.serializers.EducationCenterSessionSerializer import EducationCenterSessionSummarySerializer, EducationCenterSessionWriteSerializer, EducationCenterSessionDetailSerializer
 
 # GET /api/center/session/ → 교육기관 기수 전체 목록 요약조회
+
 class EducationCenterSessionListView(ListAPIView):
-    queryset = EducationCenterSession.objects.all()
     serializer_class = EducationCenterSessionSummarySerializer
-    
+
+    def get_queryset(self):
+        return EducationCenterSession.objects.select_related('education_center').all()
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True, context=self.get_serializer_context())
+        return Response(serializer.data)
+
+
 # POST /api/center/session/create → 교육기관 기수 생성
 class EducationCenterSessionCreateView(CreateAPIView):
     queryset = EducationCenterSession.objects.all()

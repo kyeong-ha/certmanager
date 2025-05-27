@@ -1,5 +1,5 @@
 const { merge } = require("webpack-merge");
-const path = require('path');
+const path = require("path");
 const common = require("./webpack.common.js");
 
 module.exports = merge(common, {
@@ -27,9 +27,18 @@ module.exports = merge(common, {
       proxy: [
         {
           context: ["/api"],
-          target: process.env.REACT_APP_API_URL,
+          target: process.env.REACT_APP_API_CONTAINER_URL,
           changeOrigin: true,
           withCredentials: true,
+          secure: false,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+          },
+        },
+        {
+          context: ['/media'],
+          target: process.env.REACT_APP_API_CONTAINER_URL,
+          changeOrigin: true,
           secure: false,
           headers: {
             'Access-Control-Allow-Origin': '*',

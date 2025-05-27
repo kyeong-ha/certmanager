@@ -137,7 +137,6 @@ export default function CenterCreateModal({ isOpen, onClose, onSuccess }: Center
         manager_mobile: values.manager_mobile,
         center_address: values.center_address,
         delivery_address: values.delivery_address,
-        unit_price: values.unit_price,
         center_session: values.center_session,
       };
 

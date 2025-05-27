@@ -4,3 +4,7 @@ class ReissueLogConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'api.logs'
     verbose_name = 'ReissueLog'
+
+    
+    def ready(self):
+        import api.logs.signals  # noqa

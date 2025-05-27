@@ -1,21 +1,21 @@
 import { useState, useEffect } from 'react';
-import { User } from '@/features/user/types/User.type';
+import { UserDetail } from '@/features/user/types/User.type';
 import { updateUser, deleteUser } from '@/features/user/services/user.api';
-import { UserEditForm } from '@/features/user/types/UserEditForm.type';
+import { UserWriteForm } from '@/features/user/types/User.type';
 import InputField from '@/components/ui/InputField';
 
 //----------------------------------------------------------------------//
 interface UserDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
-  user: User;
+  user: UserDetail;
 }
 //----------------------------------------------------------------------//
 
 
 /* ----- Modal -------------------------------------------------------- */
 const UserDetailModal: React.FC<UserDetailModalProps> = ({ isOpen, onClose, user }) => {
-  const [form, setForm] = useState<UserEditForm>({ user_id: '', user_name: '', birth_date: '', phone_number: '', postal_code: '', address: '', photo: '' });
+  const [form, setForm] = useState<UserWriteForm>({ user_id: '', user_name: '', birth_date: '', phone_number: '', postal_code: '', address: '', photo: '' });
 
   // User Data 가 바뀔 때마다 form 동기화
   useEffect(() => {
@@ -65,11 +65,11 @@ const UserDetailModal: React.FC<UserDetailModalProps> = ({ isOpen, onClose, user
         {/* 2.2. 회원 정보 */}
         <div className="grid grid-cols-2 gap-4 mb-6">
           <InputField label="회원 ID" name="user_id" value={form.user_id || ''} onChange={handleChange} />
-          <InputField label="이름" name="user_name" value={form.user_name} onChange={handleChange} />
-          <InputField label="생년월일" name="birth_date" value={form.birth_date} onChange={handleChange} type="date" />
+          <InputField label="이름" name="user_name" value={form.user_name || ''} onChange={handleChange} />
+          <InputField label="생년월일" name="birth_date" value={form.birth_date || ''} onChange={handleChange} type="date" />
           <InputField label="전화번호" name="phone_number" value={form.phone_number} onChange={handleChange} />
-          <InputField label="우편번호" name="postal_code" value={form.postal_code} onChange={handleChange} />
-          <InputField label="주소" name="address" value={form.address} onChange={handleChange} />
+          <InputField label="우편번호" name="postal_code" value={form.postal_code || ''} onChange={handleChange} />
+          <InputField label="주소" name="address" value={form.address || ''} onChange={handleChange} />
         </div>
 
         {/* 2.3. 자격증 발급내역 */}

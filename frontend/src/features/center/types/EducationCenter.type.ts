@@ -4,6 +4,11 @@ import { EducationCenterSessionSummary, EducationCenterSessionDetail } from './E
 export interface EducationCenterSummary {
   uuid: string;
   center_name: string;
+  center_tel?: string;
+  center_address?: string;
+  ceo_name?: string;
+  ceo_mobile?: string;
+  
   center_session_list?: EducationCenterSessionSummary[];
 }
 
@@ -12,7 +17,7 @@ export interface EducationCenterDetail extends EducationCenterSummary {
   center_tel?: string;
   center_address?: string;
   unit_price?: number;
-
+  delivery_address?: string;
   ceo_name?: string;
   ceo_mobile?: string;
 
@@ -37,6 +42,5 @@ export interface EducationCenterWriteForm {
   manager_mobile?: string;
   center_address?: string;
   delivery_address?: string;
-  unit_price?: string;
   center_session?: string;
 }
