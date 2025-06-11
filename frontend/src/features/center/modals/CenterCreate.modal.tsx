@@ -15,7 +15,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { CenterForm, centerSchema } from '@/validations/centerSchema';
 import { Form, FormField, FormItem, FormControl, FormMessage } from '@/components/ui/form';
 import { cn } from '@/libs/utils';
-
+import BulkExcelImport from '@/components/BulkExcelImport';
 
 //----------------------------------------------------------------------//
 interface CenterCreateModalProps {
@@ -57,6 +57,10 @@ export default function CenterCreateModal({ isOpen, onClose, onSuccess }: Center
   const [selectedCenterSession, setSelectedCenterSession] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
 
+  // 개별/일괄 모드 토글 상태
+  const [isBulkMode, setIsBulkMode] = useState(false);
+  const [bulkData, setBulkData] = useState<any[]>([]);
+
   const form = useForm<CenterForm>({
     resolver: zodResolver(centerSchema),
     defaultValues: {
@@ -68,7 +72,6 @@ export default function CenterCreateModal({ isOpen, onClose, onSuccess }: Center
       manager_mobile: '',
       center_address: '',
       delivery_address: '',
-      unit_price: '',
       center_session: '',
     },
   });
@@ -124,6 +127,21 @@ export default function CenterCreateModal({ isOpen, onClose, onSuccess }: Center
     }
   };
 
+  const handleSingleSubmit = async (data: CenterForm) => {
+    const payload: EducationCenterWriteForm = { /* 필드 매핑 */ ...data, uuid: '' };
+    if (selectedCenterName && selectedCenterSession) {
+      const matched = await fetchCenterByUuid(selectedCenterName);
+      const session = matched.center_session_list?.find(
+        (s) => s.center_session === selectedCenterSession
+      );
+      if (session) {
+        payload.uuid = session.uuid;
+      }
+    }
+    await createEducationCenter(payload);
+    onClose();
+  };
+
   const handleSubmit = async (values: CenterForm) => {
     try {
       setLoading(true);
@@ -159,6 +177,41 @@ export default function CenterCreateModal({ isOpen, onClose, onSuccess }: Center
       setLoading(false);
     }
   };
+  // 일괄 등록 핸들러
+  const handleBulkCreate = async () => {
+    try {
+      for (const row of bulkData) {
+        // 1) "교육원명_교육기수" 파싱
+        const full = row['교육원명 (예시: 한국교육원_1기)'];
+        const [centerName, sessionLabel] = full.split('_');
+        const sessionNum = parseInt(sessionLabel.replace('기',''), 10);
+
+        // 2) payload 구성
+        const payload: EducationCenterWriteForm = {
+          uuid: '',
+          center_name: centerName,                 // 분리된 교육기관명
+          center_session: String(sessionNum),      // 분리된 기수
+          center_tel: row['전화번호'] || '',
+          ceo_name:   row['대표자명']   || '',
+          ceo_mobile: row['대표자 연락처'] || '',
+          manager_name:  row['담당자명']   || '',
+          manager_mobile:row['담당자 연락처']|| '',
+          center_address: row['교육기관 주소']  || '',
+          delivery_address:row['배송 주소']   || '',
+          // unit_price:      row['단가']       || '',
+        };
+
+        // 3) API 호출
+        await createEducationCenter(payload);
+      }
+
+      alert(`총 ${bulkData.length}건 등록 완료`);
+      onClose();
+    } catch (err) {
+      console.error(err);
+      alert(`일괄 등록 중 오류: ${err}`);
+    }
+  };
 
   /* --- 3.Render --- */
   return (
@@ -168,94 +221,128 @@ export default function CenterCreateModal({ isOpen, onClose, onSuccess }: Center
           <DialogTitle>교육기관 등록</DialogTitle>
         </DialogHeader>
 
-        {/* Form 시작 */}
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+        {/* 개별/일괄 모드 토글 */}
+        <div className="mb-4 flex space-x-6">
+          <label className="flex items-center">
+            <input type="radio" checked={!isBulkMode} onChange={() => setIsBulkMode(false)} />
+            <span className="ml-2">개별 등록</span>
+          </label>
+          <label className="flex items-center">
+            <input type="radio" checked={isBulkMode} onChange={() => setIsBulkMode(true)} />
+            <span className="ml-2">엑셀 일괄 등록</span>
+          </label>
+        </div>
 
-            {/* 1. 조회 영역 */}
-            <div className="border rounded-md p-4 bg-gray-50">
-              <h3 className="text-sm font-semibold text-gray-700 mb-3">🔍 기존 교육기관/기수 선택</h3>
+       {isBulkMode ? (
+         <>
+          {/* 템플릿 다운로드 링크 */}
+          <div className="flex justify-end mb-2">
+            <a
+              href="/templates/center-template.xlsx"
+              download
+              className="text-sm text-blue-600 hover:underline"
+            >
+              ▶ 교육기관 템플릿 다운로드
+            </a>
+          </div>
 
-              <FormField
-                control={form.control}
-                name="center_name"
-                render={({ field }) => (
-                  <FormItem className="grid grid-cols-3 items-center gap-2 mb-2">
-                    <Label className="text-right">교육기관명</Label>
-                    <div className="col-span-2">
-                      <AutoCompleteInput
-                        {...field}
-                        value={field.value}
-                        onChange={field.onChange}
-                        onSelect={handleSelectCenter}
-                        onCreateNew={(name) => {
-                          if (Object.keys(centersByName).includes(name)) return;
-                          
-                          setSelectedCenterName(name);
-                          form.setValue('center_name', name);
-                          form.setValue('center_session', '1');
-                          form.setValue('center_tel', '');
-                          form.setValue('ceo_name', '');
-                          form.setValue('ceo_mobile', '');
-                          form.setValue('manager_name', '');
-                          form.setValue('manager_mobile', '');
-                          form.setValue('center_address', '');
-                          form.setValue('delivery_address', '');
-                          form.setValue('unit_price', '');
-                        }}
-                        options={Object.keys(centersByName)}
-                        placeholder="교육기관명 입력 또는 선택"
-                      />
-                      <FormMessage />
-                    </div>
-                  </FormItem>
-                )}
-              />
-            </div>
+          {/* 엑셀 업로드 & 그리드 */}
+          <BulkExcelImport onDataLoaded={setBulkData} />
 
-            {/* 2. 입력 영역 */}
-            <div className="border rounded-md p-4 bg-white shadow-sm">
-              <h3 className="text-sm font-semibold text-gray-700 mb-3">✍️ 새 교육기수 정보 입력</h3>
-              
-              {/* 교육기관명 + 교육기수 (read-only) */}
-              <div
-                className={cn(
-                  'grid grid-cols-3 items-center gap-2 transition-all duration-300 ease-in-out overflow-hidden',
-                  selectedCenterName ? 'opacity-100 max-h-40' : 'opacity-0 max-h-0'
-                )}
-              >
-                <Label className="text-right">등록될 교육기관</Label>
-                <div className="col-span-2 text-sm text-gray-900 bg-gray-100 px-3 py-2 rounded border">
-                  {selectedCenterName}_{form.watch('center_session') || nextSessionNumber}기
-                </div>
-              </div>
+          {/* 일괄 등록 버튼 */}
+          <Button onClick={handleBulkCreate} className="w-full mt-4">
+            일괄 등록하기
+          </Button>
+         </>
+        ) : (
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(handleSingleSubmit)} className="space-y-6">
 
-            {centerFieldList.map((fieldName) => (
+              {/* 1. 조회 영역 */}
+              <div className="border rounded-md p-4 bg-gray-50">
+                <h3 className="text-sm font-semibold text-gray-700 mb-3">🔍 기존 교육기관/기수 선택</h3>
+
                 <FormField
-                  key={fieldName}
                   control={form.control}
-                  name={fieldName}
+                  name="center_name"
                   render={({ field }) => (
                     <FormItem className="grid grid-cols-3 items-center gap-2 mb-2">
-                      <Label>{fieldLabels[fieldName]}</Label>
+                      <Label className="text-right">교육기관명</Label>
                       <div className="col-span-2">
-                        <FormControl>
-                          <Input id={fieldName} {...field} />
-                        </FormControl>
+                        <AutoCompleteInput
+                          {...field}
+                          value={field.value}
+                          onChange={field.onChange}
+                          onSelect={handleSelectCenter}
+                          onCreateNew={(name) => {
+                            if (Object.keys(centersByName).includes(name)) return;
+                            
+                            setSelectedCenterName(name);
+                            form.setValue('center_name', name);
+                            form.setValue('center_session', '1');
+                            form.setValue('center_tel', '');
+                            form.setValue('ceo_name', '');
+                            form.setValue('ceo_mobile', '');
+                            form.setValue('manager_name', '');
+                            form.setValue('manager_mobile', '');
+                            form.setValue('center_address', '');
+                            form.setValue('delivery_address', '');
+                            form.setValue('unit_price', '');
+                          }}
+                          options={Object.keys(centersByName)}
+                          placeholder="교육기관명 입력 또는 선택"
+                        />
                         <FormMessage />
                       </div>
                     </FormItem>
                   )}
                 />
-              ))}
-            </div>
+              </div>
 
-            {/* 3. 버튼 */}
-            <Button type="submit" disabled={loading} className="w-full">
-              {loading ? '등록 중...' : '등록'}
-            </Button>
-          </form>
-        </Form>
+              {/* 2. 입력 영역 */}
+              <div className="border rounded-md p-4 bg-white shadow-sm">
+                <h3 className="text-sm font-semibold text-gray-700 mb-3">✍️ 새 교육기수 정보 입력</h3>
+                
+                {/* 교육기관명   교육기수 (read-only) */}
+                <div
+                  className={cn(
+                    'grid grid-cols-3 items-center gap-2 transition-all duration-300 ease-in-out overflow-hidden',
+                    selectedCenterName ? 'opacity-100 max-h-40' : 'opacity-0 max-h-0'
+                  )}
+                >
+                  <Label className="text-right">등록될 교육기관</Label>
+                  <div className="col-span-2 text-sm text-gray-900 bg-gray-100 px-3 py-2 rounded border">
+                    {selectedCenterName}_{form.watch('center_session') || nextSessionNumber}기
+                  </div>
+                </div>
+
+              {centerFieldList.map((fieldName) => (
+                  <FormField
+                    key={fieldName}
+                    control={form.control}
+                    name={fieldName}
+                    render={({ field }) => (
+                      <FormItem className="grid grid-cols-3 items-center gap-2 mb-2">
+                        <Label>{fieldLabels[fieldName]}</Label>
+                        <div className="col-span-2">
+                          <FormControl>
+                            <Input id={fieldName} {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </div>
+                      </FormItem>
+                    )}
+                  />
+                ))}
+              </div>
+
+              {/* 3. 버튼 */}
+              <Button type="submit" disabled={loading} className="w-full">
+                {loading ? '등록 중...' : '등록'}
+              </Button>
+            </form>
+          </Form>
+        )}
       </DialogContent>
     </Dialog>
   );
