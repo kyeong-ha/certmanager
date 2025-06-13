@@ -10,17 +10,26 @@ import { RootState } from '@/store';
 import { EducationCenterSessionSummary } from '@/features/center/types/EducationCenterSession.type';
 import { UserWriteForm } from '@/features/user/types/User.type';
 import { createCertificate } from '@/features/certificate/services/cert.api';
-import { CertificateSummary, CertificateDetail } from '../types/Certificate.type';
+import { CertificateSummary, CertificateDetail, CertificateWriteForm } from '../types/Certificate.type';
 import CenterCreateModal from '@/features/center/modals/CenterCreate.modal';
+import BulkExcelImport from '@/components/BulkExcelImport';
+import { fetchUserByPhone, createUser } from '@/features/user/services/user.api';
+import { fetchAllEducationSession, fetchAllCenter, createEducationCenter, createEducationSession } from '@/features/center/services/center.api';
+import { normalizeDate } from '@/utils/normalizeDate';
 
 interface CertificateCreateModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSuccess: (cert: CertificateDetail) => void;
+  onSuccess: () => void;
 }
 
 export default function CertificateCreateModal({ isOpen, onClose, onSuccess }: CertificateCreateModalProps) {
   const sessionList = useSelector((state: RootState) => state.educationCenter.sessions);
+
+  // Bulk 모드 상태
+  const [isBulkMode, setIsBulkMode] = useState(false);
+  const [bulkData, setBulkData]     = useState<any[]>([]);
+
   const [isCenterModalOpen, setIsCenterModalOpen] = useState(false);
   const [writeData, setWriteData] = useState({
     issue_number: '',
@@ -53,6 +62,106 @@ export default function CertificateCreateModal({ isOpen, onClose, onSuccess }: C
   }, [selectedSession]);
 
   
+  // 일괄 등록 핸들러
+  const handleBulkCreate = async () => {
+    try {
+      let successCount = 0;
+      const failedRows: string[] = [];
+      const certPayloads: CertificateWriteForm[] = [];
+
+      // 0) 최신 센터/세션 리스트 미리 로드
+      let sessions = await fetchAllEducationSession();
+      let centers  = await fetchAllCenter();
+
+      for (let i = 0; i < bulkData.length; i++) {
+        const row = bulkData[i];
+
+        try {
+          // 1) "교육원명" 파싱
+          const full = row['교육원명 (예시: 한국교육원_1기)'];
+          const [centerName, sessionLabel] = full.split('_');
+          const sessionNum = parseInt(sessionLabel.replace('기', ''), 10);
+
+          // 2) 교육원 조회
+          let center = centers.find(c => c.center_name === centerName);
+          if (!center) {
+            // 2-1) 교육원이 없으면 신규 생성
+            center = await createEducationCenter({
+              uuid: '',
+              center_name: centerName,
+              center_tel: '',
+              ceo_name: '', ceo_mobile: '',
+              manager_name: '', manager_mobile: '',
+              center_address: '', delivery_address: '',
+              center_session: String(sessionNum) // 생성 시 첫 기수로 설정
+            });
+            centers = await fetchAllCenter();
+            sessions = await fetchAllEducationSession();
+          }
+
+          // 3) 교육기수 조회
+          let session = sessions.find(s =>
+            s.education_center.center_name === centerName &&
+            s.center_session === sessionNum
+          );
+          if (!session) {
+            // 3-1) 교육기수가 없으면 신규 생성
+            session = await createEducationSession({
+              uuid: '',
+              education_center_uuid: center.uuid,
+              center_session: sessionNum,
+              unit_price: 0,
+              delivery_address: '',
+            });
+            sessions = await fetchAllEducationSession();
+          }
+
+            // 4) 사용자 조회
+            const phone = row['전화번호'];
+            if (!phone) throw new Error('전화번호가 누락되었습니다.');
+            let user = await fetchUserByPhone(phone);
+            if (!user) {
+              // 4-1) 사용자 없으면 신규 생성
+              const userPayload: UserWriteForm = {
+                user_id: row['회원ID(선택)'] || '',
+                user_name: row['이름'] || '',
+                birth_date: row['생년월일'] || '',
+                phone_number: phone, // PK
+                postal_code: '', 
+                address: '',
+                photo: null,
+                education_session: [session.uuid],
+              };
+              user = await createUser(userPayload as any);
+              if (!user) throw new Error(`사용자 생성 실패: ${phone}`);
+            }
+            
+            // 5) 신규 자격증 생성
+            certPayloads.push({
+              issue_number: row['발급번호'],
+              issue_date: row['발급일자'],
+              course_name: row['과정명'],
+              delivery_address: row['배송 주소(선택)']   || '',
+              tracking_number: row['운송장 번호(선택)'] || '',
+              user: user.uuid,
+              education_session: session.uuid,
+            });
+            successCount++;
+
+          } catch (innerErr) {
+            failedRows.push(row['발급번호'] || row['성명'] || `Row ${i + 1}`);
+          }
+      }
+      await createCertificate(certPayloads as any);
+
+      alert(`✅ 총 ${successCount}건 등록 완료\n❌ 실패한 건수: ${failedRows.length}\n${failedRows.join(', ')}`);
+      onSuccess();
+      onClose();
+    } catch (err: any) {
+      console.error(err);
+      alert(`일괄 등록 중 오류: ${err.message}`);
+    }
+  };
 
   const handleChangeCert = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -88,17 +197,30 @@ export default function CertificateCreateModal({ isOpen, onClose, onSuccess }: C
     try {
       const formDataObj = new FormData();
 
+      // 1. 기본 자격증 정보
       formDataObj.append('issue_number', writeData.issue_number);
       formDataObj.append('issue_date', writeData.issue_date);
       formDataObj.append('course_name', writeData.course_name);
       formDataObj.append('tracking_number', writeData.tracking_number ?? '');
       formDataObj.append('delivery_address', writeData.delivery_address ?? '');
+      
+      // 2. 사용자 정보
+      formDataObj.append('user_id', writeData.user.user_id ?? '');
+      formDataObj.append('user_name', writeData.user.user_name);
+      formDataObj.append('birth_date', normalizeDate(writeData.user.birth_date));
+      formDataObj.append('phone_number', writeData.user.phone_number);
+      formDataObj.append('postal_code', writeData.user.postal_code ?? '');
+      formDataObj.append('address', writeData.user.address ?? '');
+      if (writeData.user.photo) {
+        formDataObj.append('photo', writeData.user.photo);
+      }
 
-      formDataObj.append('user', JSON.stringify(writeData.user));
+      // 3. 교육기관 세션 정보
       formDataObj.append('education_session', selectedSession.uuid);
 
+      // 4. 인증서 생성 요청
       const res = await createCertificate(formDataObj);
-      onSuccess(res);
+      onSuccess();
       console.log('등록 성공', res);
       onClose();
     } catch (err) {
@@ -117,54 +239,89 @@ export default function CertificateCreateModal({ isOpen, onClose, onSuccess }: C
           <DialogDescription className="text-sm text-muted-foreground">새로운 자격증 정보를 입력하세요.</DialogDescription>
         </DialogHeader>
 
-        <div className="p-4 space-y-6">
-          <div>
-            <h3 className="text-lg font-semibold mb-2">👤 사용자 정보</h3>
-            <UserFormBlock user={writeData.user} onChange={handleChangeUser} editable={true} />
-            <FileInputBlock label="프로필 사진 (JPG/PNG)" name="photo" accept="image/*" onChange={handleChangeFile} />
+        {/* 모드 토글 */}
+        <div className="p-4">
+          <div className="mb-4 flex space-x-6">
+            <label className="flex items-center">
+              <input type="radio" checked={!isBulkMode} onChange={() => setIsBulkMode(false)} />
+              <span className="ml-2">개별 등록</span>
+            </label>
+            <label className="flex items-center">
+              <input type="radio" checked={isBulkMode} onChange={() => setIsBulkMode(true)} />
+              <span className="ml-2">엑셀 일괄 등록</span>
+            </label>
           </div>
 
-          <div>
-            <h3 className="text-lg font-semibold mb-2">🎖️ 자격증 정보</h3>
-            <div className="grid grid-cols-2 gap-4">
-              <InputBlock label="발급번호" name="issue_number" value={writeData.issue_number} onChange={handleChangeCert} editable={true} />
-              <InputBlock label="발급일자" name="issue_date" type="date" value={writeData.issue_date} onChange={handleChangeCert} editable={true} />
-              <InputBlock label="자격과정" name="course_name" value={writeData.course_name} onChange={handleChangeCert} editable={true} />
-              <InputBlock label="운송장번호" name="tracking_number" value={writeData.tracking_number} onChange={handleChangeCert} editable={true} />
+          {isBulkMode ? (
+            <>
+              {/* 템플릿 다운로드 */}
+              <div className="flex justify-end mb-2">
+                <a href="/templates/certificate-template.xlsx" download className="text-sm text-blue-600 hover:underline">
+                  ▶ 자격증 템플릿 다운로드
+                </a>
+              </div>
+              {/* 엑셀 업로드 & 그리드 */}
+              <BulkExcelImport onDataLoaded={setBulkData} />
+              {/* 일괄 등록 버튼 */}
+              <div className="flex justify-end mt-4">
+                <Button onClick={handleBulkCreate} disabled={isSubmitting}>
+                  일괄 등록하기
+                </Button>
+              </div>
+            </>
+          ) : (
+            /* 기존 개별 등록 UI */
+              
+            <div className="p-4 space-y-6">
+              <div>
+                <h3 className="text-lg font-semibold mb-2">👤 사용자 정보</h3>
+                <UserFormBlock user={writeData.user} onChange={handleChangeUser} editable={true} />
+                <FileInputBlock label="프로필 사진 (JPG/PNG)" name="photo" accept="image/*" onChange={handleChangeFile} />
+              </div>
+
+              <div>
+                <h3 className="text-lg font-semibold mb-2">🎖️ 자격증 정보</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <InputBlock label="발급번호" name="issue_number" value={writeData.issue_number} onChange={handleChangeCert} editable={true} />
+                  <InputBlock label="발급일자" name="issue_date" type="date" value={writeData.issue_date} onChange={handleChangeCert} editable={true} />
+                  <InputBlock label="자격과정" name="course_name" value={writeData.course_name} onChange={handleChangeCert} editable={true} />
+                  <InputBlock label="운송장번호" name="tracking_number" value={writeData.tracking_number} onChange={handleChangeCert} editable={true} />
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-lg font-semibold mb-2">🏫 교육기관 정보</h3>
+                <CenterSelect
+                  editMode={true}
+                  selectedCenterName={selectedCenterName}
+                  setSelectedCenterName={setSelectedCenterName}
+                  selectedSession={selectedSession}
+                  setSelectedSession={setSelectedSession}
+                  sessionList={sessionList}
+                  onOpenCreateModal={() => {}}
+                />
+              </div>
+
+              <div className="flex justify-end">
+                <Button onClick={handleSave} disabled={isSubmitting}>저장</Button>
+              </div>
             </div>
-          </div>
-
-          <div>
-            <h3 className="text-lg font-semibold mb-2">🏫 교육기관 정보</h3>
-            <CenterSelect
-              editMode={true}
-              selectedCenterName={selectedCenterName}
-              setSelectedCenterName={setSelectedCenterName}
-              selectedSession={selectedSession}
-              setSelectedSession={setSelectedSession}
-              sessionList={sessionList}
-              onOpenCreateModal={() => {}}
-            />
-          </div>
-
-          <div className="flex justify-end">
-            <Button onClick={handleSave} disabled={isSubmitting}>저장</Button>
-          </div>
+          )}
         </div>
-      </DialogContent>
 
-      {/* 교육기관 등록 모달 */}
-      <CenterCreateModal
-        isOpen={isCenterModalOpen}
-        onClose={() => setIsCenterModalOpen(false)}
-        onSuccess={(newUuid) => {
-          setIsCenterModalOpen(false);
-          const session = sessionList.find((s) => s.uuid === newUuid);
-          if (!session) return;
-          setSelectedCenterName(session.education_center.center_name);
-          setSelectedSession(session);
-        }}
-      />
+        {/* 교육기관 등록 모달 */}
+        <CenterCreateModal
+          isOpen={isCenterModalOpen}
+          onClose={() => setIsCenterModalOpen(false)}
+          onSuccess={(newUuid) => {
+            setIsCenterModalOpen(false);
+            const session = sessionList.find((s) => s.uuid === newUuid);
+            if (!session) return;
+            setSelectedCenterName(session.education_center.center_name);
+            setSelectedSession(session);
+          }}
+        />
+      </DialogContent>
     </Dialog>
   );
 }

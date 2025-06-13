@@ -11,7 +11,7 @@ urlpatterns = [
 
     # EducationCenterSession
     path('session/', EducationCenterSessionListView.as_view(), name='center-session-list'),
-    path('session/create', EducationCenterSessionCreateView.as_view(), name='center-session-create'),
+    path('session/create/', EducationCenterSessionCreateView.as_view(), name='center-session-create'),
     path('session/<uuid:pk>/', EducationCenterSessionDetailView.as_view(), name='center-session-detail'),
     path('session/<uuid:pk>/delete', EducationCenterSessionDeleteView.as_view(), name='center-session-delete'),
 ]

@@ -19,11 +19,28 @@ export const searchCertificates = async (params: { filter_type?: string; search_
   return response.data;
 };
 
-// 자격증 단건 생성 API
-export async function createCertificate(data: FormData): Promise<CertificateDetail> {
-  const response = await api.post('/cert/create/', data);
-  return response.data;
-}
+// 자격증 생성 API
+export const createCertificate = async (payload: FormData | FormData[]): Promise<CertificateDetail | CertificateDetail[]> => {
+  // 배열인 경우: Promise.all 로 병렬 전송
+  const isFormData = payload instanceof FormData;
+
+  if (Array.isArray(payload)) {
+    const results = await Promise.all(
+      payload.map((form) =>
+        api.post('/cert/create/', form, {
+          headers: isFormData ? { 'Content-Type': 'multipart/form-data' } : {},
+        }).then(res => res.data)
+      )
+    );
+    return results;
+  }
+
+  // 단일 객체 전송
+  const res = await api.post('/cert/create/', payload, {
+    headers: isFormData ? { 'Content-Type': 'multipart/form-data' } : {},
+  });
+  return res.data;
+};
 
 // 자격증 수정 API
 export const updateCertificate = async (uuid: string, data: Partial<CertificateWriteForm>): Promise<CertificateDetail> => {
@@ -35,7 +52,6 @@ export const updateCertificate = async (uuid: string, data: Partial<CertificateW
 export const deleteCertificate = async (uuid: string): Promise<void> => {
   await api.delete(`/cert/${uuid}/`);
 };
-
 
 // 자격증 PDF 생성 API
 export const generateCertificatesPdf = async (uuids: string[]) => {

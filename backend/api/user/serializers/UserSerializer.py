@@ -28,7 +28,8 @@ class UserWriteSerializer(serializers.ModelSerializer):
     
     education_session = serializers.PrimaryKeyRelatedField(
         many=True,
-        queryset=EducationCenterSession.objects.all()
+        queryset=EducationCenterSession.objects.all(),
+        required=False
     )
 
     class Meta:

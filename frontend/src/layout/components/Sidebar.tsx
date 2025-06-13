@@ -120,9 +120,9 @@ export default function Sidebar() {
           <CertificateCreateModal
             isOpen={isModalOpen}
             onClose={() => setIsModalOpen(false)}
-            onSuccess={(cert) => {
+            onSuccess={async () => {
               setIsModalOpen(false);
-              toast.success(`자격증 등록 성공: ${cert.issue_number}`);
+              toast.success(`자격증 등록 성공`);
             }}
           />
         )}

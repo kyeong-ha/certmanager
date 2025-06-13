@@ -11,7 +11,9 @@ interface Props {
 
 export default function CenterSessionSelect({ centerName, value, onChange, disabled }: Props) {
   const sessions = useSelector((state: RootState) => state.educationCenter.sessions);
-  const filtered = sessions.filter((s) => s.education_center.center_name === centerName);
+    const filtered = sessions.filter(
+    (s) => s.education_center?.center_name === centerName
+  );
 
   return (
     <select value={value} onChange={(e) => onChange(e.target.value)} className="border rounded px-2 py-1" disabled={disabled}>

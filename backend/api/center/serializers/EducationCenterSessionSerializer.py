@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from api.center.models import EducationCenter
 from api.center.models.EducationCenterSession import EducationCenterSession
 from api.user.serializers.UserSerializer import UserSearchSerializer
 from api.center.serializers.EducationCenterSerializer import EducationCenterSearchSerializer
@@ -40,7 +41,8 @@ class EducationCenterSessionWriteSerializer(serializers.ModelSerializer):
     
     education_center_uuid = serializers.PrimaryKeyRelatedField(
         source='education_center',
-        queryset=EducationCenterSession.objects.all()
+        queryset=EducationCenter.objects.all(),
+        write_only=True
     )
 
     class Meta:

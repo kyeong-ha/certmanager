@@ -60,18 +60,7 @@ export default function CertificatePrintPage() {
     }
   };
 
-  const handleSuccess = (newCert: CertificateDetail) => {
-    const updatedSummary = convertToSummary(newCert);
-    setCertificateList((prev) =>
-      prev.map((row) =>
-        row.user.uuid === updatedSummary.user.uuid
-          ? {
-              ...row,
-              user: updatedSummary.user,
-            }
-          : row
-      )
-    ); // 등록 후 행 추가
+  const handleSuccess = () => {
     setShowCreateModal(false); // 모달 닫기
   };
 

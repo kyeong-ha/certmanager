@@ -6,6 +6,7 @@ import { AgGridReact } from 'ag-grid-react';
 import * as XLSX from 'xlsx';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
+import { normalizeDate } from '@/utils/normalizeDate';
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 interface BulkExcelImportProps {
@@ -23,15 +24,32 @@ const BulkExcelImport: React.FC<BulkExcelImportProps> = ({ onDataLoaded }) => {
     reader.onload = evt => {
       const wb = XLSX.read(evt.target?.result as ArrayBuffer, { type: 'array' });
       const ws = wb.Sheets[wb.SheetNames[0]];
+
       const sheetJson: any[][] = XLSX.utils.sheet_to_json(ws, { header: 1 });
       if (sheetJson.length < 2) return;
+
       const headers = sheetJson[0] as string[];
       // 컬럼 정의
       const cols = headers.map(h => ({ field: h, headerName: h, editable: true, resizable: true }));
+
       // 행 데이터
-      const rows = (sheetJson.slice(1) as any[][]).map(row =>
+      const rows = sheetJson.slice(1).map(row =>
         headers.reduce((obj, key, idx) => {
-          obj[key] = row[idx] ?? '';
+          const raw = row[idx];
+          let str: string;
+          if (typeof raw === 'string') {
+            // yyyy.mm.dd 또는 yyyy-mm-dd → normalizeDate 로 “yyyy-mm-dd”
+            str = normalizeDate(raw);
+          } else if (raw instanceof Date || typeof raw === 'number') {
+            // Date/serial 모두 ISO 문자열로 변환
+            const dt = raw instanceof Date
+              ? raw
+              : new Date((raw - 25567 - 2) * 86400 * 1000);
+            str = `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;
+          } else {
+            str = '';
+          }
+          obj[key] = str;
           return obj;
         }, {} as any)
       );

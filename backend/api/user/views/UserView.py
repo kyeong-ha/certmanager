@@ -1,6 +1,7 @@
 from rest_framework.generics import ListAPIView, RetrieveUpdateAPIView, CreateAPIView, DestroyAPIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.views import APIView
 from api.user.models.User import User
 from api.user.serializers.UserSerializer import UserSearchSerializer, UserWriteSerializer, UserDetailSerializer
 
@@ -23,7 +24,7 @@ class UserCreateView(CreateAPIView):
         education_sessions = serializer.validated_data.pop('education_session', [])
 
         # 3. User 생성
-        user = serializer.save()
+        user = User.objects.create(**serializer.validated_data)
 
         # 4. ManyToMany 관계 수동 연결
         if education_sessions:
@@ -55,3 +56,19 @@ class UserDetailView(RetrieveUpdateAPIView):
 # DELETE /api/user/<uuid>/delete → 사용자 삭제
 class UserDeleteView(DestroyAPIView):
     queryset = User.objects.all()
+    
+    
+# GET /api/user/phone/?phone_number=010-1234-5678  → 전화번호로 사용자 조회
+class UserSearchByPhoneView(APIView):
+    """
+    전화번호로 사용자 단건 또는 복수 조회 (프론트에서는 첫 번째 사용자만 활용)
+    """
+
+    def get(self, request):
+        phone_number = request.query_params.get("phone_number", "").strip()
+        if not phone_number:
+            return Response([], status=status.HTTP_200_OK)
+
+        users = User.objects.filter(phone_number=phone_number)
+        serializer = UserSearchSerializer(users, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
