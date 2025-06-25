@@ -42,7 +42,6 @@ class UserWriteSerializer(serializers.ModelSerializer):
             'phone_number',
             'postal_code',
             'address',
-            'photo',
             'education_session',
         ]
 
@@ -70,7 +69,6 @@ class UserDetailSerializer(serializers.ModelSerializer):
             'phone_number',
             'postal_code',
             'address',
-            'photo',
             'certificates',
             'education_session_list',
             'created_at',

@@ -35,7 +35,6 @@ const fieldLabels: Record<keyof UserWriteForm, string> = {
   phone_number: '전화번호',
   postal_code: '우편번호(선택)',
   address: '주소(선택)',
-  photo: '사진',
   education_session: '교육원명 (예시: 한국교육원_1기)',
 };
 
@@ -65,7 +64,6 @@ export default function UserCreateModal({ isOpen, onClose, onSuccess }: UserCrea
       phone_number: '',
       postal_code: '',
       address: '',
-      photo: null,
     },
   });
 
@@ -141,7 +139,6 @@ export default function UserCreateModal({ isOpen, onClose, onSuccess }: UserCrea
               phone_number: row['전화번호'],
               postal_code: row['우편번호(선택)']  || '',
               address: row['주소(선택)'] || '',
-              photo: null,
               education_session: [session.uuid],
             };
             user = await createUser(userPayload as any);
@@ -230,53 +227,29 @@ export default function UserCreateModal({ isOpen, onClose, onSuccess }: UserCrea
 
               {/* 사용자 입력 필드 */}
               {(Object.keys(fieldLabels).filter((k) => k !== 'education_session') as (keyof UserWriteForm)[]).map((key) => {
-                if (key === 'photo') {
-                  return (
-                    <FormField
-                      key={key}
-                      control={form.control}
-                      name={key}
-                      render={() => (
-                        <FormItem className="grid grid-cols-3 items-center gap-2">
-                          <Label className="text-right">{fieldLabels[key]}</Label>
-                          <div className="col-span-2">
-                            <FormControl>
-                              <input
-                                type="file"
-                                accept="image/*"
-                                onChange={(e) => form.setValue('photo', e.target.files?.[0] || null)}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </div>
-                        </FormItem>
-                      )}
-                    />
-                  );
-                } else {
-                  return (
-                    <FormField
-                      key={key}
-                      control={form.control}
-                      name={key}
-                      render={({ field }) => (
-                        <FormItem className="grid grid-cols-3 items-center gap-2">
-                          <Label className="text-right">{fieldLabels[key]}</Label>
-                          <div className="col-span-2">
-                            <FormControl>
-                              <Input
-                                {...field}
-                                value={field.value ?? ''}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </div>
-                        </FormItem>
-                      )}
-                    />
-                  );
-                }
-              })}
+                return (
+                  <FormField
+                    key={key}
+                    control={form.control}
+                    name={key}
+                    render={({ field }) => (
+                      <FormItem className="grid grid-cols-3 items-center gap-2">
+                        <Label className="text-right">{fieldLabels[key]}</Label>
+                        <div className="col-span-2">
+                          <FormControl>
+                            <Input
+                              {...field}
+                              value={field.value ?? ''}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </div>
+                      </FormItem>
+                    )}
+                  />
+                );
+              }
+              )}
 
               {/* 교육기관 선택 영역 */}
               <div className="border rounded-md p-4 bg-gray-50">

@@ -2,6 +2,8 @@ FROM node:22-slim
 
 WORKDIR /web/frontend
 
+COPY package*.json ./
+RUN npm install
 COPY . .
 
 COPY --chmod=755 ./entrypoint.sh .

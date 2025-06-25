@@ -3,12 +3,28 @@ services:
     volumes:
       - ./backend:/web/backend
       - ./backend/.local:/web/backend/.local
+      - /mnt/host/d/Users/User/Desktop/Database:/web/backend/media
     ports:
       - "8000:8000"
     env_file:
       - ./.env.dev
     extra_hosts:
       - "certmanager-frontend:host-gateway"
+
+  watcher:
+    image: ${DOCKER_IMAGE:-certmanager-backend}
+    container_name: certmanager-watcher
+    command: python utils/xlsx_watcher.py
+    volumes:
+      - ./backend:/web/backend
+      - ./backend/.local:/web/backend/.local
+      - /mnt/host/d/Users/User/Desktop/Database:/web/backend/media
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.settings
+    env_file:
+      - ./.env.dev
+    depends_on:
+      - backend
 
   frontend:
     volumes:
@@ -27,6 +43,20 @@ services:
       - 5432:5432
     env_file:
       - ./.env.dev
+
+  # nginx:
+  #   build:
+  #     context: ./nginx
+  #     dockerfile: Dockerfile
+  #   image: certmanager-nginx
+  #   volumes:
+  #     - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+  #     - D:/certmanager-db/Database:/web/backend/.local/media:ro
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   depends_on:
+  #     - backend
 
 volumes:
   db:

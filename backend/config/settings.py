@@ -32,7 +32,7 @@ STATIC_ROOT = LOCAL_DIR / "staticfiles"
 
 # 미디어 파일 경로
 MEDIA_URL = "/media/"
-MEDIA_ROOT = LOCAL_DIR / "media"
+MEDIA_ROOT = '/web/backend/media'
 
 # 로그 경로
 LOG_DIR = LOCAL_DIR / "logs"
@@ -105,6 +105,7 @@ INSTALLED_APPS = [
     'api.logs',
     'api.user',
     'corsheaders',
+    'utils',
 ]
 
 MIDDLEWARE = [

@@ -17,7 +17,6 @@ export interface UserSummary {
 export interface UserDetail extends UserSummary {
   postal_code: string;
   address: string;
-  photo: File | string | null;
 
   created_at: string;
   updated_at: string;
@@ -35,6 +34,5 @@ export interface UserWriteForm {
   phone_number: string;
   postal_code: string;
   address: string;
-  photo: File | string | null;
   education_session?: string[]; // 교육기관+기수 UUID 리스트
 }

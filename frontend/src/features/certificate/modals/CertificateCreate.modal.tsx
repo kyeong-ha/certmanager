@@ -37,7 +37,7 @@ export default function CertificateCreateModal({ isOpen, onClose, onSuccess }: C
     course_name: '',
     delivery_address: '',
     tracking_number: '',
-    copy_file: null,
+    photo: null as File | null,
     user: {
       user_id: '',
       user_name: '',
@@ -45,7 +45,6 @@ export default function CertificateCreateModal({ isOpen, onClose, onSuccess }: C
       phone_number: '',
       postal_code: '',
       address: '',
-      photo: null,
     } as UserWriteForm,
     education_session_uuid: ''
   });
@@ -129,7 +128,6 @@ export default function CertificateCreateModal({ isOpen, onClose, onSuccess }: C
                 phone_number: phone, // PK
                 postal_code: '', 
                 address: '',
-                photo: null,
                 education_session: [session.uuid],
               };
               user = await createUser(userPayload as any);
@@ -143,6 +141,7 @@ export default function CertificateCreateModal({ isOpen, onClose, onSuccess }: C
               course_name: row['과정명'],
               delivery_address: row['배송 주소(선택)']   || '',
               tracking_number: row['운송장 번호(선택)'] || '',
+              photo: row['증명사진'] ? (row['증명사진'] as File) : null,
               user: user.uuid,
               education_session: session.uuid,
             });
@@ -178,7 +177,7 @@ export default function CertificateCreateModal({ isOpen, onClose, onSuccess }: C
     if (!files || files.length === 0) return;
 
   if (name === 'photo') {
-      setWriteData((prev) => ({ ...prev, user: { ...prev.user, photo: files[0] } }));
+      setWriteData((prev) => ({ ...prev, photo: files[0] }));
     }
   };
 
@@ -203,6 +202,9 @@ export default function CertificateCreateModal({ isOpen, onClose, onSuccess }: C
       formDataObj.append('course_name', writeData.course_name);
       formDataObj.append('tracking_number', writeData.tracking_number ?? '');
       formDataObj.append('delivery_address', writeData.delivery_address ?? '');
+      if (writeData.photo) {
+        formDataObj.append('photo', writeData.photo);
+      }
       
       // 2. 사용자 정보
       formDataObj.append('user_id', writeData.user.user_id ?? '');
@@ -211,9 +213,7 @@ export default function CertificateCreateModal({ isOpen, onClose, onSuccess }: C
       formDataObj.append('phone_number', writeData.user.phone_number);
       formDataObj.append('postal_code', writeData.user.postal_code ?? '');
       formDataObj.append('address', writeData.user.address ?? '');
-      if (writeData.user.photo) {
-        formDataObj.append('photo', writeData.user.photo);
-      }
+
 
       // 3. 교육기관 세션 정보
       formDataObj.append('education_session', selectedSession.uuid);
@@ -276,7 +276,6 @@ export default function CertificateCreateModal({ isOpen, onClose, onSuccess }: C
               <div>
                 <h3 className="text-lg font-semibold mb-2">👤 사용자 정보</h3>
                 <UserFormBlock user={writeData.user} onChange={handleChangeUser} editable={true} />
-                <FileInputBlock label="프로필 사진 (JPG/PNG)" name="photo" accept="image/*" onChange={handleChangeFile} />
               </div>
 
               <div>
@@ -286,6 +285,7 @@ export default function CertificateCreateModal({ isOpen, onClose, onSuccess }: C
                   <InputBlock label="발급일자" name="issue_date" type="date" value={writeData.issue_date} onChange={handleChangeCert} editable={true} />
                   <InputBlock label="자격과정" name="course_name" value={writeData.course_name} onChange={handleChangeCert} editable={true} />
                   <InputBlock label="운송장번호" name="tracking_number" value={writeData.tracking_number} onChange={handleChangeCert} editable={true} />
+                  <FileInputBlock label="증명사진 (JPG/PNG)" name="photo" accept="image/*" onChange={handleChangeFile} />
                 </div>
               </div>
 

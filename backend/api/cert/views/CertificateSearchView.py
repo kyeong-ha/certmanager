@@ -19,7 +19,7 @@ def search(request):
         'birth_date': 'user__birth_date',
         'phone_number': 'user__phone_number',
         'issue_number': 'issue_number',
-        'edu_name': 'education_session__education_center__center_name',
+        'center_name': 'education_session__education_center__center_name',
         'session': 'education_session__center_session',
     }
 

@@ -29,7 +29,7 @@ export interface CertificateDetail {
 
   created_at?: string;
   updated_at?: string;
-
+  photo: File | string | null;
   
   user: UserDetail;
 
@@ -53,7 +53,7 @@ export interface CertificateWriteForm {
   delivery_address?: string;
   tracking_number?: string;
   note?: string;
-
+  photo: File | string | null;
   user: string;                 // user UUID
   education_session: string;   // session UUID
 }

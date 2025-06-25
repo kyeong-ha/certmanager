@@ -12,7 +12,7 @@ class User(models.Model):
     phone_number = models.CharField(max_length=20, unique=True) # 핸드폰
     postal_code = models.CharField(max_length=20, null=True, blank=True)  # 우편번호
     address = models.TextField(null=True, blank=True)  # 주소
-    photo = models.FileField(upload_to=user_photo_upload_path, blank=True, null=True)  # 증명사진
+    # photo = models.FileField(upload_to=user_photo_upload_path, blank=True, null=True)  # 증명사진
    
     education_session = models.ManyToManyField(EducationCenterSession, related_name='users', blank=True) # 교육원명+기수
     
