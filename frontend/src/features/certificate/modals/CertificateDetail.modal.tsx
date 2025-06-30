@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
 import useAppDispatch from '@/hooks/useAppDispatch';
@@ -13,9 +13,8 @@ import type { EducationCenterSessionSummary } from '@/features/center/types/Educ
 
 import { fetchSessions } from '@/features/center/slices/educationCenterSlice';
 import { fetchReissueLogsByUuid } from '@/features/certificate/services/logs.api';
-import { updateCertificate } from '@/features/certificate/services/cert.api';
+import { updateCertificate, fetchCertificatePreview } from '@/features/certificate/services/cert.api';
 
-import PrintPreviewProps from '@/components/PrintPreview';
 import CenterSelect from '@/features/center/components/CenterSelect';
 import UserFormBlock from '@/features/user/components/UserFormBlock';
 import CenterSessionSelect from '@/features/center/components/CenterSessionSelect';
@@ -41,8 +40,10 @@ export default function CertificateDetailModal({ isOpen, onClose, onUpdate, targ
   const [isCenterModalOpen, setIsCenterModalOpen] = useState(false);
   const [selectedCenterName, setSelectedCenterName] = useState('');
   const [selectedSession, setSelectedSession] = useState<EducationCenterSessionSummary | null>(null);
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   
   const sessionList = useSelector((state: RootState) => state.educationCenter.sessions);
+  const previewLoadedRef = useRef(false); // ➕ 중복 요청 방지 플래그
 
   useEffect(() => {
     if (isOpen) {
@@ -58,21 +59,35 @@ export default function CertificateDetailModal({ isOpen, onClose, onUpdate, targ
           s.education_center.center_name === targetCert.education_session.education_center.center_name
       );
       setSelectedSession(matched ?? null);
-    }
-  }, [isOpen, targetCert, sessionList]);
 
+      // PDF 미리보기 생성
+      if (!previewLoadedRef.current) {
+        previewLoadedRef.current = true; // 중복 방지
+        fetchCertificatePreview(targetCert.uuid).then((blob) => {
+          const url = URL.createObjectURL(blob);
+          setPdfUrl(url);
+        });
+      }
+    } else {
+      // 모달 닫힐 때 상태 초기화
+      setDetailData(null);
+      setPdfUrl(null);
+      previewLoadedRef.current = false;  // 다시 열 때 요청 가능하도록 초기화
+    }
+
+    // 컴포넌트 언마운트 또는 isOpen 변경 시 URL 정리
+    return () => {
+      if (pdfUrl) {
+        URL.revokeObjectURL(pdfUrl);
+      }
+    };
+  }, [isOpen, targetCert.uuid]);
 
   useEffect(() => {
     if (targetCert?.uuid) {
       fetchReissueLogsByUuid(targetCert.uuid).then(setLogs);
     }
   }, [targetCert]);
-
-  useEffect(() => {
-    if (isOpen) {
-      
-    }
-  }, [isOpen]);
 
   /* --- 2.handlers --- */
   // 2.1. EditMode 시작
@@ -86,6 +101,7 @@ export default function CertificateDetailModal({ isOpen, onClose, onUpdate, targ
     const { name, value } = e.target;
     setDetailData({ ...detailData, [name]: value });
   };
+
   // 2.3. 사용자 정보 변경
   const handleChangeUser = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!detailData || !detailData.user) return;
@@ -247,24 +263,28 @@ const handleSave = async () => {
           
 
           {/* 3.2.3. 자격증 미리보기 */}
-          {targetCert?.copy_file ? (
-            <div className="border rounded-xl mt-6 p-4 space-y-4 bg-muted shadow-sm rounded">
-              {/* 자격증 미리보기: Title */}
-              <h3 className="text-lg font-semibold">🖨️ 자격증 미리보기</h3>
-              {/* 자격증 미리보기: Content */}
-              <PrintPreviewProps copy_file={targetCert.copy_file} />
-              {/* 자격증 미리보기: Print Button */}
+          <div className="border rounded-xl mt-6 p-4 space-y-4 bg-muted shadow-sm">
+            <h3 className="text-lg font-semibold">🖨️ 자격증 미리보기</h3>
+            {pdfUrl ? (
+              <object
+                data={pdfUrl}
+                type="application/pdf"
+                width="100%"
+                height="600px"
+              >
+                PDF 미리보기를 지원하지 않는 브라우저입니다.
+              </object>
+            ) : (
+              <p className="text-sm text-muted-foreground">PDF 생성 중...</p>
+            )}
+            {pdfUrl && (
               <div className="text-right mt-2">
-                <PrintButton file={targetCert.copy_file} />
+                <PrintButton file={pdfUrl} />
               </div>
-
-            </div>
-          ) : (
-            <div className="mt-4 text-sm text-muted-foreground italic">
-              미리보기 가능한 자격증 PDF가 없습니다.
-            </div>
-          )}
+            )}
+          </div>
         </div>
+
       </DialogContent>
       {/* 교육기관 등록 모달 */}
       <CenterCreateModal

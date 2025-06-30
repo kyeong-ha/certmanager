@@ -13,6 +13,14 @@ export const fetchCertificateByUuid = async (uuid: string): Promise<CertificateD
   return response.data;
 };
 
+// 모달 오픈 시 PDF Blob을 받아오기 위한 API
+export const fetchCertificatePreview = async (uuid: string): Promise<Blob> => {
+  const response = await api.get(`/cert/${uuid}/preview/`, {
+    responseType: 'blob',  // Blob 응답 타입 지정
+  });
+  return response.data;
+};
+
 // 자격증 조건검색 API
 export const searchCertificates = async (params: { filter_type?: string; search_value?: string; center_name?: string; center_session?: string; }): Promise<CertificateSummary[]> => {
   const response = await api.get('/cert/search/', { params });

@@ -1,6 +1,5 @@
-import glob, os, re, shutil, subprocess, tempfile
+import glob, os, re, shutil, subprocess, tempfile, functools
 from django.conf import settings
-from django.core.files.base import ContentFile
 from typing import Dict, List
 from docx import Document
 from docx.shared import Cm
@@ -22,6 +21,20 @@ def _odt_to_docx(odt_path: str) -> str:
         tmp_dir,
         os.path.splitext(os.path.basename(odt_path))[0] + ".docx",
     )
+    
+# ODT→DOCX 변환 결과를 캐싱
+@functools.lru_cache(maxsize=1)
+def _get_cached_docx_template() -> str:
+    """
+    최초 API 호출 시에만 LibreOffice로 변환하여 DOCX 경로를 반환.
+    이후 호출은 같은 파일 경로를 재사용.
+    """
+    odt_tpl = os.path.join(
+        settings.BASE_DIR,
+        ".local/staticfiles/templates",
+        "phoenix_ver1.odt"
+    )
+    return _odt_to_docx(odt_tpl)
 
 
 # ────────────────────────────
@@ -123,65 +136,68 @@ def _docx_to_pdf(docx_path: str, final_dir: str, base: str) -> str:
 
 
 # ────────────────────────────
-# 5) 
-# - ODT 템플릿을 LibreOffice로 .docx로 변환 → _odt_to_docx
-# - 치환할 텍스트 입력 → _replace_placeholders
-# - 사진 삽입 → _insert_photo
-# - .docx → .pdf 변환 → _docx_to_pdf
+# 5) PDF 즉시 생성 메인 함수
 # ────────────────────────────
-def generate_certificate_pdf(cert, output_dir: str) -> str:
+def generate_certificate_pdf_bytes(cert) -> str:
     """
-    PDF 한 개만 (issue_number.pdf) output_dir 에 남긴다.
+    임시 디렉터리에 PDF를 생성 후 바이트로 읽어 반환합니다.
+    TemporaryDirectory 컨텍스트 종료 시 자동 삭제됩니다.
     """
-    issue_number = cert.issue_number.replace('/', '-')
-    pdf_path = os.path.join(output_dir, f"{issue_number}.pdf")
-    
-    # 템플릿 → DOCX (임시)
-    odt_tpl = os.path.join(settings.BASE_DIR, ".local/staticfiles/templates", "phoenix_ver1.odt")
-    docx_tmp = _odt_to_docx(odt_tpl)
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        issue_number = cert.issue_number.replace('/', '-')
+        
+        docx_tpl_path = _get_cached_docx_template()
+        
+        doc = Document(docx_tpl_path)
+        # odt_tpl = os.path.join(
+        #     settings.BASE_DIR,
+        #     ".local/staticfiles/templates",
+        #     "phoenix_ver1.odt"
+        # )
+        # docx_tmp = _odt_to_docx(odt_tpl)
+        
+        # # 템플릿 → DOCX (임시)
+        # odt_tpl = os.path.join(settings.BASE_DIR, ".local/staticfiles/templates", "phoenix_ver1.odt")
+        # docx_tmp = _odt_to_docx(odt_tpl)
 
-    # DOCX 로드 & 텍스트 치환
-    doc = Document(docx_tmp)
-    replacements = {
-        "{성명}": cert.user.user_name,
-        "{생년월일}": cert.user.birth_date.strftime("%Y.%m.%d") if cert.user.birth_date else "",
-        "{자격과정}": cert.course_name,
-        "{발급번호}": cert.issue_number,
-        "{등록번호}": LICENSES.get(cert.course_name) or "",
-        "{발급일자}": cert.issue_date.strftime("%Y년 %m월 %d일") if cert.issue_date else "",
-    }
-    _replace_placeholders(doc, replacements)
+        # # DOCX 로드 & 텍스트 치환
+        # doc = Document(docx_tmp)
+        replacements = {
+            "{성명}": cert.user.user_name,
+            "{생년월일}": cert.user.birth_date.strftime("%Y.%m.%d") if cert.user.birth_date else "",
+            "{자격과정}": cert.course_name,
+            "{발급번호}": cert.issue_number,
+            "{등록번호}": LICENSES.get(cert.course_name) or "",
+            "{발급일자}": cert.issue_date.strftime("%Y년 %m월 %d일") if cert.issue_date else "",
+        }
+        _replace_placeholders(doc, replacements)
 
-    # 사진
-    if cert.user.photo:
-        _insert_photo(doc, cert.user.photo.path)
+        # 사진
+        if cert.photo:
+            _insert_photo(doc, cert.photo.path)
 
-    # DOCX 저장 (tmp) & PDF 변환
-    tmp_dir = tempfile.mkdtemp()
-    word_path = os.path.join(tmp_dir, f"{issue_number}.docx")
-    doc.save(word_path)
-    pdf_path = _docx_to_pdf(word_path, output_dir, issue_number)
+        # 임시 DOCX 파일 저장
+        tmp_docx = os.path.join(tmp_dir, f"{issue_number}.docx")
+        doc.save(tmp_docx)
+        # 임시 PDF 생성
+        pdf_path = _docx_to_pdf(tmp_docx, tmp_dir, issue_number)
 
-    # 임시 DOCX & 템플릿 복사본 정리
-    for p in (word_path, docx_tmp):
-        try:
-            os.remove(p)
-        except OSError:
-            pass
-    shutil.rmtree(tmp_dir, ignore_errors=True)
-    
-    return pdf_path
+        # PDF 파일 읽어서 바이트 반환
+        with open(pdf_path, 'rb') as f:
+            pdf_bytes = f.read()
+
+    return pdf_bytes  # 임시 파일 모두 삭제된 후에도 바이트 유지
 
 
-# ────────────────────────────
-# 6) 파일명을 {issue_number}.pdf 에 맞춰서 저장
-# ────────────────────────────
-def save_certificate_pdf(certificate, pdf_path: str):
-    from api.cert.models.Certificate import Certificate  # 순환참조 방지
+# # ────────────────────────────
+# # 6) 파일명을 {issue_number}.pdf 에 맞춰서 저장
+# # ────────────────────────────
+# def save_certificate_pdf(certificate, pdf_path: str):
+#     from api.cert.models.Certificate import Certificate  # 순환참조 방지
 
-    filename = f"{certificate.issue_number}.pdf"
-    if not os.path.exists(pdf_path):
-        raise FileNotFoundError(f"PDF 파일이 존재하지 않음: {pdf_path}")
+#     filename = f"{certificate.issue_number}.pdf"
+#     if not os.path.exists(pdf_path):
+#         raise FileNotFoundError(f"PDF 파일이 존재하지 않음: {pdf_path}")
 
-    with open(pdf_path, "rb") as fp:
-        certificate.copy_file.save(filename, ContentFile(fp.read()), save=True)
+#     with open(pdf_path, "rb") as fp:
+#         certificate.copy_file.save(filename, ContentFile(fp.read()), save=True)

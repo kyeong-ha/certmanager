@@ -5,6 +5,7 @@ from .views.CertificateDeleteView import CertificateDeleteView
 from .views.CertificateCreateView import create
 from .views.CertificateSearchView import search
 from .views.CertificateUpdateView import CertificateUpdateByIssueNumberView
+from .views.CertificatePreviewAPIView import CertificatePreviewAPIView
 
 urlpatterns = [
     path('', CertificateListView.as_view(), name='cert-list'),
@@ -13,4 +14,5 @@ urlpatterns = [
     path('<uuid:pk>/', CertificateDeleteView.as_view(), name='cert-delete'),
     path('search/', search, name='cert-search'),
     path("update/", CertificateUpdateByIssueNumberView.as_view(), name="cert-update-by-issue-number"),
+    path('<uuid:uuid>/preview/', CertificatePreviewAPIView.as_view(), name='cert-preview'),
 ]
