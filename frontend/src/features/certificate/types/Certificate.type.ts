@@ -10,7 +10,10 @@ export interface CertificateSummary {
   issue_date: string;
   course_name: string;
 
-  user: UserSummary;
+  user_name: string; // 사용자 이름
+  birth_date: string; // 사용자 생년월일
+  phone_number: string; // 사용자 전화번호
+  
   center_name: string;
   center_session: number;
   // education_session: EducationCenterSessionDetail;

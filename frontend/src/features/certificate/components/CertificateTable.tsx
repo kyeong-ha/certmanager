@@ -126,11 +126,8 @@ export default function CertificateTable({ searchResults, onRefresh, onSelectCha
 
     setTableData((prev) =>
       prev.map((row) =>
-        row.user.uuid === updatedSummary.user.uuid
-          ? {
-              ...row,
-              user: updatedSummary.user,
-            }
+        row.uuid === updatedSummary.uuid
+          ? { ...row, ...updatedSummary }
           : row
       )
     );
@@ -196,9 +193,9 @@ export default function CertificateTable({ searchResults, onRefresh, onSelectCha
                   />
                 </td>
                 <td className="px-2 py-1 border">{row.issue_number}</td>
-                <td className="px-2 py-1 border">{row.user?.user_name || '이름없음'}</td>
-                <td className="px-2 py-1 border">{row.user?.birth_date || '생년월일없음'}</td>
-                <td className="px-2 py-1 border">{row.user?.phone_number || '번호없음'}</td>
+                <td className="px-2 py-1 border">{row.user_name || '이름없음'}</td>
+                <td className="px-2 py-1 border">{row.birth_date || '생년월일없음'}</td>
+                <td className="px-2 py-1 border">{row.phone_number || '번호없음'}</td>
                 <td className="px-2 py-1 border">{row.course_name}</td>
                 <td className="px-2 py-1 border">{row.issue_date}</td>
                 <td className="px-2 py-1 border">{row.center_name ?? ''} {row.center_session ? `${row.center_session}기` : ''}</td>

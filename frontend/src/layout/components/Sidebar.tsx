@@ -11,12 +11,12 @@ const sidebarItems: (SidebarItem & { icon?: React.ReactNode })[] = [
     { label: '교육일정', icon: <FiCalendar /> },
     { label: '회원관리', icon: <FiUsers />, path: '/user' },
     {
-      label: '자격증관리', icon: <FiAward />,
-      children: [
-        { label: '새로 만들기' },
-        { label: '검색하기', path: '/cert' },
-        { label: '출력하기', path: '/cert/print' },
-      ],
+      label: '자격증관리', icon: <FiAward />, path: '/cert'
+      // children: [
+      //   { label: '새로 만들기' },
+      //   { label: '검색하기', path: '/cert' },
+      //   { label: '출력하기', path: '/cert/print' },
+      // ],
     },
     { label: '교육원관리', icon: <FiBookOpen />, path: '/center' },
     { label: '배송관리', icon: <FiTruck /> },

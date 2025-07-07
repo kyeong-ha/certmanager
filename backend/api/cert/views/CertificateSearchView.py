@@ -13,7 +13,8 @@ def search(request):
     search_value = request.GET.get('search_value')
     center_name = request.GET.get('center_name')
     center_session = request.GET.get('center_session')
-
+    with_count = request.GET.get('with_count', 'true') == 'true'
+    
     field_map = {
         'user_name': 'user__user_name',
         'birth_date': 'user__birth_date',
@@ -25,7 +26,6 @@ def search(request):
 
     try:
         filters = {}
-
         if center_name:
             filters['education_session__education_center__center_name__icontains'] = center_name
         if center_session:
@@ -33,14 +33,29 @@ def search(request):
         if filter_type in field_map and search_value:
             filters[field_map[filter_type] + '__icontains'] = search_value
 
+
+
         certificates = Certificate.objects.select_related(
-            'user',
-            'education_session',
-            'education_session__education_center'
+            'user', 'education_session', 'education_session__education_center'
+        ).only(
+            'uuid', 'issue_number', 'issue_date', 'course_name',
+            'user__user_name', 'user__birth_date', 'user__phone_number',
+            'education_session__center_session',
+            'education_session__education_center__center_name'
         ).filter(**filters).order_by('-issue_date')
 
-        serializer = CertificateSearchSerializer(certificates, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        offset = int(request.GET.get('offset', 0))
+        limit = int(request.GET.get('limit', 20))
+        paged = certificates[offset:offset + limit]
+        
+        serializer = CertificateSearchSerializer(paged, many=True)
+        
+        response = { 'results': serializer.data }
+        if with_count:
+            response['count'] = certificates.count()
+
+        return Response(response, status=status.HTTP_200_OK)
+
 
     except FieldError:
         return Response({'error': '올바르지 않은 검색 필드입니다.'}, status=status.HTTP_400_BAD_REQUEST)
