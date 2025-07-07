@@ -127,6 +127,7 @@ class CertificateDetailSerializer(serializers.ModelSerializer):
             'course_name',
             'issue_type',
             'copy_file',
+            'photo',
             'delivery_address',
             'tracking_number',
             'user',

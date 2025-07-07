@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { SidebarItem } from '@/types/Layout.type';
+import { SidebarItem } from '@/types/layout.type';
 import { FiHome, FiCalendar, FiUsers, FiAward, FiChevronDown, FiChevronRight, FiTruck, FiBookOpen } from 'react-icons/fi';
 import CertificateCreateModal from '@/features/certificate/modals/CertificateCreate.modal';
 import toast from 'react-hot-toast';

@@ -41,9 +41,9 @@ export default function CertificateDetailModal({ isOpen, onClose, onUpdate, targ
   const [selectedCenterName, setSelectedCenterName] = useState('');
   const [selectedSession, setSelectedSession] = useState<EducationCenterSessionSummary | null>(null);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
-  
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const sessionList = useSelector((state: RootState) => state.educationCenter.sessions);
-  const previewLoadedRef = useRef(false); // ➕ 중복 요청 방지 플래그
+  const previewLoadedRef = useRef(false); // 중복 요청 방지 플래그
 
   useEffect(() => {
     if (isOpen) {
@@ -72,6 +72,7 @@ export default function CertificateDetailModal({ isOpen, onClose, onUpdate, targ
       // 모달 닫힐 때 상태 초기화
       setDetailData(null);
       setPdfUrl(null);
+      setPhotoPreview(null);
       previewLoadedRef.current = false;  // 다시 열 때 요청 가능하도록 초기화
     }
 
@@ -79,6 +80,9 @@ export default function CertificateDetailModal({ isOpen, onClose, onUpdate, targ
     return () => {
       if (pdfUrl) {
         URL.revokeObjectURL(pdfUrl);
+      }
+      if (photoPreview && detailData?.photo instanceof File) {
+        URL.revokeObjectURL(photoPreview);
       }
     };
   }, [isOpen, targetCert.uuid]);
@@ -88,6 +92,24 @@ export default function CertificateDetailModal({ isOpen, onClose, onUpdate, targ
       fetchReissueLogsByUuid(targetCert.uuid).then(setLogs);
     }
   }, [targetCert]);
+
+  // detailData.photo가 바뀔 때마다 preview를 string URL로 세팅
+  useEffect(() => {
+    if (!detailData) return;
+
+  let raw = detailData.photo; // "http://certmanager-backend:8000/media/…"
+  if (typeof raw === 'string') {
+    try {
+      const url = new URL(raw);
+      // window.location.hostname 은 브라우저에서 접근하는 호스트 (예: "localhost")
+      url.hostname = window.location.hostname;
+      url.port = window.location.port || '3000'; // 포트가 없으면 3000으로 설정
+      setPhotoPreview(url.toString());
+    } catch {
+      setPhotoPreview(raw);
+    }
+  }
+  }, [detailData?.photo]);
 
   /* --- 2.handlers --- */
   // 2.1. EditMode 시작
@@ -177,6 +199,14 @@ const handleSave = async () => {
             
               <div className="border rounded-xl p-4 space-y-4 bg-muted shadow-sm">
                 <h3 className="text-lg font-semibold">👤 사용자 정보</h3>
+                {/* 사용자 사진 */}
+                {photoPreview && (
+                  <img
+                    src={photoPreview}
+                    alt="사용자 사진"
+                     className="w-30 h-40 rounded object-cover mr-4"
+                  />
+                )}
                 {detailData && (
                   <UserFormBlock
                     user={detailData.user}
@@ -249,7 +279,7 @@ const handleSave = async () => {
             </div>
 
             {/* 3.2.5. Edit Button */}
-            <div className="flex justify-end gap-2 mt-6 rounded-xl bg-muted shadow-sm">
+            {/* <div className="flex justify-end gap-2 mt-6 rounded-xl bg-muted shadow-sm">
               {editMode ? (
                 <>
                   <Button variant="outline" onClick={() => setEditMode(false)}>취소</Button>
@@ -258,7 +288,7 @@ const handleSave = async () => {
               ) : (
                 <Button onClick={handleEditStart}>편집</Button>
               )}
-            </div>
+            </div> */}
           </div>
           
 
