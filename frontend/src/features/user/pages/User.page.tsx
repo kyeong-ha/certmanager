@@ -9,6 +9,7 @@ import { Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { Button } from '@/components/ui/button';
 import UserCreateModal from '../modals/UserCreate.modal';
+import ReactPaginate from 'react-paginate';
 
 export default function UserPage() {
   const [users, setUsers] = useState<UserSummary[]>([]);
@@ -17,15 +18,19 @@ export default function UserPage() {
   const [selectedUserUuids, setSelectedUserUuids] = useState<string[]>([]); // 선택된 사용자 UUID
   const [isUserCreateModalOpen, setIsUserCreateModalOpen] = useState(false);
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+
   /* 1.Handlers */
   // 1.1. 사용자 데이터 가져오기
   useEffect(() => {
     const fetchUsers = async () => {
-      const response = await fetchAllUser();
-      setUsers(response);
+      const { results, count } = await fetchAllUser(currentPage, 20);
+      setUsers(results);
+      setTotalCount(count);
     };
     fetchUsers();
-  }, []);
+  }, [currentPage]);
 
   // 1.2. 필터링된 사용자 목록
   const filteredUsers = users.filter((user) =>
@@ -33,20 +38,21 @@ export default function UserPage() {
     user.phone_number?.includes(search)
   );
 
-  const handleDeleteUsers = async () => {
-    if (selectedUserUuids.length === 0) return;
-    if (!confirm(`${selectedUserUuids.length}명의 사용자를 삭제하시겠습니까?`)) return;
+  // 1.3. 페이지 변경 핸들러
+  // const handleDeleteUsers = async () => {
+  //   if (selectedUserUuids.length === 0) return;
+  //   if (!confirm(`${selectedUserUuids.length}명의 사용자를 삭제하시겠습니까?`)) return;
 
-    try {
-      await deleteUser(selectedUserUuids);
-      toast.success(`✅ ${selectedUserUuids.length}명 사용자 삭제 완료`);
-      const updated = await fetchAllUser();
-      setUsers(updated);
-      setSelectedUserUuids([]);
-    } catch (error) {
-      toast.error('❌ 사용자 삭제 실패');
-    }
-  };
+  //   try {
+  //     await deleteUser(selectedUserUuids);
+  //     toast.success(`✅ ${selectedUserUuids.length}명 사용자 삭제 완료`);
+  //     const updated = await fetchAllUser();
+  //     setUsers(updated);
+  //     setSelectedUserUuids([]);
+  //   } catch (error) {
+  //     toast.error('❌ 사용자 삭제 실패');
+  //   }
+  // };
 
 
   /* 2.Render */
@@ -55,9 +61,9 @@ export default function UserPage() {
       <div className="p-6 mx-auto">
         <div className="flex justify-between items-center mb-4">
           <h1 className="text-2xl font-bold">🔍 회원검색</h1>
-          <div className="flex gap-2">
+          {/* <div className="flex gap-2">
             <Button onClick={() => setIsUserCreateModalOpen(true)}>+ 새 회원 추가</Button>
-          </div>
+          </div> */}
         </div>
 
 
@@ -70,7 +76,7 @@ export default function UserPage() {
         />
 
         {/* 2.1.1. 선택된 사용자 삭제 버튼 */}
-        {selectedUserUuids.length > 0 && (
+        {/* {selectedUserUuids.length > 0 && (
           <div className="flex items-center justify-between bg-gray-100 px-4 py-2 rounded-md border border-gray-300 mb-4">
             <span className="text-sm text-gray-700">
               ✅ <strong>{selectedUserUuids.length}</strong>명 선택됨
@@ -85,7 +91,7 @@ export default function UserPage() {
               선택 삭제
             </Button>
           </div>
-        )}
+        )} */}
 
         {/* 2.2. 검색결과 Table */}
         <UserTable 
@@ -96,36 +102,52 @@ export default function UserPage() {
             const data = await fetchUserByUuid(userSearch.uuid);
             setTargetUser(data);
           }}
-            onContextSelect={async (action, user) => {
-              if (action === '상세보기') {
-                const data = await fetchUserByUuid(user.uuid);
-                setTargetUser(data);
-              }
-              if (action === '삭제하기') {
-                const confirmed = confirm(`"${user.user_name}" 회원을 삭제하시겠습니까?`);
-                if (!confirmed) return;
-                await deleteUser([user.uuid]);
-                toast.success(`"${user.user_name}" 삭제 완료 ✅`);
-                const updated = await fetchAllUser();
-                setUsers(updated);
-                setSelectedUserUuids((prev) => prev.filter((uuid) => uuid !== user.uuid));
-              }
-            }}
+          onContextSelect={async (action, user) => {
+            if (action === '상세보기') {
+              const data = await fetchUserByUuid(user.uuid);
+              setTargetUser(data);
+            }
+            // if (action === '삭제하기') {
+            //   const confirmed = confirm(`"${user.user_name}" 회원을 삭제하시겠습니까?`);
+            //   if (!confirmed) return;
+            //   await deleteUser([user.uuid]);
+            //   toast.success(`"${user.user_name}" 삭제 완료 ✅`);
+            //   const updated = await fetchAllUser();
+            //   setUsers(updated);
+            //   setSelectedUserUuids((prev) => prev.filter((uuid) => uuid !== user.uuid));
+            // }
+          }}
+        />
+
+        {/* 2.2.1. 페이지네이션 */}
+        <div className="mt-4 flex justify-center">
+          <ReactPaginate
+            pageCount={Math.ceil(totalCount / 20)}
+            forcePage={currentPage - 1}
+            onPageChange={({ selected }) => setCurrentPage(selected+1)}
+            previousLabel="‹ 이전"
+            nextLabel="다음 ›"
+            breakLabel="..."
+            marginPagesDisplayed={1}
+            pageRangeDisplayed={3}
+            containerClassName="flex gap-2 text-sm"
+            activeClassName="font-bold"
           />
+        </div>
 
         {/* 2.3. 회원 상세정보 Modal */}
         {targetUser && (
           <UserDetailModal isOpen={targetUser !== null} onClose={() => setTargetUser(null)} user={targetUser} />
         )}
 
-        <UserCreateModal
+        {/* <UserCreateModal
           isOpen={isUserCreateModalOpen}
           onClose={() => setIsUserCreateModalOpen(false)}
           onSuccess={async () => {
             const updated = await fetchAllUser();
             setUsers(updated);
           }}
-        />
+        /> */}
       </div>
     </MainLayout>
   );

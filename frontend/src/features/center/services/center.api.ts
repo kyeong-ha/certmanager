@@ -2,9 +2,23 @@ import api from '@/libs/axios';
 import { EducationCenterSummary, EducationCenterDetail, EducationCenterWriteForm } from '../types/EducationCenter.type';
 import { EducationCenterSessionSummary, EducationCenterSessionDetail, EducationCenterSessionWriteForm } from '../types/EducationCenterSession.type';
 
+// 페이징 응답 타입
+export interface PaginatedResponse<T> {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: T[];
+}
+
 // 전체 교육기관 조회 API
-export const fetchAllCenter = async (): Promise<EducationCenterSummary[]> => {
-  const res = await api.get('/center/');
+export const fetchAllCenter = async (
+  page = 1,
+  page_size = 20
+): Promise<PaginatedResponse<EducationCenterSummary>> => {
+  const res = await api.get<PaginatedResponse<EducationCenterSummary>>(
+    '/center/',
+    { params: { page, page_size } }
+  );
   return res.data;
 };
 

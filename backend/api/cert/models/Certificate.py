@@ -3,7 +3,7 @@ from django.db import models
 from api.cert.services.storage import OverwriteStorage
 from utils.helpers import certificate_copy_file_upload_path, certificate_photo_upload_to
 import os
-from api.user.models.User import User
+from api.user.models import User
 from api.center.models.EducationCenter import EducationCenter
 from api.center.models.EducationCenterSession import EducationCenterSession
 

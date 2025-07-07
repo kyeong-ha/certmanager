@@ -24,6 +24,7 @@ export interface UserDetail extends UserSummary {
   // 교육기관+기수 리스트
   education_session_list: EducationCenterSessionSummary[];
   certificates?: CertificateSummary[];
+  photo: File | string | null; // 사진 URL
 }
 
 // 사용자 등록/수정 공통 폼

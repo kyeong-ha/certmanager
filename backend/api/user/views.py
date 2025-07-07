@@ -2,13 +2,15 @@ from rest_framework.generics import ListAPIView, RetrieveUpdateAPIView, CreateAP
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
-from api.user.models.User import User
-from api.user.serializers.UserSerializer import UserSearchSerializer, UserWriteSerializer, UserDetailSerializer
+from api.user.models import User
+from api.user.serializers import UserSearchSerializer, UserWriteSerializer, UserDetailSerializer
+from rest_framework.pagination import PageNumberPagination
 
 # GET /api/user/ → 사용자 목록 요약조회
 class UserListView(ListAPIView):
     queryset = User.objects.prefetch_related('education_session')
     serializer_class = UserSearchSerializer
+    pagination_class = PageNumberPagination # 기본 페이지네이션 클래스 설정
 
 # POST	/api/user/create → 사용자 생성
 class UserCreateView(CreateAPIView):

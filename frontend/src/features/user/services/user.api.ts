@@ -1,10 +1,19 @@
 import api from '@/libs/axios';
 import { UserSummary, UserDetail, UserWriteForm } from '../types/User.type';
 
+// 페이징 응답 타입
+export interface PaginatedResponse<T> {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: T[];
+}
 
 // 전체 회원 조회 API
-export const fetchAllUser = async (): Promise<UserSummary[]> => {
-  const response = await api.get('/user/');
+export const fetchAllUser = async ( page = 1, page_size = 20 ): Promise<PaginatedResponse<UserSummary>> => {
+  const response = await api.get<PaginatedResponse<UserSummary>>('/user/', {
+    params: { page, page_size },
+  });
   return response.data;
 };
 

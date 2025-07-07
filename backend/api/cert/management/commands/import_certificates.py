@@ -5,7 +5,7 @@ from openpyxl.utils.datetime import from_excel
 from django.core.management.base import BaseCommand
 from datetime import datetime
 
-from api.user.models.User import User
+from api.user.models import User
 import os       
 import json
 import hashlib

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from api.user.models.User import User
+from api.user.models import User
 from api.center.models.EducationCenterSession import EducationCenterSession
 from api.center.serializers.EducationCenterSerializer import EducationCenterSearchSerializer
 
@@ -53,12 +53,18 @@ class UserDetailSerializer(serializers.ModelSerializer):
     from api.center.serializers.EducationCenterSessionSerializer import EducationCenterSessionSummarySerializer
     education_session_list = EducationCenterSessionSummarySerializer(source='education_session', many=True, read_only=True)
 
+    certificates = serializers.SerializerMethodField()
+    photo = serializers.SerializerMethodField() 
+
+
     def get_certificates(self, obj):
         from api.cert.serializers.CertificateSerializer import CertificateSearchSerializer
         return CertificateSearchSerializer(obj.certificates.all(), many=True).data
 
-    certificates = serializers.SerializerMethodField()
-
+    def get_photo(self, obj):
+       last_cert = obj.certificates.last()
+       return last_cert.photo.url if last_cert and last_cert.photo else None
+       
     class Meta:
         model = User
         fields = [
@@ -70,6 +76,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
             'postal_code',
             'address',
             'certificates',
+            'photo',
             'education_session_list',
             'created_at',
             'updated_at',

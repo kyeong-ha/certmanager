@@ -2,7 +2,7 @@ from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.response import Response
 from rest_framework import status
 from api.cert.models.Certificate import Certificate
-from api.user.models.User import User
+from api.user.models import User
 from api.center.models.EducationCenterSession import EducationCenterSession
 from api.cert.serializers.CertificateSerializer import CertificateWriteSerializer, CertificateDetailSerializer
 from api.cert.serializers.CertificateSerializer import CertificateDetailSerializer

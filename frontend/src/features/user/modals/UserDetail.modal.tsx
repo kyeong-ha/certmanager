@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, } from 'react';
 import { UserDetail } from '@/features/user/types/User.type';
 import { updateUser, deleteUser } from '@/features/user/services/user.api';
 import { UserWriteForm } from '@/features/user/types/User.type';
@@ -15,12 +15,29 @@ interface UserDetailModalProps {
 
 /* ----- Modal -------------------------------------------------------- */
 const UserDetailModal: React.FC<UserDetailModalProps> = ({ isOpen, onClose, user }) => {
-  const [form, setForm] = useState<UserWriteForm>({ user_id: '', user_name: '', birth_date: '', phone_number: '', postal_code: '', address: '', photo: '' });
+  const [form, setForm] = useState<UserWriteForm>({ user_id: '', user_name: '', birth_date: '', phone_number: '', postal_code: '', address: '' });
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
 
   // User Data 가 바뀔 때마다 form 동기화
   useEffect(() => {
     if (user) {
-      setForm({ user_id: user.user_id, user_name: user.user_name, birth_date: user.birth_date, phone_number: user.phone_number, postal_code: user.postal_code, address: user.address, photo: user.photo });
+      setForm({ user_id: user.user_id, user_name: user.user_name, birth_date: user.birth_date, phone_number: user.phone_number, postal_code: user.postal_code, address: user.address });
+      
+      // 사진 미리보기 URL 설정
+      if (!user.certificates) return;
+
+      let raw = user.photo; // "http://certmanager-backend:8000/media/…"
+      if (typeof raw === 'string') {
+        try {
+          const url = new URL(raw);
+          // window.location.hostname 은 브라우저에서 접근하는 호스트 (예: "localhost")
+          url.hostname = window.location.hostname;
+          url.port = window.location.port || '3000'; // 포트가 없으면 3000으로 설정
+          setPhotoPreview(url.toString());
+        } catch {
+          setPhotoPreview(raw);
+        }
+      }
     }
   }, [user]);
 
@@ -63,6 +80,14 @@ const UserDetailModal: React.FC<UserDetailModalProps> = ({ isOpen, onClose, user
         </div>
 
         {/* 2.2. 회원 정보 */}
+        {/* 사용자 사진 */}
+        {photoPreview && (
+          <img
+            src={photoPreview}
+            alt="사용자 사진"
+             className="w-30 h-40 rounded object-cover mr-4 mb-4"
+          />
+        )}
         <div className="grid grid-cols-2 gap-4 mb-6">
           <InputField label="회원 ID" name="user_id" value={form.user_id || ''} onChange={handleChange} />
           <InputField label="이름" name="user_name" value={form.user_name || ''} onChange={handleChange} />
@@ -90,7 +115,7 @@ const UserDetailModal: React.FC<UserDetailModalProps> = ({ isOpen, onClose, user
                 <td className="py-2 text-center border">{cert.issue_number}</td>
                 <td className="py-2 text-center border">{cert.issue_date}</td>
                 <td className="py-2 text-center border">
-                    {cert.center_name || ''} {cert.center_session || ''}
+                    {cert.center_name || ''} {cert.center_session+"기" || ''}
                 </td>
               </tr>
             ))
@@ -103,7 +128,7 @@ const UserDetailModal: React.FC<UserDetailModalProps> = ({ isOpen, onClose, user
         </table>
         
         {/* 2.4. 하단 버튼 영역 */}
-        <div className="mt-6 flex justify-between items-center">
+        {/* <div className="mt-6 flex justify-between items-center">
           <button onClick={handleDelete} className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">
             회원 삭제
           </button>
@@ -115,7 +140,7 @@ const UserDetailModal: React.FC<UserDetailModalProps> = ({ isOpen, onClose, user
               저장
             </button>
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );

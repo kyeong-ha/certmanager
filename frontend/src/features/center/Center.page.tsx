@@ -10,6 +10,7 @@ import CenterDetailModal from './modals/CenterDetail.modal';
 import CenterCreateModal from './modals/CenterCreate.modal';
 import toast from 'react-hot-toast';
 import { Trash2 } from 'lucide-react';
+import ReactPaginate from 'react-paginate'; 
 
 export default function CenterPage() {
   const [centers, setEducationCenters] = useState<EducationCenterSummary[]>([]); // 교육기관 목록
@@ -17,16 +18,20 @@ export default function CenterPage() {
   const [targetEducationCenter, setTargetEducationCenter] = useState<EducationCenterDetail | null>(null); // 선택된 교육기관 상세정보
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false); // 교육기관 등록 모달 display 여부
   const [selectedCenterUuids, setSelectedCenterUuids] = useState<string[]>([]); // 선택된 교육기관 UUID 리스트
-
-    useEffect(() => {
-      fetchEducationCenters();
-    }, []);
+  
+  const [currentPage, setCurrentPage] = useState(1); // 현재 페이지
+  const [totalCount, setTotalCount] = useState(0); // 전체 교육기관 수
+  
+  useEffect(() => {
+    fetchPage();
+  }, [currentPage]);
     
   /* 1.Handlers */
   // 1.1. 교육기관 전체 목록 가져오기
-  const fetchEducationCenters = async () => {
-    const response = await fetchAllCenter();
-    setEducationCenters(response);
+  const fetchPage = async () => {
+    const { results, count } = await fetchAllCenter(currentPage, 20);
+    setEducationCenters(results);
+    setTotalCount(count);
   };
 
   // 1.2. 필터링된 교육기관 목록
@@ -37,24 +42,24 @@ export default function CenterPage() {
 
   // 1.3. 새 교육기관 등록 성공 시 목록 갱신
   const handleCreateSuccess = async () => {
-    fetchEducationCenters();
+    fetchPage();
   };
 
   // 1.4. 교육기관 삭제
-  const handleDeleteCenters = async () => {
-    if (selectedCenterUuids.length === 0) return;
-    if (!confirm(`${selectedCenterUuids.length}개 교육기관을 삭제하시겠습니까?`)) return;
+  // const handleDeleteCenters = async () => {
+  //   if (selectedCenterUuids.length === 0) return;
+  //   if (!confirm(`${selectedCenterUuids.length}개 교육기관을 삭제하시겠습니까?`)) return;
 
-    try {
-      await deleteEducationCenters(selectedCenterUuids);
-      toast.success(`✅ ${selectedCenterUuids.length}개 교육기관이 삭제되었습니다`);
-      const updated = await fetchAllCenter();
-      setEducationCenters(updated);
-      setSelectedCenterUuids([]);
-    } catch (error) {
-      toast.error('❌ 교육기관 삭제에 실패했습니다');
-    }
-  };
+  //   try {
+  //     await deleteEducationCenters(selectedCenterUuids);
+  //     toast.success(`✅ ${selectedCenterUuids.length}개 교육기관이 삭제되었습니다`);
+  //     const updated = await fetchAllCenter();
+  //     setEducationCenters(updated);
+  //     setSelectedCenterUuids([]);
+  //   } catch (error) {
+  //     toast.error('❌ 교육기관 삭제에 실패했습니다');
+  //   }
+  // };
 
   /* 2.Render */
   return (
@@ -78,7 +83,7 @@ export default function CenterPage() {
 
         {/* 2.2. 검색결과 Table */}
         {/* 선택 삭제 + 선택 수 */}
-        {selectedCenterUuids.length > 0 && (
+        {/* {selectedCenterUuids.length > 0 && (
           <div className="flex items-center justify-between bg-gray-100 px-4 py-2 rounded-md border border-gray-300 mb-4">
             <span className="text-sm text-gray-700">
               ✅ <strong>{selectedCenterUuids.length}</strong>개 선택됨
@@ -93,7 +98,7 @@ export default function CenterPage() {
               선택 삭제
             </Button>
           </div>
-        )}
+        )} */}
 
         {/* 2.2. 교육기관 목록 Table */}
         <CenterTable
@@ -109,18 +114,33 @@ export default function CenterPage() {
               const data = await fetchCenterByUuid(center.uuid);
               setTargetEducationCenter(data);
             }
-            if (action === '삭제하기') {
-              const confirmed = confirm(`"${center.center_name}" 교육기관을 삭제하시겠습니까?`);
-              if (!confirmed) return;
+            // if (action === '삭제하기') {
+            //   const confirmed = confirm(`"${center.center_name}" 교육기관을 삭제하시겠습니까?`);
+            //   if (!confirmed) return;
 
-              await deleteEducationCenters(center.uuid);
-              toast.success(`"${center.center_name}" 삭제 완료 ✅`);
-              fetchEducationCenters(); // 목록 새로고침
-              setSelectedCenterUuids((prev) => prev.filter((uuid) => uuid !== center.uuid)); // 선택 목록에서도 제거
-            }
+            //   await deleteEducationCenters(center.uuid);
+            //   toast.success(`"${center.center_name}" 삭제 완료 ✅`);
+            //   fetchPage(); // 목록 새로고침
+            //   setSelectedCenterUuids((prev) => prev.filter((uuid) => uuid !== center.uuid)); // 선택 목록에서도 제거
+            // }
           }}
         />
 
+        {/* 2.3. 페이지네이션 */}
+        <div className="mt-4 flex justify-center">
+          <ReactPaginate
+            pageCount={Math.ceil(totalCount / 20)}
+            forcePage={currentPage - 1}
+            onPageChange={({ selected }) => setCurrentPage(selected + 1)}
+            previousLabel="‹ 이전"
+            nextLabel="다음 ›"
+            breakLabel="..."
+            marginPagesDisplayed={1}
+            pageRangeDisplayed={3}
+            containerClassName="flex gap-2 text-sm"
+            activeClassName="font-bold"
+          />
+        </div>
 
         {/* 2.3. 회원 상세정보 Modal */}
         {targetEducationCenter && (
