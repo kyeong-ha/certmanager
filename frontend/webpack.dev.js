@@ -23,7 +23,12 @@ module.exports = merge(common, {
       host: '0.0.0.0',
       port: 3000,
       hot: true,
-      open: true,
+      allowedHosts: 'all',
+      open: false,
+      static: {
+        directory: path.join(__dirname, 'dist'),
+        publicPath: '/',
+      },
       proxy: [
         {
           context: ["/api"],
@@ -45,5 +50,13 @@ module.exports = merge(common, {
           },
         },
       ],
+      client: {
+        webSocketURL: {
+          protocol: 'wss',
+          hostname: 'certmanager.duckdns.org',
+          port: 8080,           // the external port you serve on
+          pathname: '/sockjs-node/', // or whatever path your HMR uses
+        }
+      },
     },
 });

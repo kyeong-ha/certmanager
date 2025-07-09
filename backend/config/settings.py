@@ -70,15 +70,18 @@ WSGI_APPLICATION = 'config.wsgi.application'
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-    "http://certmanager-frontend:3000",
-    "https://your-domain.com",
+    "http://frontend:3000",
+    "https://certmanager.duckdns.org:8080",
+    "http://certmanager.duckdns.org",
 ]
 
 # CSRF 설정(Cross-Site Request Forgery)
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-    "http://certmanager-frontend:3000"
+    "http://frontend:3000",
+    "https://certmanager.duckdns.org:8080",
+    "http://certmanager.duckdns.org",
 ]
 CORS_ALLOW_CREDENTIALS = True
 

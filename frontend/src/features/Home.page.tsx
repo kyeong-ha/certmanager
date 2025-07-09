@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Certificate } from '@/features/certificate/types/Certificate.type';
+import { CertificateSummary } from '@/features/certificate/types/Certificate.type';
 import { getCertificateStats, getRecentCertificates } from '@/services/dashboard.api';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
@@ -16,7 +16,7 @@ export default function HomePage() {
   const [centerData, setCenterData] = useState<{ center_name: string; count: number }[]>([]);
   const [centerSessionData, setCenterSessionData] = useState<{ center_name: string; center_session: number; count: number }[]>([]);
   const [courseData, setCourseData] = useState<{ course_name: string; count: number }[]>([]);
-  const [recentCertificates, setRecentCertificates] = useState<Certificate[]>([]);
+  const [recentCertificates, setRecentCertificates] = useState<CertificateSummary[]>([]);
   const [expandedSections, setExpandedSections] = useState<{ [key: string]: boolean }>({ monthly: false, center: false, course: false, centerSession: false, });
   const [sortState, setSortState] = useState<SortState>({ key: '', order: 'asc' });
 
@@ -226,10 +226,10 @@ export default function HomePage() {
             {recentCertificates.map(cert => (
               <tr key={cert.uuid}>
                 <td className="px-2 py-1 border">{cert.issue_number}</td>
-                <td className="px-2 py-1 border">{cert.user?.user_name ?? '이름없음'}</td>
+                <td className="px-2 py-1 border">{cert.user_name ?? '이름없음'}</td>
                 <td className="px-2 py-1 border">{cert.course_name}</td>
                 <td className="px-2 py-1 border">
-                  {cert.education_center?.center_name}_{cert.education_center?.center_session}
+                  {cert.center_name}_{cert.center_session ? `${cert.center_session}기` : ''}
                 </td>
                 <td className="px-2 py-1 border">{format(new Date(cert.issue_date), 'yyyy-MM-dd')}</td>
               </tr>

@@ -5,7 +5,12 @@
 /backend/**/.mypy_cache
 /backend/**/*.py[cod]
 
-certbot
+secrets
+certbot/conf
+certbot/lib
+certbot/www
+certbot/etc
+
 frontend/package-lock.json
 frontend/node_modules
 

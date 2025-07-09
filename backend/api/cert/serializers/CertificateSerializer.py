@@ -12,6 +12,7 @@ from api.center.serializers.EducationCenterSessionSerializer import EducationCen
 
 # 1. 자격증 요약형 목록/검색용
 class CertificateSearchSerializer(serializers.ModelSerializer):
+    user_uuid = serializers.CharField(source='user.uuid', read_only=True)
     user_name = serializers.CharField(source='user.user_name', read_only=True)
     birth_date = serializers.DateField(source='user.birth_date', read_only=True)
     phone_number = serializers.CharField(source='user.phone_number', read_only=True)
