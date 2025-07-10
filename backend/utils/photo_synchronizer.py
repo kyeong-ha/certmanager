@@ -15,8 +15,8 @@ def update_single_certificate(cert: Certificate, prefix: str | None = None) -> b
     media_root = Path(settings.MEDIA_ROOT)
     cert.photo = None
 
-    print(f"[PhotoSync] {cert.issue_number} 사진 동기화 호출 완료")  # DEBUG
-    print(f"[PhotoSync] Prefix: {prefix}")  # DEBUG
+    # print(f"[PhotoSync] {cert.issue_number} 사진 동기화 호출 완료")  # DEBUG
+    # print(f"[PhotoSync] Prefix: {prefix}")  # DEBUG
     
     try:
         # ── 온라인 사진 처리 ──
@@ -25,14 +25,14 @@ def update_single_certificate(cert: Certificate, prefix: str | None = None) -> b
             user_id = cert.user.user_id
             for ext in (".jpg", ".jpeg", ".png"):
                 candidate = online_dir / f"{user_id}{ext}"
-                logger.debug(f"[PhotoSync] 온라인 경로 체크: {candidate}")
+                # logger.debug(f"[PhotoSync] 온라인 경로 체크: {candidate}")
                 
                 if candidate.exists():
                     cert.photo.name = str(candidate.relative_to(media_root))
                     cert.save(update_fields=["photo"])
-                    logger.info(f"[PhotoSync] 온라인 매핑 성공: {cert.issue_number} → {candidate}")
+                    # logger.info(f"[PhotoSync] 온라인 매핑 성공: {cert.issue_number} → {candidate}")
                     return True
-            logger.warning(f"[PhotoSync] 온라인 사진 미발견: {cert.issue_number} in {online_dir}")
+            # logger.warning(f"[PhotoSync] 온라인 사진 미발견: {cert.issue_number} in {online_dir}")
             return False
 
         # ── 오프라인 사진 처리 ──
@@ -44,7 +44,7 @@ def update_single_certificate(cert: Certificate, prefix: str | None = None) -> b
             prefix = f"{cert.issue_type}_{center.center_name}_{session_no}기__{date.strftime('%y%m%d')}"
             
         session_dir = f"{prefix}"
-        logger.debug(f"[PhotoSync] 오프라인 경로 체크: {session_dir}")
+        # logger.debug(f"[PhotoSync] 오프라인 경로 체크: {session_dir}")
         
         subdir = (
             media_root
@@ -53,24 +53,24 @@ def update_single_certificate(cert: Certificate, prefix: str | None = None) -> b
             / session_dir
             / "images"
         )
-        logger.debug(f"[PhotoSync] 오프라인 서브디렉터리: {subdir}")
+        # logger.debug(f"[PhotoSync] 오프라인 서브디렉터리: {subdir}")
         if not subdir.exists():
-            logger.warning(f"[PhotoSync] 오프라인 디렉터리 미발견: {subdir}")
+            # logger.warning(f"[PhotoSync] 오프라인 디렉터리 미발견: {subdir}")
             return False
-        print(f"[PhotoSync] 오프라인 디렉터리 확인: {subdir}")
+        # print(f"[PhotoSync] 오프라인 디렉터리 확인: {subdir}")
         
         
         fname = f"{cert.user.user_name}_{cert.user.birth_date.strftime('%y%m%d')}"
         for ext in (".jpg", ".jpeg", ".png"):
             candidate = subdir / f"{fname}{ext}"
-            logger.debug(f"[PhotoSync] 경로 체크: {candidate}")
+            # logger.debug(f"[PhotoSync] 경로 체크: {candidate}")
             if candidate.exists():
                 cert.photo.name = str(candidate.relative_to(media_root))
                 cert.save(update_fields=["photo"])
-                logger.info(f"[PhotoSync] 오프라인 매핑 성공: {cert.issue_number} → {candidate}")
+                # logger.info(f"[PhotoSync] 오프라인 매핑 성공: {cert.issue_number} → {candidate}")
                 return True
 
-        logger.warning(f"[PhotoSync] 오프라인 사진 미발견: {cert.issue_number} in {subdir}")
+        # logger.warning(f"[PhotoSync] 오프라인 사진 미발견: {cert.issue_number} in {subdir}")
         return False
 
     except Exception as e:

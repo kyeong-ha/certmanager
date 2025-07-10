@@ -4,7 +4,7 @@ from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 import os, time, sys
 
-XLSX_FILENAME = "자격증_발급대장_test.xlsx"
+XLSX_FILENAME = "자격증_발급대장.xlsx"
 
 class ExcelChangeHandler(FileSystemEventHandler):
     def __init__(self, stdout, stderr):
@@ -57,7 +57,7 @@ class ExcelChangeHandler(FileSystemEventHandler):
             self.stderr.flush()
 
 class Command(BaseCommand):
-    help = "자격증_발급대장_test.xlsx 실시간 감시 및 자동 import 실행"
+    help = "자격증_발급대장.xlsx 실시간 감시 및 자동 import 실행"
 
     def handle(self, *args, **options):
         # 시작 로그

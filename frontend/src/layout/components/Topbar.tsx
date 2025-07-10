@@ -37,10 +37,10 @@ export default function Topbar() {
         <SearchDropdown />
 
         {/* 2.2. 신규발급 버튼 */}
-        <button onClick={() => navigate('/cert/print')} className="flex items-center gap-1 px-3 py-1.5 text-sm rounded bg-blue-600 text-white hover:bg-blue-700">
+        {/* <button onClick={() => navigate('/cert/print')} className="flex items-center gap-1 px-3 py-1.5 text-sm rounded bg-blue-600 text-white hover:bg-blue-700">
           <PlusCircle size={16} />
           신규발급
-        </button>
+        </button> */}
         
       </div>
     </header>

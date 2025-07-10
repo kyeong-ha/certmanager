@@ -22,7 +22,7 @@ class Command(BaseCommand):
     help = '여러 시트의 자격증_발급대장.xlsx로부터 자격증, 사용자, 교육원 데이터를 임포트합니다.'
     
     # 실제 마운트된 테스트 파일 경로
-    file_path = '/web/backend/media/자격증_발급대장_test.xlsx'
+    file_path = '/web/backend/media/자격증_발급대장.xlsx'
     # issue_number 형식: yyyy-X-numbering (X가 issue_type)
     ISSUE_NO_REGEX = re.compile(r'^(\d{4})-([A-Z]+)-(\d+)$')
 

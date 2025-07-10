@@ -110,10 +110,14 @@ const CenterSessionDetailModal: React.FC<CenterSessionDetailModal> = ({ isOpen, 
                     <TableCell>{u.user_name}</TableCell>
                     <TableCell>{u.phone_number}</TableCell>
                     <TableCell>
-                      { logs
-                        .filter((l) => l.certificate_uuid.user.uuid === u.uuid)
+                      {/* { logs
+                        .filter((l) => l.certificate_uuid.user_uuid === u.uuid)
                         .map((l) => l.certificate_uuid.issue_number)
-                        .join(', ') || '-'}
+                        .join(', ') || '-'} */}
+                      {allLogs
+                       .filter((l) => l.certificate_uuid.user_uuid === u.uuid)
+                       .map((l) => l.certificate_uuid.issue_number)
+                       .join(', ') || '-'}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -124,7 +128,8 @@ const CenterSessionDetailModal: React.FC<CenterSessionDetailModal> = ({ isOpen, 
           {/* ── 로그 목록 ── */}
           <TabsContent value="logs">
             <ul className="space-y-1 text-sm max-h-60 overflow-y-auto pr-2">
-              {logs.map((log) => (
+              {/* {logs.map((log) => ( */}
+              {allLogs.map((log) => (
                 <li key={log.uuid}>
                   • [{log.reissue_date}] {log.certificate_uuid.issue_number} –{' '}
                   {log.delivery_type}{' '}

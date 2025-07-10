@@ -26,7 +26,7 @@ class CertificateSearchSerializer(serializers.ModelSerializer):
         model = Certificate
         fields = [
             'uuid', 'issue_number', 'issue_date', 'course_name',
-            'user_name', 'birth_date', 'phone_number',
+            'user_uuid', 'user_name', 'birth_date', 'phone_number',
             'center_name', 'center_session',
         ]
 

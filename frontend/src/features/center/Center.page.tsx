@@ -68,9 +68,9 @@ export default function CenterPage() {
         {/* 🔍 검색 헤더 + 추가 버튼 */}
         <div className="flex justify-between items-center mb-4">
           <h1 className="text-2xl font-bold">🔍 교육기관 검색</h1>
-          <div className="flex gap-2">
+          {/* <div className="flex gap-2">
             <Button onClick={() => setIsCreateModalOpen(true)} variant="default">+ 새 교육기관 추가</Button>
-          </div>
+          </div> */}
         </div>
 
         {/* 2.1. 검색창 */}

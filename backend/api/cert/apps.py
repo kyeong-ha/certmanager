@@ -21,7 +21,7 @@ class CertConfig(AppConfig):
         t.start()
 
     def _start_watcher(self):
-        XLSX_FILENAME = "자격증_발급대장_test.xlsx"
+        XLSX_FILENAME = "자격증_발급대장.xlsx"
         xlsx_path = os.path.join(settings.MEDIA_ROOT, XLSX_FILENAME)
 
         class Handler(FileSystemEventHandler):

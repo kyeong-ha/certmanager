@@ -240,25 +240,29 @@ const handleSave = async () => {
                   <p className="text-sm text-muted-foreground mt-2">재발급 이력이 없습니다.</p>
                 ) : (
                   // 데이터가 있는 경우
-                  <table className="min-w-full text-sm border mt-2">
-                    <thead className="bg-gray-100">
-                      <tr>
-                        {['일자', '배송', '비용', '등록일'].map((h) => (
-                          <th key={h} className="px-2 py-1 border">{h}</th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {logs.map((l) => (
-                        <tr key={l.uuid}>
-                          <td className="px-2 py-1 border">{l.reissue_date}</td>
-                          <td className="px-2 py-1 border">{l.delivery_type}</td>
-                          <td className="px-2 py-1 border">{l.reissue_cost ?? '-'}</td>
-                          <td className="px-2 py-1 border">{l.created_at.slice(0, 10)}</td>
+                  Array.isArray(logs) && logs.length > 0 ? (
+                    <table className="min-w-full text-sm border mt-2">
+                      <thead className="bg-gray-100">
+                        <tr>
+                          {['일자', '배송', '비용', '등록일'].map((h) => (
+                            <th key={h} className="px-2 py-1 border">{h}</th>
+                          ))}
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody>
+                        {logs.map((l) => (
+                          <tr key={l.uuid}>
+                            <td className="px-2 py-1 border">{l.reissue_date}</td>
+                            <td className="px-2 py-1 border">{l.delivery_type}</td>
+                            <td className="px-2 py-1 border">{l.reissue_cost ?? '-'}</td>
+                            <td className="px-2 py-1 border">{l.created_at.slice(0, 10)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                    ) : (
+                      <p className="text-sm text-muted-foreground mt-2">재발급 이력이 없습니다.</p>
+                    )
                 )}
               </div>
             </div>
